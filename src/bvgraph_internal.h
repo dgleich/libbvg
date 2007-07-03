@@ -1,0 +1,53 @@
+#ifndef LIBBVG_BVGRAPH_INTERNAL_H
+#define LIBBVG_BVGRAPH_INTERNAL_H
+
+/*
+ * David Gleich
+ * Copyright, Stanford University, 2007
+ * 17 May 2007
+ */
+
+/**
+ * @file bvgraph_internal.h
+ * Prototype a series of internal routines for the bvgraph library
+ */
+
+#include "bvgraph.h"
+
+#include <stdlib.h>
+#include <assert.h>
+#include <string.h>
+
+typedef unsigned int uint;
+
+extern char return_error_string[];
+
+extern int ftestnewline(FILE *f);
+extern int atoin(const char* str, uint len);
+extern char* strappend(const char* str, uint len, const char* str2, uint len2);
+const char* strchrn(const char* str, uint len, int c);
+extern void fnextline(FILE *f);
+extern void fskipchars(FILE *f, const char *schars, uint scharslen);
+extern int fsize(const char *filename, unsigned long long *s);
+
+extern int parse_compression_flags(bvgraph* g, const char* flagstr, uint len);
+extern char* parse_property_key(FILE *f, uint maxproplen);
+extern char* parse_property_value(FILE *f, uint maxvallen);
+extern int parse_properties(bvgraph* g);
+
+extern int int_vector_create(bvgraph_int_vector* v, uint n);
+extern int int_vector_ensure_size(bvgraph_int_vector *v, uint n);
+extern int int_vector_free(bvgraph_int_vector* v);
+
+// disable all of the unsafe operation warnings
+#ifdef _MSC_VER
+#define inline __inline
+#if _MSC_VER >= 1400
+#pragma warning ( push )
+#pragma warning ( disable: 4996 )
+#endif /* _MSC_VER >= 1400 */
+#endif /* _MSC_VER */
+
+
+#endif /* #ifndef LIBBVG_BVGRAPH_INTERNAL_H */
+
