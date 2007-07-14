@@ -214,8 +214,7 @@ int mult(bvgraph *g, double *x, double *y, double alpha)
     }
 
     int *links; unsigned int i, d;
-    double id;
-    double *xi = x;
+    double id=0.0;
 
     for (; 
          bvgraph_iterator_valid(&git); 
@@ -282,8 +281,7 @@ int dangling_mult(bvgraph *g, double *x, double *y, size_t n)
     }
 
     int *links; unsigned int i, d;
-    double id;
-    double *xi = x;
+    double id=0.0;
 
     for (; 
          bvgraph_iterator_valid(&git); 
@@ -409,7 +407,7 @@ int updated_richardson_iter(bvgraph *g, double *x, double *y, double alpha, size
     }
 
     int *links; unsigned int i, d;
-    double id; 
+    double id=0.0;
 
     for (; 
          bvgraph_iterator_valid(&git); 
@@ -439,7 +437,6 @@ void updated_richardson_alg(bvgraph *g, double alpha, double tol, int maxit, std
     std::vector<double> vec2(n);
     double *x = &prvec[0];
     double *y = &vec2[0];
-
     
     double nx=1.0,dtx=0.0; // norm(x,1) and d'*x
     if (mult(g, x, y, alpha)) { return; }
@@ -451,3 +448,4 @@ void updated_richardson_alg(bvgraph *g, double alpha, double tol, int maxit, std
         cout << iter << " " << delta << endl;
     }
 }
+

@@ -9,6 +9,12 @@
  * The implementations behind the bitfile wrapper around 
  * a file pointer and an in-memory array.
  */
+ 
+ /** History
+ *
+ * 2007-07-02
+ * Commented out the refill codes to prevent gcc warning
+ */
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -198,7 +204,7 @@ static int bitfile_read(bitfile* bf)
  * 
  * @return {@link #fill}.
  */
-static int refill16(bitfile* bf) 
+/*static int refill16(bitfile* bf) 
 {
     assert( bf->fill >= 8 );
     assert( bf->fill < 16 );
@@ -228,7 +234,7 @@ static int refill(bitfile* bf)
     
     bf->current = (bf->current << 8) | bitfile_read(bf);
     return (int)(bf->fill += 8);
-}
+}*/
 
 /**
  * Read bits from the buffer, possibly refilling it.
@@ -240,7 +246,7 @@ static int read_from_current(bitfile *bf, const size_t len)
     if (bf->fill == 0) {  bf->current = bitfile_read(bf); bf->fill = 8; }
     bf->total_bits_read += len;
     rval = (unsigned)bf->current;
-    return (rval >> ( bf->fill -= len) & (1 << len) - 1);
+    return (rval >> ( bf->fill -= len) & ((1 << len) - 1));
 }
             
 /**

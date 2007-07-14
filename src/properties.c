@@ -19,7 +19,14 @@
  * 
  * 2007-06-10
  * Added stddef.h header for linux
+ * 
+ * 2007-07-02
+ * Fixed error on strnlen for gcc
  */
+ 
+#ifdef __GNUC__
+#define _GNU_SOURCE
+#endif /* __GNUC__ */
 
 #include "bvgraph_internal.h"
 #include <stddef.h>

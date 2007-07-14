@@ -17,6 +17,9 @@
  *   iteration speed by almost 3x for cnr-2000.  Added corresponding
  *   allocation and deallocation to bvgraph_nonzero_iterator and 
  *   bvgraph_iterator_free.
+ * 
+ * 2007-07-02
+ * Fixed uninitialized error for gcc
  */
 
 #include "bvgraph_internal.h"
@@ -221,10 +224,9 @@ int merge_int_arrays(const int* a1, size_t a1len, const int* a2, size_t a2len,
  */
 int bvgraph_iterator_next(bvgraph_iterator* iter)
 {
-    // 
     const int x = ++(iter->curr);
-    int ref, ref_index;
-    int i, extra_count, block_count = 0;
+    int ref = 0, ref_index = 0;
+    int i = 0, extra_count = 0, block_count = 0;
 
     // TODO: make these static arrays for the iterator
     // bvgraph_int_vector block, left, len, buf1, buf2;

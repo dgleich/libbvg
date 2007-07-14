@@ -9,14 +9,15 @@
  * Include a set of utility routines to make a few operations a little easier.
  */
 
-
-#include "bvgraph_internal.h"
-
 #ifdef __GNUC__
 #define _FILE_OFFSET_BITS 64
 #define _LARGEFILE_SOURCE
+#define _LARGEFILE64_SOURCE
+#endif /* __GNUC__ */
+
+#include "bvgraph_internal.h"
+
 #include <unistd.h>
-#endif
 
 #include <sys/types.h> 
 #include <sys/stat.h> 
@@ -161,7 +162,7 @@ int fsize(const char *filename, unsigned long long *s)
     *s = file_stat.st_size;
 #endif
 #ifdef __GNUC__
-    struct stat file_stat;
+    struct stat64 file_stat;
     int err = stat64(filename, &file_stat );
     if (err) { return -1; }
     *s = file_stat.st_size;
