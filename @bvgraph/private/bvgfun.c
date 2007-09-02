@@ -146,6 +146,26 @@ void tmult_bvgraph(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
     }
 }
 
+void diag_bvgraph(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
+{
+    bvgraph g;
+    const mxArray* varg;
+    int rval;
+    
+    if (nrhs != 4) {
+        mexErrMsgIdAndTxt("bvgfun:invalidParameter",
+            "incorrect number of parameters for transpose mult operation");
+    }
+    
+    get_bvgraph_args(prhs[1], prhs[2], prhs[3], &g);
+    
+    plhs[0] = mxCreateDoubleMatrix(g.n, 1, mxREAL);
+    if ((rval = bvgraph_diag(&g, mxGetPr(plhs[0]))) != 0) {
+        mexErrMsgIdAndTxt("bvgfun:error",
+            "libbvg reported error: %s", bvgraph_error_string(rval));
+    }
+}
+
 void load_bvgraph(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
 {
     const mxArray *fnarg;
@@ -247,11 +267,11 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
     } else if (strncmp(op, "tmult", oplen) == 0) {
         tmult_bvgraph(nlhs, plhs, nrhs, prhs);
     } else if (strncmp(op, "diag", oplen) == 0) {
-        //diag_bvgraph(nlhs, plhs, nrhs, prhs);
-    } else if (strncmp(op, "sum1", oplen) == 0) {
+        diag_bvgraph(nlhs, plhs, nrhs, prhs);
+    /*} else if (strncmp(op, "sum1", oplen) == 0) {
         //sum1_bvgraph(nlhs, plhs, nrhs, prhs);
     } else if (strncmp(op, "sum2", oplen) == 0) {
-        //sum2_bvgraph(nlhs, plhs, nrhs, prhs);
+        //sum2_bvgraph(nlhs, plhs, nrhs, prhs);*/
     } else {
         mexErrMsgIdAndTxt("bvgfun:invalidParameter", "unknown operation");
     }

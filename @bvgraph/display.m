@@ -1,8 +1,8 @@
 function display(graph)
-% MWEBGRAPH/DISPLAY Display the mwebgraph structure.
+% BVGRAPH/DISPLAY Display the mwebgraph structure.
 %
 % Example:
-%    G = mwebgraph('cnr-2000')
+%    G = bvgraph('cnr-2000')
 
 %
 % David Gleich

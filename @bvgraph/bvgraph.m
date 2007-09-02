@@ -1,5 +1,5 @@
 function bvg = bvgraph(filename,optionsu)
-%BVGRAPH/BVGRAPH Construct a Matlab object around a Boldi-Vigna graph file.
+% BVGRAPH/BVGRAPH Construct a Matlab object around a Boldi-Vigna graph file.
 %
 % The bvgraph class represents a Boldi-Vigna compressed graph as a native
 % Matlab object.  The class wraps a libbvg C object with a series of
@@ -28,10 +28,11 @@ function bvg = bvgraph(filename,optionsu)
 % 'filename.properties' must exist.
 %
 %Example:
-%  G = bvgraph('cnr-2000') % compute a PageRank vector using bicgstab
+%  G = bvgraph('data/wb-cs.stanford') % compute a PageRank vector using bicgstab
 %  n = size(G,1); alpha = 0.85; v = ones(n,1)./n;
 %  id = G*ones(n,1); id(id ~= 0) = 1./id(id ~= 0);
 %  x = bicgstab(@(x) x - alpha*(G'*(id.*x)), v, 1e-8, 500); x = x./norm(x,1);
+%  y = diag(G);
 
 options = struct('load_type', 'online','trans',0);
 if exist('optionsu','var')

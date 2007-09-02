@@ -1,11 +1,15 @@
 function [x,flag,hist] = bvpagerank(G,alpha,v,tol,maxiter)
-%BVPAGERANK A very simple implementation of PageRank for a bvgraph object.
+% BVPAGERANK A very simple implementation of PageRank for a bvgraph object.
 %
-%x = bvpagerank(G,alpha,v,tol) computes a vector x such that 
-%  ||alpha*(P+d*v')*x + (1-alpha)*(e*v')*x - x||_1 < tol
-%where alpha = 0.85,v = [] or a norm-1, positive vector, and tol > 0.
+% x = bvpagerank(G,alpha,v,tol) computes a vector x such that 
+%   ||alpha*(P+d*v')*x + (1-alpha)*(e*v')*x - x||_1 < tol
+% where alpha = 0.85,v = [] or a norm-1, positive vector, and tol > 0.
 %
-%The algorithm used is the Power method for the PageRank algorithm.
+% The algorithm used is the Power method for the PageRank algorithm.
+%
+% Example:
+%   G = bvgraph('samples/wb-cs.stanford');
+%   x = pagerank(G);
 
 if ~exist('alpha','var')
     alpha = 0.85;

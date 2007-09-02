@@ -11,4 +11,4 @@ function d = diag(g)
 % Copyright, Stanford University, 2007
 %
 
-d = bvgfun('diag',i1.smem,i1.gmem,i1.offsetmem,i2);
+d = bvgfun('diag',g.smem,g.gmem,g.offsetmem);

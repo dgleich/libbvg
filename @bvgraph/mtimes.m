@@ -24,14 +24,14 @@ if transp == 0
     if (isa(i1,'bvgraph'))
         y = bvgfun('mult',i1.smem,i1.gmem,i1.offsetmem,i2);
     elseif (isa(i2,'bvgraph'))
-        y = bvgfun('tmult',i1.smem,i1.gmem,i1.offsetmem,i1');
+        y = bvgfun('tmult',i2.smem,i2.gmem,i2.offsetmem,i1');
         y = y';
     end
 else
     if (isa(i1,'bvgraph'))
         y = bvgfun('tmult',i1.smem,i1.gmem,i1.offsetmem,i2);
     elseif (isa(i2,'bvgraph'))
-        y = bvgfun('mult',i1.smem,i1.gmem,i1.offsetmem,i1');
+        y = bvgfun('mult',i2.smem,i2.gmem,i2.offsetmem,i1');
         y = y';
     end
 end
