@@ -22,6 +22,9 @@
  * 
  * 2007-07-02
  * Fixed error on strnlen for gcc
+ * 
+ * 2007-09-1
+ * Added strnlen for MSVC before 2005
  */
  
 #ifdef __GNUC__
@@ -30,6 +33,15 @@
 
 #include "bvgraph_internal.h"
 #include <stddef.h>
+
+#if defined(_MSC_VER) && (_MSC_VER < 1400)
+size_t strnlen(const char *s, size_t l)
+{
+    size_t r=0;
+    while (*s++ != '\0' && l-- > 0) { r++; }
+    return r;d
+}
+#endif /* _MSC_VER < 1400 */
 
 /**
  * This string is used as a return value from a function that
