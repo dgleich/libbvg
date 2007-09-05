@@ -4,7 +4,7 @@ function y = mtimes(i1,i2)
 % This function implements the G*x, x'*G syntax 
 %
 % Example:
-%   G = bvgraph('cnr-2000');
+%   G = bvgraph('data/wb-cs.stanford');
 %   x = rand(size(G,1),1);
 %   G*x
 

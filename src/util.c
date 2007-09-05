@@ -17,7 +17,9 @@
 
 #include "bvgraph_internal.h"
 
+#ifdef __GNUC__
 #include <unistd.h>
+#endif /* __GNUC__ */
 
 #include <sys/types.h> 
 #include <sys/stat.h> 

@@ -39,7 +39,7 @@ size_t strnlen(const char *s, size_t l)
 {
     size_t r=0;
     while (*s++ != '\0' && l-- > 0) { r++; }
-    return r;d
+    return r;
 }
 #endif /* _MSC_VER < 1400 */
 

@@ -2,7 +2,7 @@ function d = diag(g)
 % BVGRAPH/DIAG Return the diagonal of a bvgraph matrix.
 %
 % Example:
-%   G = bvgraph('cnr-2000');
+%   G = bvgraph('data/wb-cs.stanford');
 %   d = diag(G);
 
 %

@@ -1,0 +1,574 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN">
+<html xmlns:mwsh="http://www.mathworks.com/namespace/mcode/v1/syntaxhighlight.dtd">
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   
+      <!--
+This HTML is auto-generated from an M-file.
+To make changes, update the M-file and republish this document.
+      -->
+      <title>A simple example using the bvgraph class</title>
+      <meta name="generator" content="MATLAB 7.4">
+      <meta name="date" content="2007-09-04">
+      <meta name="m-file" content="bvgraph_example"><style>
+
+body {
+  background-color: white;
+  margin:10px;
+}
+
+h1 {
+  color: #990000; 
+  font-size: x-large;
+}
+
+h2 {
+  color: #990000;
+  font-size: medium;
+}
+
+/* Make the text shrink to fit narrow windows, but not stretch too far in 
+wide windows. */ 
+p,h1,h2,div.content div {
+  max-width: 600px;
+  /* Hack for IE6 */
+  width: auto !important; width: 600px;
+}
+
+pre.codeinput {
+  background: #EEEEEE;
+  padding: 10px;
+}
+@media print {
+  pre.codeinput {word-wrap:break-word; width:100%;}
+} 
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+span.untermstring {color: #B20000}
+span.syscmd {color: #B28C00}
+
+pre.codeoutput {
+  color: #666666;
+  padding: 10px;
+}
+
+pre.error {
+  color: red;
+}
+
+p.footer {
+  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+
+  </style></head>
+   <body>
+      <div class="content">
+         <h1>A simple example using the bvgraph class</h1>
+         <introduction>
+            <p>This sample will demonstrate the bvgraph class.  It will show a few features and limitations of the class for working with
+               these large graph files in Matlab.
+            </p>
+         </introduction>
+         <h2>Contents</h2>
+         <div>
+            <ul>
+               <li><a href="#1">bvgraph background</a></li>
+               <li><a href="#2">Load a graph</a></li>
+               <li><a href="#4">Loading offline or online</a></li>
+               <li><a href="#6">Some simple operations</a></li>
+               <li><a href="#8">Converting to a native Matlab matrix</a></li>
+               <li><a href="#9">Transposes</a></li>
+               <li><a href="#11">PageRank opertions</a></li>
+               <li><a href="#16">What isn't implemented (yet)</a></li>
+            </ul>
+         </div>
+         <h2>bvgraph background<a name="1"></a></h2>
+         <p>The BV graph compression scheme and the *.graph/BVGraph file type are data structures and techniques created to work with
+            extremely large web graph matrices.  Many researchers observed that these matrices have a self-similar structure and exhibit
+            considerable index locality.  Both of these features are exploited by the BV graph compression scheme to store these large
+            webgraph matrices at only a few bits per edge.
+         </p>
+         <p>Paolo Boldi and Sebastiano Vigna wrote the initial BVGraph implementation in Java.  While Matlab has nice features to work
+            with Java, these features do not scale to working with extremely large vectors. Consequently, this Matlab package re-implements
+            the procedures necessary to <i>read</i> a BVGraph file in C.  Further, it provides routines to operate on these files and makes them look like a Matlab matrix. 
+            The goal is to be as efficient as possible and support computing the PageRank vector for extremely large graphs in Matlab.
+         </p>
+         <h2>Load a graph<a name="2"></a></h2>
+         <p>Loading a graph with the bvgraph class is simple.</p><pre class="codeinput">G = bvgraph(<span class="string">'../data/wb-cs.stanford'</span>)
+</pre><pre class="codeoutput">G = 
+   bvgraph: 9914-by-9914
+</pre><p>There is a slight caveat about loading.  The file with most of the data for the bvgraph file is ../data/wb-cs.stanford.graph.
+             However, you must load the file without the .graph extension.  For example, you'll get a slightly helpful error if you accidentally
+            forget this.  (This may be changed in a future version.)
+         </p><pre class="codeinput">G2 = bvgraph(<span class="string">'../data/wb-cs.stanford.graph'</span>);
+</pre><pre class="codeoutput">Error using ==&gt; bvgraph.bvgraph at 67
+The file ../data/wb-cs.stanford.graph.graph does not seem to exist!</pre><h2>Loading offline or online<a name="4"></a></h2>
+         <p>There are two ways of loading a bvgraph file: streaming mode (offline) or inmemory (online).  The difference is that when
+            a file is loaded in streaming mode, the class does not actually load the .graph file into memory, but iterates over the file
+            on the disk for every operation.  This is slower, but hardly uses any memory on the computer.  For example,
+         </p><pre class="codeinput">G = bvgraph(<span class="string">'../data/wb-cs.stanford'</span>);
+Goff = bvgraph(<span class="string">'../data/wb-cs.stanford'</span>,struct(<span class="string">'load_type'</span>,<span class="string">'offline'</span>));
+
+whos
+</pre><pre class="codeoutput">  Name         Size              Bytes  Class      Attributes
+
+  G         9914x9914            27263  bvgraph              
+  Goff      9914x9914             2296  bvgraph              
+
+</pre><p>Here we find that Goff takes only 3k whereas G takes 28k of memory.  In this case, it seems silly to avoid loading 25k of
+            memory to get the offline operations.  However, for larger graphs, the difference is much more pronounced.  Goff always takes
+            about 3k, where G might takes hundreds of megabytes.
+         </p>
+         <h2>Some simple operations<a name="6"></a></h2>
+         <p>The bvgraph class in Matlab supports the following simple operations</p><pre class="codeinput">size_G = size(G)
+nzcount = nnz(G)
+d = diag(G);
+s1 = sum(G);
+s2 = sum(G,2);
+</pre><pre class="codeoutput">
+size_G =
+
+        9914        9914
+
+
+nzcount =
+
+       36854
+
+</pre><p>Let's use an operation to get the size of the matrix.</p><pre class="codeinput">n = size(G,1);
+</pre><h2>Converting to a native Matlab matrix<a name="8"></a></h2>
+         <p>If the bvgraph file is small enough to fit into Matlab's memory as a Matlab sparse matrix, the sparse call will convert it.</p><pre class="codeinput">A = sparse(G);
+</pre><h2>Transposes<a name="9"></a></h2>
+         <p>The bvgraph class implements an implicit transform.  That is, taking the transpose of a matrix does <i>nothing</i> to the underlying data and only changes the interpretation of the data in the Matlab interface.
+         </p><pre class="codeinput">Gt = G';
+isequal(sum(Gt,1)',sum(G,2))
+</pre><pre class="codeoutput">
+ans =
+
+     1
+
+</pre><p>Because only the interpretation of the data is transposed, the istrans function reveals this state</p><pre class="codeinput">istrans(G)
+istrans(G')
+</pre><pre class="codeoutput">
+ans =
+
+     0
+
+
+ans =
+
+     1
+
+</pre><h2>PageRank opertions<a name="11"></a></h2>
+         <p>The main goal with implementing the BVGraph format inside of Matlab is to support computing PageRank on really large graphs.
+             The key computation in PageRank is the sub-stochastic matrix vector multiplication
+         </p>
+         <p><img vspace="5" hspace="5" src="bvgraph_example_eq3763.png"> </p>
+         <p>where x is the current iterate, D is the diagonal matrix of degrees, and</p>
+         <p><img vspace="5" hspace="5" src="bvgraph_example_eq776.png"> </p>
+         <p>is the substochastic matrix corresponding to a random walk on the graph for adjacency matrix A.  The bvgraph class supports
+            a specialized method to compute this product without storing a vector for the diagonal of D. However, the substochastic_mult
+            function is a little quirky.
+         </p><pre class="codeinput"><span class="comment">% create the substochastic matrix corresponding to a random walk on A</span>
+[i j v] = find(A);
+d = sum(A,2);
+P = sparse(i, j, v(i)./d(i), size(A,1), size(A,2));
+<span class="comment">% now P = D^+ A;</span>
+x = ones(n,1);
+y_G = substochastic_mult(G,x);
+y_P = P*x;
+norm(y_G-y_P,inf)
+</pre><pre class="codeoutput">
+ans =
+
+     0
+
+</pre><p>When applied to G', the substochastic_mult function computes the transpose of the sub-stochastic product.</p><pre class="codeinput">y_Gt = substochastic_mult(G',x);
+y_Pt = P'*x;
+norm(y_Gt-y_Pt,inf)
+</pre><pre class="codeoutput">
+ans =
+
+     0
+
+</pre><p>Since one goal is PageRank, the bvgraph class has a specific PageRank method.</p><pre class="codeinput">help <span class="string">bvpagerank</span>
+
+x = bvpagerank(G);
+</pre><pre class="codeoutput"> --- help for bvgraph/bvpagerank.m ---
+
+  BVGRAPH/BVPAGERANK A simple implementation of PageRank for a bvgraph object.
+ 
+  x = bvpagerank(G) computes an approximate PageRank vector x such that 
+    ||alpha*(P+d*v')*x + (1-alpha)*(e*v')*x - x||_1 &lt; tol
+  where alpha = 0.85, v = 1/n for all vertices, tol = 1e-8, and maxiter =
+  1000.
+ 
+  x = bvpagerank(G,alpha,v,tol,maxiter) specifies all of the options of the
+  PageRank system.  The type of PageRank system is a strongly personalized
+  PageRank system.  To use the default value of an option, specify [].  
+ 
+  By default, the pagerank function computes the PageRank operation for the
+  matrix as stored _on disk_.  For example, bvpagerank(G) and bvpagerank(G')
+  will return the same vector.  We use this behavior because computing
+  bvpagerank(G') takes additional memory with respect to pagerank(G).  Since
+  the goal of the bvgraph library is to support large-scale PageRank, we
+  chose the memory-minimizing interpretation.  This implementation of
+  PageRank will compute the vector for G', however, you must set a final
+  parameter to 0 and call x = pagerank(G',[],[],[],[],0); 
+ 
+  The algorithm used is the Power method for the PageRank algorithm.
+ 
+  Example:
+    G = bvgraph('data/wb-cs.stanford');
+    x = bvpagerank(G);
+    x = bvpagerank(G,0.9,[],1e-5,10);
+    y = bvpagerank(G',[],[],[],[],0); % turn off native optimizations
+
+iter    1            0.588174  0.01
+iter    2            0.286471  0.01
+iter    3            0.153072  0.01
+iter    4           0.0889456  0.01
+iter    5           0.0542172  0.01
+iter    6           0.0363644  0.01
+iter    7           0.0252051  0.01
+iter    8           0.0184926  0.01
+iter    9           0.0139464  0.01
+iter   10           0.0107167  0.01
+iter   11          0.00839594  0.01
+iter   12          0.00659468  0.01
+iter   13          0.00522328  0.01
+iter   14          0.00414234  0.01
+iter   15          0.00330867  0.01
+iter   16          0.00262997  0.01
+iter   17          0.00211307  0.01
+iter   18          0.00168965  0.01
+iter   19          0.00135813  0.01
+iter   20           0.0010915  0.01
+iter   21         0.000880287  0.01
+iter   22         0.000706975  0.01
+iter   23         0.000572634  0.01
+iter   24         0.000461322  0.01
+iter   25         0.000373298  0.01
+iter   26         0.000302176  0.01
+iter   27         0.000245035  0.01
+iter   28         0.000198232  0.01
+iter   29         0.000161401  0.01
+iter   30         0.000130781  0.01
+iter   31         0.000106367  0.01
+iter   32        8.65371e-005  0.01
+iter   33        7.04309e-005  0.01
+iter   34        5.72682e-005  0.01
+iter   35        4.67709e-005  0.01
+iter   36        3.80577e-005  0.01
+iter   37        3.10717e-005  0.01
+iter   38        2.53809e-005  0.01
+iter   39        2.07268e-005  0.01
+iter   40        1.69279e-005  0.01
+iter   41        1.38672e-005  0.01
+iter   42        1.13277e-005  0.01
+iter   43         9.2783e-006  0.01
+iter   44        7.60369e-006  0.01
+iter   45        6.22754e-006  0.01
+iter   46        5.10692e-006  0.01
+iter   47        4.19651e-006  0.01
+iter   48        3.44086e-006  0.01
+iter   49        2.82904e-006  0.01
+iter   50        2.32741e-006  0.01
+iter   51        1.91483e-006  0.01
+iter   52        1.57779e-006  0.01
+iter   53        1.30177e-006  0.01
+iter   54        1.07226e-006  0.01
+iter   55        8.85194e-007  0.01
+iter   56        7.30781e-007  0.01
+iter   57        6.03263e-007  0.01
+iter   58        4.98316e-007  0.01
+iter   59        4.12097e-007  0.01
+iter   60        3.40546e-007  0.01
+iter   61        2.81734e-007  0.01
+iter   62        2.33177e-007  0.01
+iter   63        1.93033e-007  0.01
+iter   64        1.59868e-007  0.01
+iter   65        1.32535e-007  0.01
+iter   66        1.09897e-007  0.01
+iter   67        9.11464e-008  0.01
+iter   68        7.56805e-008  0.01
+iter   69        6.28511e-008  0.01
+iter   70        5.22238e-008  0.01
+iter   71        4.34037e-008  0.01
+iter   72        3.60912e-008  0.01
+iter   73        3.00383e-008  0.01
+iter   74        2.49936e-008  0.01
+iter   75        2.08175e-008  0.01
+iter   76        1.73507e-008  0.01
+iter   77         1.4479e-008  0.01
+iter   78        1.20793e-008  0.01
+iter   79        1.00859e-008  0.01
+</pre><p>As noted in the documentation, this method works on the data as <i>on disk</i> and removes any transpose operations performed on the matrix.
+         </p><pre class="codeinput">y = bvpagerank(G');
+
+norm(x-y,inf)
+</pre><pre class="codeoutput">iter    1            0.588174  0.01
+iter    2            0.286471  0.01
+iter    3            0.153072  0.01
+iter    4           0.0889456  0.01
+iter    5           0.0542172  0.01
+iter    6           0.0363644  0.01
+iter    7           0.0252051  0.01
+iter    8           0.0184926  0.01
+iter    9           0.0139464  0.01
+iter   10           0.0107167  0.01
+iter   11          0.00839594  0.01
+iter   12          0.00659468  0.01
+iter   13          0.00522328  0.01
+iter   14          0.00414234  0.01
+iter   15          0.00330867  0.01
+iter   16          0.00262997  0.01
+iter   17          0.00211307  0.01
+iter   18          0.00168965  0.01
+iter   19          0.00135813  0.01
+iter   20           0.0010915  0.01
+iter   21         0.000880287  0.01
+iter   22         0.000706975  0.01
+iter   23         0.000572634  0.01
+iter   24         0.000461322  0.01
+iter   25         0.000373298  0.01
+iter   26         0.000302176  0.01
+iter   27         0.000245035  0.01
+iter   28         0.000198232  0.01
+iter   29         0.000161401  0.01
+iter   30         0.000130781  0.01
+iter   31         0.000106367  0.01
+iter   32        8.65371e-005  0.01
+iter   33        7.04309e-005  0.01
+iter   34        5.72682e-005  0.01
+iter   35        4.67709e-005  0.01
+iter   36        3.80577e-005  0.01
+iter   37        3.10717e-005  0.01
+iter   38        2.53809e-005  0.01
+iter   39        2.07268e-005  0.01
+iter   40        1.69279e-005  0.01
+iter   41        1.38672e-005  0.01
+iter   42        1.13277e-005  0.01
+iter   43         9.2783e-006  0.01
+iter   44        7.60369e-006  0.01
+iter   45        6.22754e-006  0.01
+iter   46        5.10692e-006  0.01
+iter   47        4.19651e-006  0.01
+iter   48        3.44086e-006  0.01
+iter   49        2.82904e-006  0.01
+iter   50        2.32741e-006  0.01
+iter   51        1.91483e-006  0.01
+iter   52        1.57779e-006  0.01
+iter   53        1.30177e-006  0.01
+iter   54        1.07226e-006  0.01
+iter   55        8.85194e-007  0.01
+iter   56        7.30781e-007  0.01
+iter   57        6.03263e-007  0.01
+iter   58        4.98316e-007  0.01
+iter   59        4.12097e-007  0.01
+iter   60        3.40546e-007  0.01
+iter   61        2.81734e-007  0.01
+iter   62        2.33177e-007  0.01
+iter   63        1.93033e-007  0.01
+iter   64        1.59868e-007  0.01
+iter   65        1.32535e-007  0.01
+iter   66        1.09897e-007  0.01
+iter   67        9.11464e-008  0.01
+iter   68        7.56805e-008  0.01
+iter   69        6.28511e-008  0.01
+iter   70        5.22238e-008  0.01
+iter   71        4.34037e-008  0.01
+iter   72        3.60912e-008  0.01
+iter   73        3.00383e-008  0.01
+iter   74        2.49936e-008  0.01
+iter   75        2.08175e-008  0.01
+iter   76        1.73507e-008  0.01
+iter   77         1.4479e-008  0.01
+iter   78        1.20793e-008  0.01
+iter   79        1.00859e-008  0.01
+
+ans =
+
+     0
+
+</pre><p>To call PageRank on the tranpose (which takes additional memory, see</p>
+         <h2>What isn't implemented (yet)<a name="16"></a></h2>
+         <p>Currently, we do not support indexed accesses to the bvgraph type, so the following feature will fail</p><pre class="codeinput">G(1,2)
+</pre><pre class="codeoutput">Error using ==&gt; evalin
+Index exceeds matrix dimensions.</pre><p>Additionally, the multiplication operation is only supported for a double type.</p><pre class="codeinput">x = true(size(G,1),1);
+G*x
+</pre><pre class="codeoutput">the vector x is not a double</pre><p>Finally, there is no way to output a Matlab matrix as a bvgraph file.</p>
+         <p class="footer"><br>
+            Published with MATLAB&reg; 7.4<br></p>
+      </div>
+      <!--
+##### SOURCE BEGIN #####
+%% A simple example using the bvgraph class
+% This sample will demonstrate the bvgraph class.  It will show a few
+% features and limitations of the class for working with these large graph
+% files in Matlab.
+
+%% bvgraph background
+% The BV graph compression scheme and the *.graph/BVGraph file type are
+% data structures and techniques created to work with extremely large web
+% graph matrices.  Many researchers observed that these matrices have a
+% self-similar structure and exhibit considerable index locality.  Both of
+% these features are exploited by the BV graph compression scheme to store
+% these large webgraph matrices at only a few bits per edge.  
+%
+% Paolo Boldi and Sebastiano Vigna wrote the initial BVGraph implementation
+% in Java.  While Matlab has nice features to work with Java, these
+% features do not scale to working with extremely large vectors.
+% Consequently, this Matlab package re-implements the procedures
+% necessary to _read_ a BVGraph file in C.  Further, it provides routines
+% to operate on these files and makes them look like a Matlab matrix.  The
+% goal is to be as efficient as possible and support computing the PageRank
+% vector for extremely large graphs in Matlab.  
+
+%% Load a graph
+% Loading a graph with the bvgraph class is simple.  
+G = bvgraph('../data/wb-cs.stanford')
+
+%% 
+% There is a slight caveat about loading.  The file with most of the data
+% for the bvgraph file is ../data/wb-cs.stanford.graph.  However, you must
+% load the file without the .graph extension.  For example, you'll get a
+% slightly helpful error if you accidentally forget this.  (This may be
+% changed in a future version.)
+
+G2 = bvgraph('../data/wb-cs.stanford.graph');
+
+%% Loading offline or online
+% There are two ways of loading a bvgraph file: streaming mode (offline) or
+% inmemory (online).  The difference is that when a file is loaded in
+% streaming mode, the class does not actually load the .graph file into
+% memory, but iterates over the file on the disk for every operation.  This
+% is slower, but hardly uses any memory on the computer.  For example,
+
+G = bvgraph('../data/wb-cs.stanford');
+Goff = bvgraph('../data/wb-cs.stanford',struct('load_type','offline'));
+
+whos
+
+%%
+% Here we find that Goff takes only 3k whereas G takes 28k of memory.  In
+% this case, it seems silly to avoid loading 25k of memory to get the
+% offline operations.  However, for larger graphs, the difference is much
+% more pronounced.  Goff always takes about 3k, where G might takes
+% hundreds of megabytes.
+
+%% Some simple operations
+% The bvgraph class in Matlab supports the following simple operations
+size_G = size(G)
+nzcount = nnz(G)
+d = diag(G);
+s1 = sum(G);
+s2 = sum(G,2);
+
+%%
+% Let's use an operation to get the size of the matrix.
+
+n = size(G,1);
+
+%% Converting to a native Matlab matrix
+% If the bvgraph file is small enough to fit into Matlab's memory as a
+% Matlab sparse matrix, the sparse call will convert it.  
+
+A = sparse(G);
+
+%% Transposes
+% The bvgraph class implements an implicit transform.  That is, taking the
+% transpose of a matrix does _nothing_ to the underlying data and only
+% changes the interpretation of the data in the Matlab interface.
+
+Gt = G';
+isequal(sum(Gt,1)',sum(G,2))
+
+%%
+% Because only the interpretation of the data is transposed, the istrans
+% function reveals this state
+
+istrans(G)
+istrans(G')
+
+%% PageRank opertions
+% The main goal with implementing the BVGraph format inside of Matlab is to
+% support computing PageRank on really large graphs.  The key computation
+% in PageRank is the sub-stochastic matrix vector multiplication
+% 
+% $$y = (D^+ A)^T x$$
+% 
+% where x is the current iterate, D is the diagonal matrix of degrees, and 
+%
+% $$D^+ A$$
+%
+% is the substochastic matrix corresponding to a random walk on the graph
+% for adjacency matrix A.  The bvgraph class supports a specialized method
+% to compute this product without storing a vector for the diagonal of D.
+% However, the substochastic_mult function is a little quirky.
+
+% create the substochastic matrix corresponding to a random walk on A
+[i j v] = find(A);
+d = sum(A,2);
+P = sparse(i, j, v(i)./d(i), size(A,1), size(A,2));
+% now P = D^+ A;
+x = ones(n,1);
+y_G = substochastic_mult(G,x);
+y_P = P*x;
+norm(y_G-y_P,inf)
+
+%%
+% When applied to G', the substochastic_mult function computes the
+% transpose of the sub-stochastic product.
+
+y_Gt = substochastic_mult(G',x);
+y_Pt = P'*x;
+norm(y_Gt-y_Pt,inf)
+
+%%
+% Since one goal is PageRank, the bvgraph class has a specific PageRank
+% method.  
+
+help bvpagerank
+
+x = bvpagerank(G);
+
+%%
+% As noted in the documentation, this method works on the data as 
+% _on disk_ and removes any transpose operations performed on the matrix.
+
+y = bvpagerank(G');
+
+norm(x-y,inf)
+
+%%
+% To call PageRank on the tranpose (which takes additional memory, see 
+
+%% What isn't implemented (yet)
+% Currently, we do not support indexed accesses to the bvgraph type, so the
+% following feature will fail
+
+G(1,2)
+
+%%
+% Additionally, the multiplication operation is only supported for a double
+% type.
+
+x = true(size(G,1),1);
+G*x
+
+%%
+% Finally, there is no way to output a Matlab matrix as a bvgraph file.
+
+##### SOURCE END #####
+-->
+   </body>
+</html>

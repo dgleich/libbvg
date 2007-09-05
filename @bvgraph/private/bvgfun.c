@@ -9,12 +9,26 @@
  * Routines to manipulate a bvgraph like a matrix in matlab.
  */
 
+/*
+ * 1 September 2007
+ * Added the diag_bvgraph function to get the diagonal of a matrix
+ *
+ * 3 September 2007
+ * Added the sparse_bvgraph function to get the sparse matrix form.
+ */
+
 #include "bvgraph.h"
 #include "bvgraphfun.h"
 
 #include <string.h>
 
 #include <mex.h>
+#include <matrix.h>
+
+#if MX_API_VER < 0x07030000
+typedef int mwIndex;
+typedef int mwSize;
+#endif // MX_API_VER
 
 int get_string_arg(const mxArray* arg, const char **str, mwSize *len)
 {
@@ -149,18 +163,111 @@ void tmult_bvgraph(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
 void diag_bvgraph(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
 {
     bvgraph g;
-    const mxArray* varg;
     int rval;
     
     if (nrhs != 4) {
         mexErrMsgIdAndTxt("bvgfun:invalidParameter",
-            "incorrect number of parameters for transpose mult operation");
+            "incorrect number of parameters for diag operation");
     }
     
     get_bvgraph_args(prhs[1], prhs[2], prhs[3], &g);
     
     plhs[0] = mxCreateDoubleMatrix(g.n, 1, mxREAL);
     if ((rval = bvgraph_diag(&g, mxGetPr(plhs[0]))) != 0) {
+        mexErrMsgIdAndTxt("bvgfun:error",
+            "libbvg reported error: %s", bvgraph_error_string(rval));
+    }
+}
+
+void sparse_bvgraph(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
+{
+    bvgraph g;
+    int rval;
+    
+    if (nrhs != 4) {
+        mexErrMsgIdAndTxt("bvgfun:invalidParameter",
+            "incorrect number of parameters for sparse operation");
+    }
+    
+    get_bvgraph_args(prhs[1], prhs[2], prhs[3], &g);
+
+    plhs[0] = mxCreateSparseLogicalMatrix(g.n, g.n, g.m);
+    
+    #if MX_API_VER >= 0x07030000 && !defined(MX_COMPAT_32)
+    rval = bvgraph_csr_large(&g, mxGetJc(plhs[0]), mxGetIr(plhs[0]));
+    #else
+    rval = bvgraph_csr(&g, mxGetJc(plhs[0]), mxGetIr(plhs[0]));
+    #endif /* LARGE_ARRAYS */
+    
+    if (rval != 0) {
+        mexErrMsgIdAndTxt("bvgfun:error",
+            "libbvg reported error: %s", bvgraph_error_string(rval));
+    }
+    
+    /* now set all the memory to 1 for all the logicals */
+    memset(mxGetLogicals(plhs[0]), 1, sizeof(mxLogical)*g.m);
+}
+
+void substochastic_mult_bvgraph(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[], int tflag)
+{
+    bvgraph g;
+    const mxArray* varg;
+    int rval;
+    
+    if (nrhs != 5) {
+        mexErrMsgIdAndTxt("bvgfun:invalidParameter",
+            "incorrect number of parameters for substochastic_mult operation");
+    }
+    
+    varg = prhs[4];
+    
+    get_bvgraph_args(prhs[1], prhs[2], prhs[3], &g);
+    if (!mxIsDouble(varg)) {
+        mexErrMsgIdAndTxt("bvgfun:invalidParameter","the vector x is not a double");
+    }
+    if (!(mxGetM(varg) == g.n && mxGetN(varg) == 1)) {
+        mexErrMsgIdAndTxt("bvgfun:invalidParameter",
+            "the vector x has the wrong size (%i,%i but should be %i,%i)",
+            mxGetM(varg), mxGetN(varg), g.n, 1);
+    }
+    
+    plhs[0] = mxCreateDoubleMatrix(g.n, 1, mxREAL);
+    if (tflag == 0) {
+        rval = bvgraph_substochastic_mult(&g, mxGetPr(varg), mxGetPr(plhs[0]));
+    } else {
+        rval = bvgraph_substochastic_transmult(&g, mxGetPr(varg), mxGetPr(plhs[0]));
+    }
+    
+    if (rval != 0) {
+        mexErrMsgIdAndTxt("bvgfun:error",
+            "libbvg reported error: %s", bvgraph_error_string(rval));
+    }
+}
+
+void sum_bvgraph(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[], int dim)
+{
+    bvgraph g;
+    int rval;
+    
+    if (nrhs != 4) {
+        mexErrMsgIdAndTxt("bvgfun:invalidParameter",
+            "incorrect number of parameters for sum operation");
+    }
+    
+    get_bvgraph_args(prhs[1], prhs[2], prhs[3], &g);
+    
+    plhs[0] = mxCreateDoubleMatrix(g.n, 1, mxREAL);
+    if (dim == 0) { 
+        /* compute the column-sums */
+        rval = bvgraph_sum_col(&g, mxGetPr(plhs[0]));
+    } else if (dim == 1) {
+        /* compute the row-sums */
+        rval = bvgraph_sum_row(&g, mxGetPr(plhs[0]));
+    } else {
+        mexErrMsgIdAndTxt("bvgfun:invalidParameter", "unknown sum dimension %i", dim);
+    }
+    
+    if (rval != 0) {
         mexErrMsgIdAndTxt("bvgfun:error",
             "libbvg reported error: %s", bvgraph_error_string(rval));
     }
@@ -268,10 +375,16 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
         tmult_bvgraph(nlhs, plhs, nrhs, prhs);
     } else if (strncmp(op, "diag", oplen) == 0) {
         diag_bvgraph(nlhs, plhs, nrhs, prhs);
-    /*} else if (strncmp(op, "sum1", oplen) == 0) {
-        //sum1_bvgraph(nlhs, plhs, nrhs, prhs);
+    } else if (strncmp(op, "sparse", oplen) == 0) {
+        sparse_bvgraph(nlhs, plhs, nrhs, prhs);
+    } else if (strncmp(op, "substochastic_mult", oplen) == 0) {
+        substochastic_mult_bvgraph(nlhs, plhs, nrhs, prhs, 0);    
+    } else if (strncmp(op, "substochastic_tmult", oplen) == 0) {
+        substochastic_mult_bvgraph(nlhs, plhs, nrhs, prhs, 1);
+    } else if (strncmp(op, "sum1", oplen) == 0) {
+        sum_bvgraph(nlhs, plhs, nrhs, prhs, 0);
     } else if (strncmp(op, "sum2", oplen) == 0) {
-        //sum2_bvgraph(nlhs, plhs, nrhs, prhs);*/
+        sum_bvgraph(nlhs, plhs, nrhs, prhs, 1);
     } else {
         mexErrMsgIdAndTxt("bvgfun:invalidParameter", "unknown operation");
     }

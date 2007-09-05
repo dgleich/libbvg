@@ -26,6 +26,9 @@ function varargout = bvgfun(varargin)
 %
 % d = bvgfun('diag',smem,gmem,offsetmem) compute the diagonal of A
 
+% 4 September 2007
+% Changed compile script to work on Matlab 7.0
+
 
 % actually, all this function does is compile the mex file and then
 % redirect the original call
@@ -33,17 +36,32 @@ function varargout = bvgfun(varargin)
 srcdir = '../../src';
 headerdir = '../../include';
 
+mexopts = '';
+c = computer;
+if strcmp(c,'PCWIN64') || ...
+        strcmp(c,'GLNXA64') || ...
+        strcmp(c,'SOL64')
+    mexopts = '-largeArrayDims';
+end
+    
+
 srcfiles = {'bitfile.c', 'bvgraph.c', 'bvgraph_iterator.c', 'bvgraphfun.c', 'properties.c', 'util.c'};
 files{1} = 'bvgfun.c';
-files(end+1:end+length(srcfiles)) = cellfun(@(x) sprintf('%s/%s', srcdir, x), srcfiles, 'UniformOutput', 0);
+for sfi=1:length(srcfiles)
+    files{end+1} = sprintf('%s/%s',srcdir,srcfiles{sfi});
+end
+%files(end+1:end+length(srcfiles)) = cellfun(@(x) sprintf('%s/%s', srcdir, x), srcfiles, 'UniformOutput', 0);
 % notice the space on the end for the correct catenation
-files = cellfun(@(x) sprintf('%s ', x), files, 'UniformOutput',0);
+%files = cellfun(@(x) sprintf('%s ', x), files, 'UniformOutput',0);
+for fi=1:length(files)
+    files{fi} = sprintf('%s ',files{fi});
+end
 p = mfilename('fullpath');
 [path,name,ext,version] = fileparts(p);
 olddir = cd;
 cd(path);
 try
-    mexcmd = sprintf('mex -O -I%s %s', headerdir, [files{:}]);
+    mexcmd = sprintf('mex %s -O -I%s %s', mexopts, headerdir, [files{:}]);
     eval(mexcmd);
     cd(olddir);
 catch

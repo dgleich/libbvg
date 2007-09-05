@@ -1,0 +1,378 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN">
+<html xmlns:mwsh="http://www.mathworks.com/namespace/mcode/v1/syntaxhighlight.dtd">
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   
+      <!--
+This HTML is auto-generated from an M-file.
+To make changes, update the M-file and republish this document.
+      -->
+      <title>Using *HUGE* Graphs in Matlab</title>
+      <meta name="generator" content="MATLAB 7.4">
+      <meta name="date" content="2007-09-04">
+      <meta name="m-file" content="huge_graph"><style>
+
+body {
+  background-color: white;
+  margin:10px;
+}
+
+h1 {
+  color: #990000; 
+  font-size: x-large;
+}
+
+h2 {
+  color: #990000;
+  font-size: medium;
+}
+
+/* Make the text shrink to fit narrow windows, but not stretch too far in 
+wide windows. */ 
+p,h1,h2,div.content div {
+  max-width: 600px;
+  /* Hack for IE6 */
+  width: auto !important; width: 600px;
+}
+
+pre.codeinput {
+  background: #EEEEEE;
+  padding: 10px;
+}
+@media print {
+  pre.codeinput {word-wrap:break-word; width:100%;}
+} 
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+span.untermstring {color: #B20000}
+span.syscmd {color: #B28C00}
+
+pre.codeoutput {
+  color: #666666;
+  padding: 10px;
+}
+
+pre.error {
+  color: red;
+}
+
+p.footer {
+  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+
+  </style></head>
+   <body>
+      <div class="content">
+         <h1>Using *HUGE* Graphs in Matlab</h1>
+         <introduction>
+            <p>This example will demonstrate running PageRank on a 110M node graph with 1B edges.  The system is a 64-bit Dell Linux machine
+               with 2GB of RAM.  You <i>must</i> have 2GB of RAM to run this example.  Also, you must download the webbase-2001.graph and webbase-2001.properties files from:
+                 <a href="http://law.dsi.unimi.it/index.php?option=com_include&amp;Itemid=65">http://law.dsi.unimi.it/index.php?option=com_include&amp;Itemid=65</a> Note that this example will not work on a 32-bit version of Matlab running on Windows, even on a machine with 2 GB of RAM.
+                I haven't tested it on a 32-bit version of Linux.
+            </p>
+         </introduction>
+         <h2>Contents</h2>
+         <div>
+            <ul>
+               <li><a href="#1">Load the graph</a></li>
+               <li><a href="#6">Check native memory use</a></li>
+               <li><a href="#8">Check PageRank memory use</a></li>
+               <li><a href="#10">Computing PageRank</a></li>
+               <li><a href="#11">A few notes</a></li>
+            </ul>
+         </div>
+         <h2>Load the graph<a name="1"></a></h2>
+         <p>The first step is to load the graph.  The .graph file is about 300 MB, so we are going to stream in from disk, or load it
+            in 'offline' mode.
+         </p>
+         <p>Set the following path to the location of the webbase-2001.graph file on your machine</p><pre class="codeinput"><span class="keyword">if</span> ~exist(<span class="string">'webbase_path'</span>,<span class="string">'var'</span>)
+    webbase_path = [];
+<span class="keyword">end</span>
+
+G = bvgraph([webbase_path <span class="string">'webbase-2001'</span>],struct(<span class="string">'load_type'</span>,<span class="string">'offline'</span>));
+</pre><p>Let's check some simple properties of the graph.</p><pre class="codeinput">n = size(G,1);
+nz = nnz(G);
+s = sum(G,2);   <span class="comment">% compute the sum to get dangling nodes</span>
+s = s == 0;
+d = diag(G);    <span class="comment">% look at the diagonal to count self-loops</span>
+
+fprintf(<span class="string">'The graph has\n'</span>);
+fprintf(<span class="string">'  %10i vertices,\n'</span>, n);
+fprintf(<span class="string">'  %10i edges,\n'</span>, nz);
+fprintf(<span class="string">'  %10i dangling nodes, and\n'</span>, sum(s));
+fprintf(<span class="string">'  %10i self-loops.\n'</span>,sum(d));
+</pre><pre class="codeoutput">The graph has
+   118142155 vertices,
+  1019903190 edges,
+    27659673 dangling nodes, and
+    27058299 self-loops.
+</pre><p>Let's see how much memory those operations took.</p><pre class="codeinput">whos
+</pre><pre class="codeoutput">  Name                      Size                       Bytes  Class      Attributes
+
+  G                 118142155x118142155                 2844  bvgraph              
+  d                 118142155x1                    945137240  double               
+  n                         1x1                            8  double               
+  nz                        1x1                            8  double               
+  s                 118142155x1                    118142155  logical              
+  webbase_path              1x38                          76  char                 
+
+</pre><p>At the moment, we are using quite a bit of memory!  When working with these large graph files, we need to be very careful
+            not to exceed the amount of memory on the system.  If we do, then Matlab will start <i>swapping</i> or writing memory to disk, which will cause the program to run unreasonably slow.
+         </p>
+         <h2>Check native memory use<a name="6"></a></h2>
+         <p>Just for fun, let's see how much memory it would require to load G as a Matlab matrix.  On a 32-bit platform, a Matlab sparse
+            matrix requires 4 bytes per row, and 5 bytes per non-zero.  On a 64-bit platform, it requires 8 bytes per row, and 9 bytes
+            per non-zero.
+         </p><pre class="codeinput">matlab_32_mem = 4*(size(G,1)+1) + 5*nnz(G);
+matlab_64_mem = 8*(size(G,1)+1) + 9*nnz(G);
+
+fprintf(<span class="string">'For an in-memory matrix, Matlab would need\n'</span>);
+fprintf(<span class="string">'  %10i bytes on a 32-bit machine\n'</span>, matlab_32_mem);
+fprintf(<span class="string">'  %10i bytes on a 64-bit machine\n'</span>, matlab_64_mem);
+</pre><pre class="codeoutput">For an in-memory matrix, Matlab would need
+  5.572085e+09 bytes on a 32-bit machine
+  1.012427e+10 bytes on a 64-bit machine
+</pre><p>Wow, that's a lot of memory!</p>
+         <h2>Check PageRank memory use<a name="8"></a></h2>
+         <p>The PageRank computation using the Power Method requires 2 vectors of storage.  Let's make sure we can fit everything into
+            memory.  A matlab vector takes 8 bytes per row.
+         </p><pre class="codeinput">pagerank_required_mem = (8*size(G,1))*2;
+
+fprintf(<span class="string">'The bvpagerank operation requires\n'</span>);
+fprintf(<span class="string">'  %10i bytes of memory\n'</span>, pagerank_required_mem);
+</pre><pre class="codeoutput">The bvpagerank operation requires
+  1890274480 bytes of memory
+</pre><p>The operation takes about 1.9 GB of memory.  This requirement is why this example requires a machine with 2 GB of memory.
+             Also, we could not run this example if we had loaded the graph into memory, because the graph file takes 300 MB of memory
+            itself.  If you have a machine with more than 2 GB of memory, check and see how much faster the code will run with the matrix
+            in memory.
+         </p>
+         <h2>Computing PageRank<a name="10"></a></h2>
+         <p>With all of that preamble gone, all that is left to do is call the bvpagerank function.  Before we do this, however, we first
+            clear all the existing vectors.
+         </p><pre class="codeinput">clear <span class="string">s</span> <span class="string">d</span>;
+<span class="comment">% WARNING: This takes about 2 hours!</span>
+x = bvpagerank(G);
+</pre><pre class="codeoutput">iter    1            0.813891  131.32
+iter    2            0.349311  94.98
+iter    3            0.172124  92.60
+iter    4           0.0976978  87.09
+iter    5           0.0618677  92.48
+iter    6           0.0423836  89.27
+iter    7           0.0305012  84.63
+iter    8           0.0228049  96.87
+iter    9           0.0174295  91.06
+iter   10           0.0135588  89.09
+iter   11           0.0106725  103.18
+iter   12           0.0084911  83.34
+iter   13          0.00679389  93.81
+iter   14          0.00547703  83.75
+iter   15          0.00443213  102.63
+iter   16          0.00360332  82.17
+iter   17          0.00293702  90.16
+iter   18          0.00240339  78.35
+iter   19          0.00196934  94.76
+iter   20          0.00161912  90.58
+iter   21          0.00133268  94.20
+iter   22          0.00109956  82.55
+iter   23         0.000908065  98.65
+iter   24         0.000751579  81.59
+iter   25           0.0006223  94.85
+iter   26         0.000516324  84.45
+iter   27         0.000428583  95.68
+iter   28         0.000356288  80.29
+iter   29         0.000296286  110.86
+iter   30         0.000246791  81.43
+iter   31         0.000205566  98.82
+iter   32         0.000171479  77.64
+iter   33         0.000143059  101.90
+iter   34         0.000119484  86.15
+iter   35         9.98142e-05  94.79
+iter   36         8.34876e-05  84.02
+iter   37         6.98221e-05  87.09
+iter   38          5.8461e-05  104.60
+iter   39         4.89442e-05  81.75
+iter   40         4.10159e-05  100.34
+iter   41         3.43687e-05  81.69
+iter   42         2.88273e-05  101.69
+iter   43         2.41743e-05  89.83
+iter   44         2.02897e-05  96.05
+iter   45         1.70276e-05  82.74
+iter   46         1.43012e-05  91.95
+iter   47         1.20094e-05  80.62
+iter   48          1.0093e-05  84.76
+iter   49         8.48006e-06  102.56
+iter   50         7.13064e-06  79.20
+iter   51         5.99499e-06  102.01
+iter   52         5.04344e-06  86.08
+iter   53          4.2421e-06  109.53
+iter   54         3.57048e-06  109.66
+iter   55         3.00453e-06  83.57
+iter   56         2.52994e-06  106.36
+iter   57         2.12983e-06  108.93
+iter   58         1.79406e-06  87.52
+iter   59         1.51088e-06  91.49
+iter   60         1.27318e-06  88.94
+iter   61          1.0726e-06  88.89
+iter   62         9.04162e-07  85.97
+iter   63         7.62014e-07  99.21
+iter   64         6.42519e-07  113.12
+iter   65          5.4166e-07  87.23
+iter   66         4.56883e-07  102.73
+iter   67         3.85279e-07  194.65
+iter   68         3.25071e-07  99.62
+iter   69         2.74198e-07  103.29
+iter   70         2.31403e-07  97.07
+iter   71         1.95248e-07  84.93
+iter   72         1.64815e-07  98.38
+iter   73         1.39091e-07  107.02
+iter   74         1.17432e-07  89.96
+iter   75         9.91412e-08  107.15
+iter   76         8.37159e-08  94.17
+iter   77         7.06857e-08  87.45
+iter   78         5.97086e-08  148.86
+iter   79         5.04163e-08  106.69
+iter   80         4.25972e-08  83.06
+iter   81         3.59779e-08  90.66
+iter   82         3.04075e-08  78.23
+iter   83         2.56799e-08  83.60
+iter   84         2.17101e-08  82.21
+iter   85         1.83416e-08  80.93
+iter   86         1.55015e-08  82.54
+iter   87         1.31009e-08  77.19
+iter   88         1.10774e-08  86.33
+</pre><h2>A few notes<a name="11"></a></h2>
+         <p>The bvpagerank code carefully tries to avoid operations that create temporary vectors in Matlab.  Towards this end, we write
+            strange sequences of operations like
+         </p><pre class="codeinput"><span class="comment">% x = x - y</span>
+<span class="comment">% delta = norm(x,1)</span>
+</pre><p>instead of the more natural Matlab syntax</p><pre class="codeinput"><span class="comment">% delta = norm(x-y,1)</span>
+</pre><p>because the latter syntax creates another vector for the difference x-y that is just temporary.</p>
+         <p class="footer"><br>
+            Published with MATLAB&reg; 7.4<br></p>
+      </div>
+      <!--
+##### SOURCE BEGIN #####
+%% Using *HUGE* Graphs in Matlab
+% This example will demonstrate running PageRank on a 110M node graph with
+% 1B edges.  The system is a 64-bit Dell Linux machine with 2GB of RAM.  You 
+% _must_ have 2GB of RAM to run this example.  Also, you
+% must download the webbase-2001.graph and webbase-2001.properties files from:
+%   http://law.dsi.unimi.it/index.php?option=com_include&Itemid=65
+% Note that this example will not work on a 32-bit version of Matlab running 
+% on Windows, even on a machine with 2 GB of RAM.  I haven't tested it on a 
+% 32-bit version of Linux.  
+
+%% Load the graph
+% The first step is to load the graph.  The .graph file is about 300 MB, 
+% so we are going to stream in from disk, or load it in 'offline' mode.
+
+%%
+% Set the following path to the location of the webbase-2001.graph file
+% on your machine
+if ~exist('webbase_path','var')
+    webbase_path = [];
+end
+
+G = bvgraph([webbase_path 'webbase-2001'],struct('load_type','offline'));
+
+%%
+% Let's check some simple properties of the graph.
+
+n = size(G,1);
+nz = nnz(G);
+s = sum(G,2);   % compute the sum to get dangling nodes
+s = s == 0;
+d = diag(G);    % look at the diagonal to count self-loops
+
+fprintf('The graph has\n');
+fprintf('  %10i vertices,\n', n);
+fprintf('  %10i edges,\n', nz);
+fprintf('  %10i dangling nodes, and\n', sum(s));
+fprintf('  %10i self-loops.\n',sum(d));
+
+%%
+% Let's see how much memory those operations took.
+
+whos
+
+%%
+% At the moment, we are using quite a bit of memory!  When working with
+% these large graph files, we need to be very careful not to exceed the 
+% amount of memory on the system.  If we do, then Matlab will start 
+% _swapping_ or writing memory to disk, which will cause the program to 
+% run unreasonably slow.  
+
+%% Check native memory use
+% Just for fun, let's see how much memory it would require to load G 
+% as a Matlab matrix.  On a 32-bit platform, a Matlab sparse matrix
+% requires 4 bytes per row, and 5 bytes per non-zero.  On a 64-bit 
+% platform, it requires 8 bytes per row, and 9 bytes per non-zero.  
+
+matlab_32_mem = 4*(size(G,1)+1) + 5*nnz(G);
+matlab_64_mem = 8*(size(G,1)+1) + 9*nnz(G);
+
+fprintf('For an in-memory matrix, Matlab would need\n');
+fprintf('  %10i bytes on a 32-bit machine\n', matlab_32_mem);
+fprintf('  %10i bytes on a 64-bit machine\n', matlab_64_mem);
+
+%%
+% Wow, that's a lot of memory! 
+
+%% Check PageRank memory use
+% The PageRank computation using the Power Method requires 2 vectors of 
+% storage.  Let's make sure we can fit everything into memory.  A matlab
+% vector takes 8 bytes per row.  
+
+pagerank_required_mem = (8*size(G,1))*2;
+
+fprintf('The bvpagerank operation requires\n');
+fprintf('  %10i bytes of memory\n', pagerank_required_mem);
+
+%% 
+% The operation takes about 1.9 GB of memory.  This requirement is why 
+% this example requires a machine with 2 GB of memory.  Also, we could
+% not run this example if we had loaded the graph into memory, because 
+% the graph file takes 300 MB of memory itself.  If you have a machine
+% with more than 2 GB of memory, check and see how much faster the code
+% will run with the matrix in memory.
+
+%% Computing PageRank
+% With all of that preamble gone, all that is left to do is call
+% the bvpagerank function.  Before we do this, however, we first clear
+% all the existing vectors.
+
+clear s d;
+% WARNING: This takes about 2 hours!
+x = bvpagerank(G);
+
+%% A few notes
+% The bvpagerank code carefully tries to avoid operations that create
+% temporary vectors in Matlab.  Towards this end, we write strange 
+% sequences of operations like
+
+% x = x - y
+% delta = norm(x,1)
+
+%%
+% instead of the more natural Matlab syntax
+
+% delta = norm(x-y,1)
+
+%%
+% because the latter syntax creates another vector for the
+% difference x-y that is just temporary.
+
+
+##### SOURCE END #####
+-->
+   </body>
+</html>

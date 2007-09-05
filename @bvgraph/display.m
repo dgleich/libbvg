@@ -2,7 +2,7 @@ function display(graph)
 % BVGRAPH/DISPLAY Display the mwebgraph structure.
 %
 % Example:
-%    G = bvgraph('cnr-2000')
+%    G = bvgraph('data/wb-cs.stanford')
 
 %
 % David Gleich

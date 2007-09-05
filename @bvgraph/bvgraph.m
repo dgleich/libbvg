@@ -34,6 +34,12 @@ function bvg = bvgraph(filename,optionsu)
 %  x = bicgstab(@(x) x - alpha*(G'*(id.*x)), v, 1e-8, 500); x = x./norm(x,1);
 %  y = diag(G);
 
+%
+% David Gleich
+% 21 May 2007
+% Copyright, Stanford University, 2007
+%
+
 options = struct('load_type', 'online','trans',0);
 if exist('optionsu','var')
     options = merge_structs(optionsu,options);
@@ -57,6 +63,21 @@ end
 transp = 0;
 if options.trans
     transp = 1;
+end
+
+if ~exist([filename '.graph'], 'file')
+    error('bvgraph:fileNotFound', ...
+        'The file %s.graph does not seem to exist!', filename);
+end
+
+if ~exist([filename '.properties'], 'file')
+    error('bvgraph:fileNotFound', ...
+        'The properties file %s.properties does not seem to exist!', filename);
+end
+
+if offset_step > 0 && ~exist([filename '.offsets'], 'file')
+    error('bvgraph:fileNotFound', ...
+        'The offsets file %s.offsets does not seem to exist!', filename);
 end
 
 [n,nz,smem,gmem,offsetmem] = bvgfun('load',filename,offset_step);

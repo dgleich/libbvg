@@ -4,7 +4,7 @@ function [varargout] = size(G,dim)
 % This function implements the size operator on a mwebgraph.  
 %
 % Example:
-%    G = bvgraph('cnr-2000');
+%    G = bvgraph('data/wb-cs.stanford');
 %    size(G)
 
 %
