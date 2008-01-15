@@ -9,6 +9,12 @@
  * Include a set of utility routines to make a few operations a little easier.
  */
 
+/** History
+ *
+ * 2008-01-15
+ * Added __APPLE_CC__ case to fsize to get correct size in that case.
+ */
+
 #ifdef __GNUC__
 #define _FILE_OFFSET_BITS 64
 #define _LARGEFILE_SOURCE
@@ -162,8 +168,12 @@ int fsize(const char *filename, unsigned long long *s)
     int err = _stat64( filename, &file_stat ); 
     if (err) { return -1; }
     *s = file_stat.st_size;
-#endif
-#ifdef __GNUC__
+#elif defined(__APPLE_CC__)
+    struct stat file_stat;
+    int err = stat(filename, &file_stat );
+    if (err) { return -1; }
+    *s = (unsigned long long)file_stat.st_size;
+#elif defined __GNUC__
     struct stat64 file_stat;
     int err = stat64(filename, &file_stat );
     if (err) { return -1; }
