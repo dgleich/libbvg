@@ -14,18 +14,30 @@
  * Added bvgraph_csr and bvgraph_csr_large to convert to a CSR representation.
  * Added bvgraph_substochastic_mult and bvgraph_substochastic_transmult
  *    to compute the stochastic products.
+ * 
+ * 24 January 2008
+ * Added error checking and more comments
  */
 
 #include "bvgraph.h"
 
 #include <string.h>
 
+/**
+ * Computes a matrix vector product y = A*x 
+ *
+ * @param g the bvgraph structure
+ * @param x the vector x
+ * @param y the output vector y
+ * @return 0 if successful
+ */
 int bvgraph_mult(bvgraph *g, double *x, double *y)
 {
     bvgraph_iterator iter;
     int *links; unsigned int i, d;
-    for (bvgraph_nonzero_iterator(g, &iter); 
-         bvgraph_iterator_valid(&iter); 
+    int rval = bvgraph_nonzero_iterator(g, &iter);
+    if (rval != 0) { return rval; } 
+    for (; bvgraph_iterator_valid(&iter); 
          bvgraph_iterator_next(&iter))
     {
         double v = 0;
@@ -39,13 +51,22 @@ int bvgraph_mult(bvgraph *g, double *x, double *y)
     return (0);
 }
 
+/**
+ * Computes a matrix vector product y = A'*x 
+ *
+ * @param g the bvgraph structure
+ * @param x the vector x
+ * @param y the output vector y
+ * @return 0 if successful
+ */
 int bvgraph_transmult(bvgraph *g, double *x, double *y)
 {
     bvgraph_iterator iter;
     int *links; unsigned int i, d;
-    memset(y, 0, sizeof(double)*g->n);
-    for (bvgraph_nonzero_iterator(g, &iter); 
-         bvgraph_iterator_valid(&iter); 
+    int rval = bvgraph_nonzero_iterator(g, &iter);
+    if (rval != 0) { return rval; }
+    memset(y, 0, sizeof(double)*g->n); 
+    for (; bvgraph_iterator_valid(&iter);  
          bvgraph_iterator_next(&iter))
     {
         bvgraph_iterator_outedges(&iter, &links, &d);
@@ -57,12 +78,20 @@ int bvgraph_transmult(bvgraph *g, double *x, double *y)
     return (0);
 }
 
+/**
+ * Extract the entries along the diagonal of the matrix. 
+ *
+ * @param g the bvgraph structure
+ * @param x the vector of diagonal elements (size g.n)
+ * @return 0 if successful
+ */
 int bvgraph_diag(bvgraph *g, double *x)
 {
     bvgraph_iterator iter;
     int *links; unsigned int i, d;
-    for (bvgraph_nonzero_iterator(g, &iter); 
-         bvgraph_iterator_valid(&iter); 
+    int rval = bvgraph_nonzero_iterator(g, &iter);
+    if (rval != 0) { return rval; } 
+    for (; bvgraph_iterator_valid(&iter); 
          bvgraph_iterator_next(&iter))
     {
         double v = 0;
@@ -83,12 +112,21 @@ int bvgraph_relax_sor(bvgraph *g, double *x, double w)
     return (0);
 }
 
+/**
+ * Compute the sum along rows of the matrix, i.e. x = A*ones(g.n,1), 
+ * but efficiently.
+ *
+ * @param g the bvgraph structure
+ * @param x the vector of row sums
+ * @return 0 if successful 
+ */
 int bvgraph_sum_row(bvgraph *g, double *x)
 {
     bvgraph_iterator iter;
     unsigned int d;
-    for (bvgraph_nonzero_iterator(g, &iter); 
-         bvgraph_iterator_valid(&iter); 
+    int rval = bvgraph_nonzero_iterator(g, &iter);
+    if (rval != 0) { return rval; } 
+    for (; bvgraph_iterator_valid(&iter); 
          bvgraph_iterator_next(&iter))
     {
         bvgraph_iterator_outedges(&iter, NULL, &d);
@@ -98,12 +136,21 @@ int bvgraph_sum_row(bvgraph *g, double *x)
     return (0);
 }
 
+/**
+ * Compute the sum along columns of the matrix, i.e. x = ones(g.n,1)'*A, 
+ * but efficiently.
+ *
+ * @param g the bvgraph structure
+ * @param x the vector of column sums
+ * @return 0 if successful
+ */
 int bvgraph_sum_col(bvgraph *g, double *x)
 {
     bvgraph_iterator iter;
     int *links; unsigned int i, d;
-    for (bvgraph_nonzero_iterator(g, &iter); 
-         bvgraph_iterator_valid(&iter); 
+    int rval = bvgraph_nonzero_iterator(g, &iter);
+    if (rval != 0) { return rval; } 
+    for (; bvgraph_iterator_valid(&iter); 
          bvgraph_iterator_next(&iter))
     {
         bvgraph_iterator_outedges(&iter, &links, &d);
@@ -119,11 +166,12 @@ int bvgraph_csr(bvgraph *g, int* ai, int* aj)
 {
     bvgraph_iterator iter;
     int *links; unsigned int i, d;
-    
+    int rval = bvgraph_nonzero_iterator(g, &iter);
     int entry = 0;
     *ai++ = entry;
-    for (bvgraph_nonzero_iterator(g, &iter); 
-         bvgraph_iterator_valid(&iter); 
+    
+    if (rval != 0) { return rval; } 
+    for (; bvgraph_iterator_valid(&iter); 
          bvgraph_iterator_next(&iter))
     {
         bvgraph_iterator_outedges(&iter, &links, &d);
@@ -137,15 +185,17 @@ int bvgraph_csr(bvgraph *g, int* ai, int* aj)
     return (0);
 }
 
+
 int bvgraph_csr_large(bvgraph *g, size_t* ai, size_t* aj)
 {
     bvgraph_iterator iter;
     int *links; unsigned int i, d;
-    
+    int rval = bvgraph_nonzero_iterator(g, &iter);
     size_t entry = 0;
     *ai++ = entry;
-    for (bvgraph_nonzero_iterator(g, &iter); 
-         bvgraph_iterator_valid(&iter); 
+    
+    if (rval != 0) { return rval; } 
+    for (; bvgraph_iterator_valid(&iter); 
          bvgraph_iterator_next(&iter))
     {
         bvgraph_iterator_outedges(&iter, &links, &d);
@@ -167,13 +217,15 @@ int bvgraph_csr_large(bvgraph *g, size_t* ai, size_t* aj)
  * @param g the bvgraph structure
  * @param x the vector x
  * @param y the output vector y
+ * @return 0 if successful
  */
 int bvgraph_substochastic_mult(bvgraph *g, double *x, double *y)
 {
     bvgraph_iterator iter;
     int *links; unsigned int i, d;
-    for (bvgraph_nonzero_iterator(g, &iter); 
-         bvgraph_iterator_valid(&iter); 
+    int rval = bvgraph_nonzero_iterator(g, &iter);
+    if (rval != 0) { return rval; } 
+    for (; bvgraph_iterator_valid(&iter); 
          bvgraph_iterator_next(&iter))
     {
         double v = 0;
@@ -195,14 +247,16 @@ int bvgraph_substochastic_mult(bvgraph *g, double *x, double *y)
  * @param g the bvgraph structure
  * @param x the vector x
  * @param y the output vector y
+ * @return 0 if successful
  */
 int bvgraph_substochastic_transmult(bvgraph *g, double *x, double *y)
 {
     bvgraph_iterator iter;
     int *links; unsigned int i, d;
+    int rval = bvgraph_nonzero_iterator(g, &iter);
+    if (rval != 0) { return rval; } 
     memset(y, 0, sizeof(double)*g->n);
-    for (bvgraph_nonzero_iterator(g, &iter); 
-         bvgraph_iterator_valid(&iter); 
+    for (; bvgraph_iterator_valid(&iter); 
          bvgraph_iterator_next(&iter))
     {
         bvgraph_iterator_outedges(&iter, &links, &d);

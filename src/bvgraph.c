@@ -8,6 +8,12 @@
  * @file bvgraph.c
  * Implement all the routines to work with bvgraph files in the bvg library.
  */
+ 
+/**
+ * 24 January 2008
+ * Added function to initialize structure memory to fix a segfault on the 
+ * 32-bit version.
+ */
 
 #include "bvgraph_internal.h"
 
@@ -103,6 +109,8 @@ int bvgraph_load_external(bvgraph *g,
     if (filenamelen > BVGRAPH_MAX_FILENAME_SIZE-1) { 
         return bvgraph_load_error_filename_too_long; 
     }
+    
+    memset(g,0,sizeof(bvgraph));
 
     strncpy(g->filename, filename, filenamelen);
     g->filename[filenamelen] = '\0';
