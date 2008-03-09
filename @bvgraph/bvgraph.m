@@ -13,7 +13,7 @@ function bvg = bvgraph(filename,optionsu)
 %
 % options.trans: internally transpose the graph [{0} | 1]
 % options.load_type : determine how to load the graph
-%   ['stream' | 'offline' | 'inmemory' | 'online' | 'random']
+%   ['stream' | 'offline' | 'inmemory' | {'online'} | 'random']
 %   The options 'stream' and 'offline' are synonymous, as are 'inmemory'
 %   and 'online'.  The memory required satisfies the hierarchy
 %   'stream' << 'inmemory' << 'random'
@@ -39,6 +39,12 @@ function bvg = bvgraph(filename,optionsu)
 % 21 May 2007
 % Copyright, Stanford University, 2007
 %
+
+% handle the case of making a copy...
+if isa(filename,'bvgraph')
+    bvg=filename;
+    return
+end
 
 options = struct('load_type', 'online','trans',0);
 if exist('optionsu','var')

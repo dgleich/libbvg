@@ -35,6 +35,9 @@ function [x,flag,hist] = bvpagerank(G,alpha,v,tol,maxiter,use_native)
 
 % 3 September 2007
 % Added code to use the substochastic_mult features of the bvgraph class
+%
+% 5 February 2008
+% Added normalization to the multiplication vectors
 
 if ~exist('alpha','var')
     alpha = 0.85;
@@ -123,6 +126,7 @@ while (iter < maxiter)
     else
         y = y + (1-ny)*v;
     end
+    y = y./norm(y,1);
     
     x = x - y;
     delta = norm(x,1);

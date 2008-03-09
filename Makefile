@@ -1,3 +1,10 @@
+#
+# Makefile for libbvg
+#
+# David Gleich
+# Copyright, Stanford University, 2008
+# 4 February 2008
+#
 
 LIBBVGNAME := libbvg.a
 LIBBVG_SRC_DIR := src

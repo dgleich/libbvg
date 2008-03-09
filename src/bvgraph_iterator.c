@@ -21,6 +21,11 @@
  * 2007-07-02
  * Fixed uninitialized error for gcc
  */
+ 
+/** Todo
+ * Add error checking and error returns
+ * Check for performance (remove memcpyies?)
+ */
 
 #include "bvgraph_internal.h"
 
