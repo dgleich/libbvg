@@ -9,14 +9,13 @@
  * Routines to manipulate a bvgraph like a matrix.
  */
 
-/**
+/** History
  * 3 September 2007
  * Added bvgraph_csr and bvgraph_csr_large to convert to a CSR representation.
  * Added bvgraph_substochastic_mult and bvgraph_substochastic_transmult
  *    to compute the stochastic products.
  * 
- * 24 January 2008
- * Added error checking and more comments
+ *  2008-01-24:Added error checking and more comments
  * 
  * 4 March 2008
  * Added compensated summation

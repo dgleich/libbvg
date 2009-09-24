@@ -11,8 +11,11 @@
 
 /** History
  *
- * 2008-01-15
- * Added __APPLE_CC__ case to fsize to get correct size in that case.
+ *  2008-01-15: Added __APPLE_CC__ case to fsize to get correct size 
+ *              in that case.
+ *  2008-05-09: Added int_vector_create_copy
+ *              Fixed int_vector_ensure_size to remove spurious alloc on
+ *              >= n instead of > n
  */
 
 #ifdef __GNUC__
@@ -190,9 +193,23 @@ int int_vector_create(bvgraph_int_vector* v, uint n)
     return (0);
 }
 
+/** Create a new int_vector from a deep copy of another int_vector.
+ * 
+ * @param u the new vector
+ * @param v the old vector
+ */
+int int_vector_create_copy(bvgraph_int_vector* u, bvgraph_int_vector *v)
+{
+    u->elements = v->elements;
+    u->a = malloc(sizeof(int)*u->elements);
+    if (!u->a) { return bvgraph_call_out_of_memory; }
+    memcpy(u->a, v->a, sizeof(int)*u->elements);
+    return (0);
+}
+
 int int_vector_ensure_size(bvgraph_int_vector *v, uint n)
 {
-    if (n >= v->elements) {
+    if (n > v->elements) {
         int* newa = malloc(sizeof(int)*n);
         if (!newa) { return bvgraph_call_out_of_memory; }
 

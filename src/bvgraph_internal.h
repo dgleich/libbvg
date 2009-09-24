@@ -11,6 +11,9 @@
  * @file bvgraph_internal.h
  * Prototype a series of internal routines for the bvgraph library
  */
+/** History 
+ *  2008-05-08: Added int_vector_create_copy
+ */ 
 
 #include "bvgraph.h"
 
@@ -36,6 +39,7 @@ extern char* parse_property_value(FILE *f, uint maxvallen);
 extern int parse_properties(bvgraph* g);
 
 extern int int_vector_create(bvgraph_int_vector* v, uint n);
+extern int int_vector_create_copy(bvgraph_int_vector* u, bvgraph_int_vector *v);
 extern int int_vector_ensure_size(bvgraph_int_vector *v, uint n);
 extern int int_vector_free(bvgraph_int_vector* v);
 

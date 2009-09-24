@@ -9,10 +9,9 @@
  * Implement all the routines to work with bvgraph files in the bvg library.
  */
  
-/**
- * 24 January 2008
- * Added function to initialize structure memory to fix a segfault on the 
- * 32-bit version.
+/** History
+ *  01-24-2008: Added function to initialize structure memory to fix a 
+ *              segfault on the 32-bit version.
  */
 
 #include "bvgraph_internal.h"
@@ -34,7 +33,7 @@ const int bvgraph_property_file_compression_flag_error = 23;
  * This function sets the default options in a graph
  */
 
-void set_defaults(bvgraph *g)
+static void set_defaults(bvgraph *g)
 {
     g->zeta_k = 3;
     g->window_size = 7;

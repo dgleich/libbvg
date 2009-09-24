@@ -17,6 +17,8 @@ function result=isa(graph,arg2)
 % Copyright, Stanford University, 2008
 %
 
+%  2009-04-24: Added check if it's an ssbvgraph too
+
 % Error checking.
 if ~ischar(arg2)
  	error('bvgraph:invalidParameter', 'Unknown option.');
@@ -24,6 +26,8 @@ end
 
 if strcmp(arg2,'bvgraph')
     result = true;
+elseif strcmp(arg2,'ssbvgraph')
+    result = true;    
 else
     % we want to pretend we are a double
     result = isa(ones(1,'double'),arg2);

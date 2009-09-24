@@ -33,8 +33,8 @@ function varargout = bvgfun(varargin)
 % actually, all this function does is compile the mex file and then
 % redirect the original call
 
-srcdir = '../../src';
-headerdir = '../../include';
+srcdir = '../../../src';
+headerdir = '../../../include';
 
 mexopts = '';
 c = computer;

@@ -14,13 +14,19 @@
 
 /** History
  *
- * 2007-06-10
- * Added block,len,left,buf1,buf2 fields to the iterator type.s
+ * 2007-06-10: Added block,len,left,buf1,buf2 fields to the iterator type.s
+ * 2008-05-08: Added iterator_copy
+ * 2008-05-09: Added parallel iterators
+ *             Added BVGRAPH_VERBOSE macro
  */
 
 #include "bitfile.h"
 
 //#define MAX_DEBUG
+
+#ifndef BVGRAPH_VERBOSE
+#define BVGRAPH_VERBOSE 0
+#endif
 
 #define BVGRAPH_MAX_FILENAME_SIZE 1024
 
@@ -96,9 +102,17 @@ struct bvgraph_iterator_tag {
     struct bvgraph_int_vector_tag block, left, len, buf1, buf2;
 };
 
+struct bvgraph_parallel_iterators_tag {
+    int niters;
+    int *nsteps;
+    struct bvgraph_iterator_tag *iters;
+    struct bvgraph_tag *g;
+};
+
 typedef struct bvgraph_tag bvgraph;
 typedef struct bvgraph_iterator_tag bvgraph_iterator;
 typedef struct bvgraph_int_vector_tag bvgraph_int_vector;
+typedef struct bvgraph_parallel_iterators_tag bvgraph_parallel_iterators;
 
 // define all the error codes
 extern const int bvgraph_call_out_of_memory;
@@ -123,11 +137,20 @@ int bvgraph_close(bvgraph* g);
 //int bvgraph_outdegree(bvgraph* g, int i, int *deg);
 //int bvgraph_adjacency(bvgraph* g, int i, int *adj, int len);
 int bvgraph_nonzero_iterator(bvgraph* g, bvgraph_iterator *i);
-
+int bvgraph_iterator_copy(bvgraph_iterator *i, bvgraph_iterator *j);
 int bvgraph_iterator_outedges(bvgraph_iterator* i, int** start, unsigned int* len);
 int bvgraph_iterator_next(bvgraph_iterator* i);
 int bvgraph_iterator_valid(bvgraph_iterator* i);
 int bvgraph_iterator_free(bvgraph_iterator *i);
+
+int bvgraph_iterator_copy(bvgraph_iterator *i, bvgraph_iterator *j);
+
+int bvgraph_parallel_iterators_create(bvgraph *g, 
+        bvgraph_parallel_iterators *pits, int niters, int wnode, int wedge);
+int bvgraph_parallel_iterator(bvgraph_parallel_iterators *pits, int i,
+        bvgraph_iterator *iter, int *nsteps);
+int bvgraph_parallel_iterators_free(bvgraph_parallel_iterators *pits);
+
 
 int bvgraph_required_memory(bvgraph *g, int offset_step, size_t *gbuf, size_t *offsetbuf);
 

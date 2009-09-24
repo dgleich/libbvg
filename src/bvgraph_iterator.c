@@ -11,20 +11,18 @@
 
 /** History
  *
- * 2007-06-10
- * Changed iterator to allocate block,len,left,buf1,buf2 only once
- *   per iterator instead of once per next call.  This improved the 
- *   iteration speed by almost 3x for cnr-2000.  Added corresponding
- *   allocation and deallocation to bvgraph_nonzero_iterator and 
- *   bvgraph_iterator_free.
- * 
- * 2007-07-02
- * Fixed uninitialized error for gcc
+ *  2007-06-10: Changed iterator to allocate block,len,left,buf1,buf2 only once
+ *              per iterator instead of once per next call.  This improved the 
+ *              iteration speed by almost 3x for cnr-2000.  Added corresponding
+ *              allocation and deallocation to bvgraph_nonzero_iterator and 
+ *              bvgraph_iterator_free.
+ *  2007-07-02: Fixed uninitialized error for gcc
+ *  2008-05-08: Set graph max_outd when closing the a valid iterator now 
  */
  
 /** Todo
  * Add error checking and error returns
- * Check for performance (remove memcpyies?)
+ * Check for performance (remove memcopies?)
  */
 
 #include "bvgraph_internal.h"
@@ -202,8 +200,8 @@ int bvgraph_iterator_outedges(bvgraph_iterator* i, int** start, unsigned int* le
  * @param out the final array
  * @param outlen the length of the output array
  */
-int merge_int_arrays(const int* a1, size_t a1len, const int* a2, size_t a2len,
-                     int *out, size_t outlen)
+static int merge_int_arrays(const int* a1, size_t a1len, const int* a2, 
+                     size_t a2len, int *out, size_t outlen)
 {
     size_t a1i=0, a2i=0, oi=0;
     // make sure we don't have to worry about having enough space
@@ -485,7 +483,7 @@ int bvgraph_iterator_valid(bvgraph_iterator* i)
 int bvgraph_iterator_free(bvgraph_iterator *iter)
 {
     int i;
-    if (iter->g && iter->curr == iter->g->n+1) { 
+    if (iter->g && iter->curr == iter->g->n) { 
         iter->g->max_outd = iter->max_outd;
     }
     bitfile_close(&iter->bf);
@@ -503,4 +501,311 @@ int bvgraph_iterator_free(bvgraph_iterator *iter)
     iter->g = NULL;
     return (0);
 }
+
+/** Copy a bvgraph iterator structure along with all of the arrays.
+ * 
+ * This operation makes an exact copy of the iterator i and 
+ * COULD be used to restart iteration from EXACTLY the state of i.
+ * 
+ * At the moment, this only works for bvgraphs loaded into memory,
+ * as supporting bitfiles on disk would mean we need to be able to 
+ * seek to positions in bitfiles, which isn't quite supported yet.
+ * 
+ * The iteration *j should be empty, as we'll allocate all arrays
+ * for it.  (It should have either been freshly allocated, or had
+ * bvgraph_iterator_free called on it.)
+ * 
+ * @param i the new iterator
+ * @param j the old iterator
+ */
+int bvgraph_iterator_copy(bvgraph_iterator *i, bvgraph_iterator *j)
+{
+    int rval = 0;
+    int windcount = 0;
+    
+    if (j->g->offset_step != 0) {
+        return bvgraph_call_unsupported;
+    }
+    
+    i->max_outd = j->max_outd;
+    i->g = j->g;
+    i->curr = j->curr;
+    i->curr_outd = j->curr_outd;
+    i->cyclic_buffer_size = j->cyclic_buffer_size;
+
+    if (j->g->offset_step == 0) {
+        memcpy(&i->bf, &j->bf, sizeof(bitfile));
+    } else {
+        return bvgraph_call_unsupported;
+    }
+
+    // beyond this point, the bitfile was successfully allocated, so we must 
+    // deallocate it if we exit.
+
+    i->outd_cache = malloc(sizeof(int)*i->cyclic_buffer_size);
+    if (i->outd_cache) {
+        memcpy(i->outd_cache, j->outd_cache, sizeof(int)*i->cyclic_buffer_size);
+        i->window = malloc(sizeof(bvgraph_int_vector)*i->cyclic_buffer_size);
+        if (i->window) {
+            rval = int_vector_create_copy(&i->successors, &j->successors);
+            if (rval == 0) {
+                for (windcount = 0; windcount < i->cyclic_buffer_size; windcount++) {
+                    rval = int_vector_create_copy(&i->window[windcount], &j->window[windcount]);
+                    if (rval != 0) { break; }
+                }
+
+                // 
+                // this statement here indicates we should return
+                // with success and a correctly allocated 
+                // interator
+                //
+                
+                rval = int_vector_create_copy(&i->block, &j->block);
+                rval |= int_vector_create_copy(&i->left, &j->left);
+                rval |= int_vector_create_copy(&i->len, &j->len);
+                rval |= int_vector_create_copy(&i->buf1, &j->buf1);
+                rval |= int_vector_create_copy(&i->buf2, &j->buf2);
+                
+                if (rval == 0) {
+                    return (0);                
+                }
+
+                // in this case, we have to free everything allocated
+                while (windcount >= 0) {
+                    int_vector_free(&i->window[windcount]);
+                    windcount--;
+                }
+
+                int_vector_free(&i->successors);
+            }
+            free(i->window);
+        }
+        else { rval = bvgraph_call_out_of_memory; }
+
+        free(i->outd_cache);
+    } 
+    else { rval = bvgraph_call_out_of_memory; }
+    bitfile_close(&i->bf);
+  
+    return rval;
+}
+
+/** Compute the average balanace for a set of parallel iterators.
+ *
+ * This function will clean up all intermediate computations
+ * if it fails.
+ */
+static int compute_avgbalance(bvgraph *g, int niters, int wnode, int wedge, 
+        long long *avgbalance)
+{
+    int rval; 
+    unsigned int d;
+    long long balance = 0;
+    bvgraph_iterator iter;
+
+    if (!avgbalance) { return bvgraph_call_unsupported; /* TODO: better return */ }
+
+    rval = bvgraph_nonzero_iterator(g, &iter);
+    if (!rval) {
+        for (; bvgraph_iterator_valid(&iter); bvgraph_iterator_next(&iter)) {
+            bvgraph_iterator_outedges(&iter, NULL, &d);
+            balance += wnode + wedge*d;
+        }
+        bvgraph_iterator_free(&iter);
+
+        *avgbalance = (balance + niters-1)/niters; /* round by the ceil function */
+
+        if (BVGRAPH_VERBOSE) {
+            fprintf(stdout,"average balance for %3i iters is %9lli\n",
+                niters, *avgbalance);
+        }
+
+        return (0);
+    }
+
+    return (rval);
+}
+
+/** Distribute iterators trying to maintain a balanace
+ *
+ * The algorithm for distributing iterators it to keep
+ * adding nodes from the graph until the total balance
+ * on the current iterator exceeds the average balanace passed
+ * in avgbalance.
+ * 
+ * This function will clean up all intermediate computations
+ * if it fails.
+ */
+static int distribute_iters(bvgraph *g, bvgraph_parallel_iterators *pits,
+        int wnode, int wedge, long long avgbalance)
+{
+    int rval, nsteps, iter;
+    unsigned int d;
+    long long balance = 0; 
+    bvgraph_iterator git;
+
+    /* clear iterators so we can use iter->g to test for success/failure */
+    for (iter=0; iter<pits->niters; iter++) {
+        memset(&pits->iters[iter], 0, sizeof(bvgraph_iterator));
+    }
+
+    rval = bvgraph_nonzero_iterator(g, &git);
+    if (!rval) {
+        iter = 0; nsteps = 0;
+        rval = bvgraph_iterator_copy(&pits->iters[iter], &git);
+        if (!rval) {
+            while (bvgraph_iterator_valid(&git)) {
+                if (balance >= avgbalance) {
+                    pits->nsteps[iter] = nsteps;
+                    if (BVGRAPH_VERBOSE) {
+                        fprintf(stdout,
+                            "balance on iterator %3i is %9lli with %9d steps\n",
+                            iter, balance, nsteps);
+                    }
+                    iter++;
+                    rval = bvgraph_iterator_copy(&pits->iters[iter], &git);
+                    nsteps = 0; balance = 0;
+                    if (rval) { iter--; break; }
+                }
+                bvgraph_iterator_outedges(&git, NULL, &d);
+                balance += wnode + wedge*d;
+                bvgraph_iterator_next(&git); nsteps++;
+            }
+            bvgraph_iterator_free(&git);
+
+            if (!rval) {
+                /* nothing went wrong inside the allocation */
+                pits->nsteps[iter] = nsteps;
+                if (BVGRAPH_VERBOSE) {
+                    fprintf(stdout,
+                        "balance on iterator %3i is %9lli with %9d steps\n",
+                        iter, balance, nsteps);
+                }
+
+                iter++;
+                if (iter < pits->niters) {
+                    if (BVGRAPH_VERBOSE) { 
+                        fprintf(stdout, 
+                            "could only allocate %3i iterators and not %3i\n",
+                            iter, pits->niters);
+                    }
+                    pits->niters = iter;
+                }
+
+                return (0);
+            } 
+
+            /* free all allocated iterators, something went wrong */
+            while (iter) {
+                bvgraph_iterator_free(&pits->iters[iter--]);
+            }
+        }
+        bvgraph_iterator_free(&git);
+
+        return (0);
+    }
+
+    return (rval);
+}
+
+/** Construct independent iterators over portions of the graph.
+ * 
+ * These iterators are most often used to do parallel iteration 
+ * over the graph, hence the term.
+ * 
+ * The graph is divided into a series of iterators by trying
+ * to balance wnode*nnodes + wedge*nedges on each of the iterators.
+ * 
+ * For OpenMP tasks, wnode=0, wedge=1 is often a good choice.
+ * For MPI taks, wnode=1, wedge=1 is often a good choice.
+ * 
+ * @param g the bvgraph
+ * @param pits an uninitialized bvgraph_parallel_iterators structure
+ * to hold the set of iterators
+ * @param niters the number of iterators to create
+ * @param wnode a weight applied to each node to balance the work
+ * @param wedge a weight applied to each edge to balance the work
+ */
+int bvgraph_parallel_iterators_create(bvgraph *g, 
+        bvgraph_parallel_iterators *pits, int niters, int wnode, int wedge)
+{
+    int rval; 
+    /* check compatibility */
+    if (g->offset_step != 0) {
+        return (bvgraph_call_unsupported);
+    }
+    /* allocate memory */
+    memset(pits, 0, sizeof(bvgraph_parallel_iterators));
+    pits->g = g;
+    pits->niters = niters;
+    pits->iters = malloc(sizeof(bvgraph_iterator)*pits->niters);
+    if (pits->iters) {
+        pits->nsteps = malloc(sizeof(int)*pits->niters);
+        if (pits->nsteps) {
+            long long avgbalance=0;
+            rval = compute_avgbalance(g, niters, wnode, wedge, &avgbalance);
+            if (!rval) {
+                rval = distribute_iters(g, pits, wnode, wedge, avgbalance);
+                if (!rval) {
+                    return (0);
+                }
+            }
+            free(pits->nsteps);
+        } else {
+            rval = bvgraph_call_out_of_memory;
+        }
+        free(pits->iters);
+    } else {
+        rval = bvgraph_call_out_of_memory;
+    }
+    return (rval);
+}
+
+/** Pick a parallel iterator from the set.
+ *
+ * Create a copy of the ith parallel iterator suitable for actually 
+ * iterating over the graph.
+ *
+ * You should NOT use the contents of the parallel_iterators directly!
+ * 
+ * You are responsible for calling bvgraph_iterator_free() on the iterator.
+ * 
+ * @param pits the set of parallel iterators
+ * @param iter the newly allocated iterator starting from the ith parallel 
+ * iterator
+ * @param i the index of the iterator in the parallel set
+ * @param nsteps the number of steps to take with this iterator before
+ * hitting the next parallel iterator.
+ */
+int bvgraph_parallel_iterator(bvgraph_parallel_iterators *pits, int i,
+        bvgraph_iterator *iter, int *nsteps)
+{
+    int rval = bvgraph_call_unsupported; /* TODO: Change to invalid index */
+    if (i<pits->niters) {
+        rval = bvgraph_iterator_copy(iter, &pits->iters[i]);
+        if (!rval && nsteps) {
+            *nsteps = pits->nsteps[i];
+        }
+    }
+    return (rval);
+}
+
+/** Release the collection of parallel iterators
+ *
+ * You should only use this function once you are done with all operations from
+ * a set of parallel iterators.
+ * 
+ * @param pits the set to release
+ */
+int bvgraph_parallel_iterators_free(bvgraph_parallel_iterators *pits)
+{
+    int i;
+    for (i=0; i<pits->niters; i++) {
+        bvgraph_iterator_free(&pits->iters[i]);
+    }
+    free(pits->iters);
+    free(pits->nsteps);
+    return (0);
+}
+
 
