@@ -256,6 +256,56 @@ int bvgraph_required_memory(bvgraph *g, int offset_step, size_t *gbuf, size_t *o
     return (0);
 }
 
+/** Access the outdegree for a given node.
+ *
+ * For a random access graph, this method provides a thread-safe means of 
+ * getting the outdegree for a given node.  If you are going to make
+ * many sequential outdegree calls from a single thread, the 
+ * random_access_iterator structure is much more efficient.
+ *
+ * To use this method, the graph must be loaded with offsets.
+ *
+ * @param g the bvgraph structure with offsets loaded
+ * @param x the node
+ * @param[out] d the outdegree
+ * @return 0 on success
+ */
+int bvgraph_outdegree(bvgraph *g, int x, unsigned int *d) 
+{
+    bvgraph_random_access_iterator ri;
+    int rval = bvgraph_random_access_iterator(g, &ri);
+    if (rval == 0) {
+        rval = bvgraph_random_outdegree(&ri, x, d);
+        bvgraph_random_free(&ri);
+    }
+    return (rval);
+}
+
+/** Access the outdegree for a given node.
+ *
+ * For a random access graph, this method provides a thread-safe means of 
+ * getting the outdegree for a given node.  If you are going to make
+ * many sequential outdegree calls from a single thread, the 
+ * random_access_iterator structure is much more efficient.
+ *
+ * To use this method, the graph must be loaded with offsets.
+ *
+ * @param g the bvgraph structure with offsets loaded
+ * @param x the node
+ * @param[out] d the outdegree
+ * @return 0 on success
+ */
+int bvgraph_successors(bvgraph *g, int x, int *s) 
+{
+    bvgraph_random_access_iterator ri;
+    int rval = bvgraph_random_access_iterator(g, &ri);
+    if (rval == 0) {
+        return bvgraph_random_outdegree(&ri, x, d);
+    } else { 
+        return (rval); 
+    }   
+}
+
 
 /**
  * Return an error string associated with an error code.

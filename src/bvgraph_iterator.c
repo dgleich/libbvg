@@ -11,13 +11,15 @@
 
 /** History
  *
- *  2007-06-10: Changed iterator to allocate block,len,left,buf1,buf2 only once
- *              per iterator instead of once per next call.  This improved the 
- *              iteration speed by almost 3x for cnr-2000.  Added corresponding
- *              allocation and deallocation to bvgraph_nonzero_iterator and 
- *              bvgraph_iterator_free.
- *  2007-07-02: Fixed uninitialized error for gcc
- *  2008-05-08: Set graph max_outd when closing the a valid iterator now 
+ * 2007-06-10: Changed iterator to allocate block,len,left,buf1,buf2 only once
+ *              per iterator instead of once per next call.  This improved the
+ *              iteration speed by almost 3x for cnr-2000.  Added 
+ *              corresponding allocation and deallocation to 
+ *              bvgraph_nonzero_iterator and bvgraph_iterator_free.
+ * 2007-07-02: Fixed uninitialized error for gcc
+ * 2008-03-10: Refactored read_* routines into bvgraph_io.c
+ * 2008-03-11: Correctly close the bitfile file pointers
+ * 2008-05-08: Set graph max_outd when closing the a valid iterator now 
  */
  
 /** Todo
@@ -26,52 +28,7 @@
  */
 
 #include "bvgraph_internal.h"
-
-/**
- * Prototypes for internal functions
- */
-
-inline int nat2int(const int x) { return x % 2 == 0 ? x >> 1 : -( ( x + 1 ) >> 1 ); }
-
-inline int read_coded(bitfile *bf, enum bvgraph_compression_flag_tag c) 
-{ 
-    switch (c) {
-        case BVGRAPH_FLAG_DELTA: 
-        case BVGRAPH_FLAG_GOLOMB:
-        case BVGRAPH_FLAG_SKEWED_GOLOMB:
-        case BVGRAPH_FLAG_ARITH:
-        case BVGRAPH_FLAG_INTERP:
-        case BVGRAPH_FLAG_ZETA:
-            return (bvgraph_call_unsupported);
-
-        case BVGRAPH_FLAG_GAMMA:
-            return bitfile_read_gamma(bf);
-            break;
-
-        case BVGRAPH_FLAG_UNARY:
-            return bitfile_read_unary(bf);
-            break;
-
-        case BVGRAPH_FLAG_NIBBLE:
-            return bitfile_read_nibble(bf);
-            break;
-    }
-
-    return (bvgraph_call_unsupported);
-}
-inline int read_offset(bvgraph *g, bitfile *bf) { return read_coded(bf, g->offset_coding); }
-inline int read_outdegree(bvgraph *g, bitfile *bf) { return read_coded(bf, g->outdegree_coding); }
-inline int read_residual(bvgraph *g, bitfile *bf) 
-{ 
-    if (g->residual_coding == BVGRAPH_FLAG_ZETA) {
-        return bitfile_read_zeta(bf,g->zeta_k);
-    } else {
-        return read_coded(bf, g->residual_coding); 
-    }
-}
-inline int read_reference(bvgraph *g, bitfile *bf) { return read_coded(bf, g->reference_coding); }
-inline int read_block(bvgraph *g, bitfile *bf) { return read_coded(bf, g->block_coding); }
-inline int read_block_count(bvgraph *g, bitfile *bf) { return read_coded(bf, g->block_count_coding); }
+#include "bvgraph_inline_io.h"
 
 /**
  * Create a non-zero iterator for the bvgraph.  The non-zero iterator is 
@@ -173,6 +130,7 @@ int bvgraph_nonzero_iterator(bvgraph* g, bvgraph_iterator *i)
     } 
     else { rval = bvgraph_call_out_of_memory; }
     bitfile_close(&i->bf);
+    if (i->bf->f) { fclose(f); } 
   
     return rval;
 }
@@ -487,6 +445,7 @@ int bvgraph_iterator_free(bvgraph_iterator *iter)
         iter->g->max_outd = iter->max_outd;
     }
     bitfile_close(&iter->bf);
+    if (i->bf->f) { fclose(f); } 
     free(iter->outd_cache);
     int_vector_free(&iter->successors);
     for (i=0; i < iter->cyclic_buffer_size; i++) {

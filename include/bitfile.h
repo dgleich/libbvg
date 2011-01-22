@@ -12,6 +12,11 @@
  * The main declarations for the bitfile interface.
  */
 
+/** History
+ *
+ * 2008-03-10: Added bitfile position header, skip_* functions
+ */
+
 #include <stdio.h>
 
 struct bitfile_tag {
@@ -45,6 +50,12 @@ int bitfile_read_unary(bitfile* bf);
 int bitfile_read_gamma(bitfile* bf);
 int bitfile_read_zeta(bitfile* bf, const int k);
 int bitfile_read_nibble(bitfile* bf);
+
+int bitfile_position(bitfile* bf, const long long pos);
+
+long long bitfile_skip(bitfile* bf, long long n);
+int bitfile_skip_gammas(bitfile* bf, int n);
+int bitfile_skip_deltas(bitfile* bf, int n);
 
 #endif /* LIBBVG_BITFILE_H */
 

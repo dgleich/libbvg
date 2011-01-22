@@ -12,8 +12,11 @@
  
  /** History
  *
- * 2007-07-02
- * Commented out the refill codes to prevent gcc warning
+ * 2007-07-02: Commented out the refill codes to prevent gcc warning
+ * 2008-03-10: Added skip_bytes section for portable byte skips
+ *             Added bitfile_skip_gammas and bitfile_skip_deltas
+ *             Added bitfile_position
+ *             Added bitfile_skip
  */
 
 #include <stdlib.h>
@@ -64,6 +67,55 @@ const int BYTEMSB[] = {
         7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 
         7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7
 };
+
+/** Define a portable seek function that returns the number of bytes moved
+ * 
+ * This function is implemented slightly differently on each architecture,
+ * but functions like a java "skip" command.
+ *
+ * If the size of the file is less than the number of bytes, this returns
+ * less than n. 
+ * 
+ * @param f the file stream to skip n bytes
+ * @param n the number of bytes to skip.
+ * @return the number of bytes skipped, or 
+ *         negative values to indicator an error
+ */
+long long skip_bytes(FILE *f, long long n)
+{
+#if defined(_MSC_VER)
+    long long start, end;
+    int rval;
+    start = _ftelli64(f);
+    rval = _fseeki64(f, n, SEEK_CUR);
+    if (rval == -1) { return -1; }
+    end = _ftelli64(f);
+    return (end-start);
+#elif defined(__GNUC__)
+    off_t start,end;
+    int rval;
+    start=ftello(f);
+    rval=fseeko(f,(off_t)n,SEEK_CUR);
+    if (rval == -1) { return -1; }
+    end=ftello(f);
+    return ((long long)(end-start));
+#else
+#error Please implement this function for your platform.
+#endif
+}
+
+/** Position a stream at a particular byte
+ */
+int position_stream(FILE *f, long long n) {
+#if defined(_MSC_VER)
+    return _fseeki64(f, n, SEEK_SET);
+#elif defined(__GNUC__)
+    return fseeko(f, n, SEEK_SET);
+#else
+#error Please implement this function for your platform.
+#endif
+}
+ 
 
 /**
  * Allocate a few constants to speed the algorithms.
@@ -196,6 +248,9 @@ static int bitfile_read(bitfile* bf)
     return bf->buffer[bf->pos++] & 0xFF;
 }
 
+
+
+
 /** Fills {@link #current} to 16 bits.
  * 
  * <p>This method must be called <em>only</em> when 8 &le; {@link #fill} &lt; 16. It
@@ -235,6 +290,183 @@ static int refill(bitfile* bf)
     bf->current = (bf->current << 8) | bitfile_read(bf);
     return (int)(bf->fill += 8);
 }*/
+
+/** Positions the stream at a particular bit.
+ *
+ * <P>Given an underlying stream that implements {@link
+ * RepositionableStream} or that can provide a {@link
+ * java.nio.channels.FileChannel} via the <code>getChannel()</code> method,
+ * a call to this method has the same semantics of a {@link #flush()},
+ * followed by a call to {@link
+ * java.nio.channels.FileChannel#position(long) position(position / 8)} on
+ * the byte stream, followed by a {@link #skip(long) skip(position % 8)}.
+ *
+ * @param position the new position expressed as a bit offset.
+ */
+int bitfile_position(bitfile* bf, const long long position)
+{
+    const long long bit_delta = ((bf->position + bf->pos) << 3) - position;
+    if (bit_delta >= 0 && bit_delta <= bf->fill) {
+        // in this case, we have all the data loaded into the current byte
+        // so we will just update our position in the byte.
+        bf->fill = (int)bit_delta;
+        return (0);
+    } else {
+        // position the byte
+        const long long delta = (position >> 3) - (bf->position + bf->pos);
+        const int residual = (int)(position & 7);
+        // TODO check for optimizations on the long long/size_t conversions
+        if (delta <= bf->avail && delta >= -(long long)bf->pos) {
+            // in this case, everything is in the buffer
+            bf->avail -= (size_t)delta;
+            bf->pos += (size_t)delta;
+            bf->fill = 0;
+        } else {
+            bitfile_flush(bf);
+            bf->position = (size_t)(position>>3);
+            //fseek(bf->f, bf->position, SEEK_SET);
+            position_stream(bf->f, bf->position);
+        }
+
+        if (residual != 0) {
+            bf->current = bitfile_read(bf);
+            bf->fill = 8 - residual;
+        }
+
+        return (0);
+    }
+}
+
+/** Skips the given number of bits. 
+ *
+ * @param n the number of bits to skip.
+ * @return @c on success, the number of bits skipped, 
+ *         @c on failure, a negative number
+ */
+long long bitfile_skip(bitfile* bf, long long n)
+{
+    // handle the case when everything is in memory
+    if (n <= bf->fill) {
+        if (n < 0) { return (-1); } // TODO give a real error code
+        bf->fill -= n;
+        bf->total_bits_read += n;
+        return (n);
+    }
+    else {
+        const long long prev_read_bits = bf->total_bits_read;
+        // number of bytes to read
+        long long nb; 
+        int residual;
+        n -= bf->fill;
+        bf->total_bits_read += bf->fill;
+        bf->fill = 0;
+        nb = n >> 3;
+
+        if (bf->buffer != NULL && nb > bf->avail && nb < (bf->avail + bf->bufsize)) {
+            // try loading the next byte, just in case it happens
+            // to be the right one
+            bf->total_bits_read += (bf->avail + 1) << 3;
+            n -= (bf->avail + 1) << 3;
+            nb -= bf->avail + 1;
+            bf->position += bf->pos + bf->avail;
+            bf->pos = bf->avail = 0;
+            bitfile_read(bf);
+        }
+
+        if (nb <= bf->avail) {
+            // skip directly inside the buffer
+            bf->pos += (int)nb;
+            bf->avail -= (int)nb;
+            bf->total_bits_read += (n & ~7);
+        } else {
+            // this code has many warnings in the InputBitStream.java file
+            // they are reproduced here
+
+            long long to_skip;
+            long long skipped;
+            
+            // No way, we have to pass the byte skip to the underlying stream.
+            n -= bf->avail << 3;
+            bf->total_bits_read += bf->avail << 3;
+            
+            to_skip = nb - bf->avail;
+            skipped = skip_bytes(bf->f, to_skip);
+            if (skipped < to_skip) { return -1; } // TODO give real error code
+            bf->position += (bf->avail + bf->pos) + skipped;
+            bf->pos = 0;
+            bf->avail = 0;
+            bf->total_bits_read += skipped << 3;
+
+            // why exit here, we skipped too much?
+            if (skipped != to_skip) { 
+                return (bf->total_bits_read - prev_read_bits); 
+            }
+        }
+
+        residual=(int)(n & 7);
+        if (residual != 0) {
+            bf->current = bitfile_read(bf);
+            bf->fill = 8 - residual;
+            bf->total_bits_read += residual;
+        }
+        return (bf->total_bits_read - prev_read_bits);
+    }
+}
+
+/** Skips a given number of &gamma;-coded integers.
+ *
+ * <p>This method should be significantly quicker than iterating <code>n</code> times on
+ * {@link #readGamma()} or {@link #readLongGamma()}, as precomputed tables are used directly,
+ * so the number of method calls is greatly reduced, and the result is discarded, so
+ * {@link #skip(long)} can be invoked instead of more specific decoding methods.
+ * 
+ * @param n the number of &gamma;-coded integers to be skipped.
+ * @see #readGamma()
+ */
+int bitfile_skip_gammas(bitfile* bf, int n)
+{
+    //int pre_comp;
+    while (n-- != 0) {
+        // don't use precomputed tables for now
+        //if ((bf->fill >= 16 || refill() >= 16) && 
+        //    (pre_comp=GAMMA[bf->current>>(bf->fill-16)&0xFFFF] >> 16) != 0) {
+        //    bf->total_bits_read += pre_comp;
+        //    bf->fill -= pre_comp;
+        //    continue;
+        //}
+        bitfile_skip(bf, (long long)bitfile_read_unary(bf));
+        //bitfile_read_gamma(bf);
+    }
+    return (0);
+}
+
+/** Skips a given number of &delta;-coded integers.
+ * 
+ * <p>This method should be significantly quicker than iterating <code>n</code> times on
+ * {@link #readDelta()} or {@link #readLongDelta()}, as precomputed tables are used directly,
+ * so the number of method calls is greatly reduced, and the result is discarded, so
+ * {@link #skip(long)} can be invoked instead of more specific decoding methods.
+ *
+ * @param bf the bitfile 
+ * @param n the number of &delta;-coded integers to be skipped.
+ * @return 0 on success
+ * @see #readDelta()
+ */
+int bitfile_skip_deltas(bitfile* bf, int n)
+{
+    int pre_comp;
+    while (n-- != 0) {
+        // don't use precomputed tables for now
+        //if ((bf->fill >= 16 || refill(bf) >= 16) && 
+        //    (pre_comp = DELTA[bf->current>>(bf->fill-16)&0xFFFF]>>16) != 0) {
+        //    bf->total_bits_read += pre_comp;
+        //    bf->fill -= pre_comp;
+        //    continue;
+        //}
+        bitfile_skip(bf, (long long)bitfile_read_gamma(bf));
+    }
+}
+    
 
 /**
  * Read bits from the buffer, possibly refilling it.

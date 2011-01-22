@@ -43,6 +43,18 @@ extern int int_vector_create_copy(bvgraph_int_vector* u, bvgraph_int_vector *v);
 extern int int_vector_ensure_size(bvgraph_int_vector *v, uint n);
 extern int int_vector_free(bvgraph_int_vector* v);
 
+//
+// bvgraph_io routines
+//
+/*inline int nat2int(const int x);
+inline int read_coded(bitfile *bf, enum bvgraph_compression_flag_tag c);
+inline int read_offset(bvgraph *g, bitfile *bf);
+inline int read_outdegree(bvgraph *g, bitfile *bf);
+inline int read_residual(bvgraph *g, bitfile *bf);
+inline int read_reference(bvgraph *g, bitfile *bf);
+inline int read_block(bvgraph *g, bitfile *bf);
+inline int read_block_count(bvgraph *g, bitfile *bf);*/
+
 // disable all of the unsafe operation warnings
 #ifdef _MSC_VER
 #define inline __inline

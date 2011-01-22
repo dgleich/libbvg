@@ -165,6 +165,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\bvgraph_random.c"
+				>
+			</File>
+			<File
 				RelativePath=".\src\bvgraphfun.c"
 				>
 			</File>
@@ -188,6 +192,10 @@
 			</File>
 			<File
 				RelativePath=".\include\bvgraph.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\bvgraph_inline_io.h"
 				>
 			</File>
 			<File

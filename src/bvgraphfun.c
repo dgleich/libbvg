@@ -32,7 +32,9 @@
  * CSUM(x,svals,t,z) "computes y+= x" with compensated summation
  */
 // y[0] = sum; y[1] = e 
+#define CSUM2(x,y1,y2,t,z) { t=y1; z=(x)+y2; y1=t+z; y2=(t-y1)+z; }
 #define CSUM(x,y,t,z) { t=y[0]; z=(x)+y[1]; y[0]=t+z; y[1]=(t-y[0])+z; }
+#define FCSUM2(y1,y2) (y1,y2)
 #define FCSUM(y) (y[0]+y[1])
 
 #include <string.h>
@@ -292,7 +294,7 @@ int bvgraph_substochastic_transmult(bvgraph *g, double *x, double *y)
  */
 int bvgraph_substochastic_sum_row(bvgraph *g, double *x)
 {
-    bvgraph_iterator iter; double ys[2],t,z;
+    bvgraph_iterator iter; register double y1,y2,t,z,id;
     unsigned int d;
     int rval = bvgraph_nonzero_iterator(g, &iter);
     if (rval != 0) { return rval; } 
@@ -300,9 +302,9 @@ int bvgraph_substochastic_sum_row(bvgraph *g, double *x)
          bvgraph_iterator_next(&iter))
     {
         bvgraph_iterator_outedges(&iter, NULL, &d);
-        double id=1.0/(double)d;
-        while (d-->0) { CSUM(id,ys,t,z); } // implement compensated sum
-        *(x++) = FCSUM(ys);
+        id=1.0/(double)d;
+        while (d-->0) { CSUM2(id,y1,y2,t,z); } // implement compensated sum
+        *(x++) = FCSUM2(y1,y2);
     }
     bvgraph_iterator_free(&iter);
     return (0);
