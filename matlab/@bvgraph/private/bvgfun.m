@@ -41,7 +41,11 @@ c = computer;
 if strcmp(c,'PCWIN64') || ...
         strcmp(c,'GLNXA64') || ...
         strcmp(c,'SOL64')
-    mexopts = '-largeArrayDims';
+    mexopts = '-largeArrayDims';    
+end
+
+if strcmp(c,'GLNXA64')
+    mexopts = [mexopts ' CFLAGS="\$CFLAGS -std=gnu99"'];
 end
     
 
@@ -57,11 +61,12 @@ for fi=1:length(files)
     files{fi} = sprintf('%s ',files{fi});
 end
 p = mfilename('fullpath');
-[path,name,ext,version] = fileparts(p);
+[path,name,ext] = fileparts(p);
 olddir = cd;
 cd(path);
 try
     mexcmd = sprintf('mex %s -O -I%s %s', mexopts, headerdir, [files{:}]);
+    mexcmd
     eval(mexcmd);
     cd(olddir);
 catch
