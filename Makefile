@@ -9,7 +9,7 @@
 LIBBVGNAME := libbvg.a
 LIBBVG_SRC_DIR := src
 BVPAGERANKNAME := bvpr
-BVPAGERANK_SRC_DIR := bvpagerank
+BVPAGERANK_SRC_DIR := tools/bvpagerank
 
 CFLAGS := $(CFLAGS) -Wall -O2 
 CXXFLAGS := $(CXXFLAGS) -Wall -O2 
@@ -26,7 +26,7 @@ all: lib $(BVPAGERANKNAME)
 
 lib: $(LIBBVG_FULL_SRC)
 	gcc -c $(LIBBVG_INCLUDE) $(CFLAGS) $(LIBBVG_FULL_SRC)
-	ar -rc $(LIBBVGNAME) $(LIBBVG_SRC:.c=.o)
+	ar -rcs $(LIBBVGNAME) $(LIBBVG_SRC:.c=.o)
 
 clean:
 	$(RM) $(LIBBVG_SRC:.c=.o) $(LIBBVGNAME)
