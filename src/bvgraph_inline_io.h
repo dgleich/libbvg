@@ -16,10 +16,10 @@
 
 #include "bvgraph_internal.h"
 
-inline int nat2int(const int x) { return x % 2 == 0 ? x >> 1 : -( ( x + 1 ) >> 1 ); }
+static inline int nat2int(const int x) { return x % 2 == 0 ? x >> 1 : -( ( x + 1 ) >> 1 ); }
 
-inline int read_coded(bitfile *bf, enum bvgraph_compression_flag_tag c) 
-{ 
+static inline int read_coded(bitfile *bf, enum bvgraph_compression_flag_tag c) 
+{
     switch (c) {
         case BVGRAPH_FLAG_DELTA: 
         case BVGRAPH_FLAG_GOLOMB:
@@ -44,9 +44,9 @@ inline int read_coded(bitfile *bf, enum bvgraph_compression_flag_tag c)
 
     return (bvgraph_call_unsupported);
 }
-inline int read_offset(bvgraph *g, bitfile *bf) { return read_coded(bf, g->offset_coding); }
-inline int read_outdegree(bvgraph *g, bitfile *bf) { return read_coded(bf, g->outdegree_coding); }
-inline int read_residual(bvgraph *g, bitfile *bf) 
+static inline int read_offset(bvgraph *g, bitfile *bf) { return read_coded(bf, g->offset_coding); }
+static inline int read_outdegree(bvgraph *g, bitfile *bf) { return read_coded(bf, g->outdegree_coding); }
+static inline int read_residual(bvgraph *g, bitfile *bf) 
 { 
     if (g->residual_coding == BVGRAPH_FLAG_ZETA) {
         return bitfile_read_zeta(bf,g->zeta_k);
@@ -54,9 +54,9 @@ inline int read_residual(bvgraph *g, bitfile *bf)
         return read_coded(bf, g->residual_coding); 
     }
 }
-inline int read_reference(bvgraph *g, bitfile *bf) { return read_coded(bf, g->reference_coding); }
-inline int read_block(bvgraph *g, bitfile *bf) { return read_coded(bf, g->block_coding); }
-inline int read_block_count(bvgraph *g, bitfile *bf) { return read_coded(bf, g->block_count_coding); }
+static inline int read_reference(bvgraph *g, bitfile *bf) { return read_coded(bf, g->reference_coding); }
+static inline int read_block(bvgraph *g, bitfile *bf) { return read_coded(bf, g->block_coding); }
+static inline int read_block_count(bvgraph *g, bitfile *bf) { return read_coded(bf, g->block_count_coding); }
 
 /** Skips outdegrees from the given stream. 
  *
@@ -64,13 +64,13 @@ inline int read_block_count(bvgraph *g, bitfile *bf) { return read_coded(bf, g->
  * @param bf a graph-file input bit stream.
  * @param count the number of outdegrees to skip.
  */
-inline int skip_outdegrees(bvgraph *g, bitfile *bf, const int count) 
+static inline int skip_outdegrees(bvgraph *g, bitfile *bf, const int count) 
 {
     switch (g->outdegree_coding) {
         case BVGRAPH_FLAG_GAMMA: return bitfile_skip_gammas(bf,count);
         case BVGRAPH_FLAG_DELTA: return bitfile_skip_deltas(bf,count);
-        default: return bvgraph_unsupported_coding;
+        default: return bvgraph_call_unsupported;
     }
 }
 
-inline int fill_node_buffers(bvgraph *g, bitfile *bf,
+//inline int fill_node_buffers(bvgraph *g, bitfile *bf,

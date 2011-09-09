@@ -305,7 +305,10 @@ static int refill(bitfile* bf)
  */
 int bitfile_position(bitfile* bf, const long long position)
 {
+	//printf("bf position: %d\n", bf->position);
+	//printf("bf pos: %d\n", bf->pos);
     const long long bit_delta = ((bf->position + bf->pos) << 3) - position;
+	//printf("%d\n", bit_delta);
     if (bit_delta >= 0 && bit_delta <= bf->fill) {
         // in this case, we have all the data loaded into the current byte
         // so we will just update our position in the byte.
@@ -454,7 +457,7 @@ int bitfile_skip_gammas(bitfile* bf, int n)
  */
 int bitfile_skip_deltas(bitfile* bf, int n)
 {
-    int pre_comp;
+    //int pre_comp;
     while (n-- != 0) {
         // don't use precomputed tables for now
         //if ((bf->fill >= 16 || refill(bf) >= 16) && 
@@ -465,6 +468,8 @@ int bitfile_skip_deltas(bitfile* bf, int n)
         //}
         bitfile_skip(bf, (long long)bitfile_read_gamma(bf));
     }
+
+	return 0;
 }
     
 
