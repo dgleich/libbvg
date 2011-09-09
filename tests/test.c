@@ -108,15 +108,32 @@ void print_all(bvgraph g){
 
 }
 
+void print_help(){
+	printf("Use the following parameters to test random access: \n");
+	printf("./a.out dataset param\n");
+	printf("dataset: the graph dataset without extenion. Ex: harvard500\n");
+	printf("param:\n");
+	printf("\titerate   - to test iteratively.\n");
+	printf("\trandom    - to test by randomly generated nodes. Need a parameter for # of nodes.\n");
+	printf("\thead-tail - to test from head and tail roundly.\n");
+	printf("\tprint     - print degree and links for all nodes in dataset\n");	
+}
+
 int main(int argc, char** argv){
 	bvgraph g = {0};
 	//const char* name = "libbvg/data/wb-cs.stanford";
 	const char* name = argv[1];
-	const char* method = argv[2];
+	char* method = argv[2];
+
+	if (method == NULL){
+		print_help();
+		return 0;
+	}
 
 	//load with offsets
 	bvgraph_load(&g, name, strlen(name), 1);
 
+	printf("Input file: %s\n", name);
 	printf("nodes = %d\n", g.n);
 	printf("edges = %lli\n", g.m);
 
@@ -126,6 +143,10 @@ int main(int argc, char** argv){
 		test_iteratively(g, iterate_g);
 	}
 	else if (strcmp(method, "random") == 0){
+		if (argv[3] == NULL){
+			printf("Need node number. Stop\n");
+			return 1;
+		}
 		int num = atoi(argv[3]);
 		random_test(g, num);
 	}
@@ -136,29 +157,8 @@ int main(int argc, char** argv){
 		print_all(g);
 	}
 	else{
-		printf("Wrong parameters. Stop.\n");
-		return 1;
+		print_help();
 	}
-	
-	//random access test
-	//test all nodes iteratively by random access on each iteration
-	//iteration demo
-	/*
-	bvgraph_iterator git;
-	bvgraph_nonzero_iterator(&g, &git);
-
-	for (; bvgraph_iterator_valid(&git); bvgraph_iterator_next(&git)) {
-		int *links; unsigned int d;
-		bvgraph_iterator_outedges(&git, &links, &d);
-		printf("node %i has degree %d\n", git.curr, d);
-		int i = 0;
-		for (i; i<d; ++i) {
-			printf("node %i links to node %i\n", git.curr, links[i]);
-		}
-	}
-	bvgraph_iterator_free(&git);
-
-	*/
 
 	bvgraph_close(&g);
 
