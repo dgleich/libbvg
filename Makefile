@@ -9,20 +9,20 @@
 LIBBVGNAME := libbvg.a
 LIBBVG_SRC_DIR := src
 BVPAGERANKNAME := bvpr
-BVPAGERANK_SRC_DIR := bvpagerank
+BVPAGERANK_SRC_DIR := tools/bvpagerank
 
 CFLAGS := $(CFLAGS) -Wall -O2 
 CXXFLAGS := $(CXXFLAGS) -Wall -O2 
 
 LIBBVG_INCLUDE := -Iinclude -Isrc
-LIBBVG_SRC := bitfile.c bvgraph.c bvgraph_iterator.c properties.c util.c
+LIBBVG_SRC := bitfile.c bvgraph.c bvgraph_iterator.c bvgraph_random.c bvgraphfun.c properties.c util.c
 LIBBVG_FULL_SRC := $(addprefix $(LIBBVG_SRC_DIR)/,$(LIBBVG_SRC))
 BVPAGERANK_INCLUDE := -Iinclude
 
 # declare phony targets
-.PHONY: all lib clean 
+.PHONY: all lib clean test
 
-all: lib $(BVPAGERANKNAME)
+all: lib $(BVPAGERANKNAME) test
 
 lib: $(LIBBVG_FULL_SRC)
 	gcc -c $(LIBBVG_INCLUDE) $(CFLAGS) $(LIBBVG_FULL_SRC)
@@ -34,4 +34,7 @@ clean:
 $(BVPAGERANKNAME): lib $(BVPAGERANK_SRC_DIR)/bvpagerank.cc
 	$(CXX) -c $(BVPAGERANK_INCLUDE) $(CXXFLAGS) $(BVPAGERANK_SRC_DIR)/bvpagerank.cc
 	$(CXX) bvpagerank.o -o $(BVPAGERANKNAME) -lbvg -L.
-	
+
+test: lib
+	cd tests && $(MAKE)
+
