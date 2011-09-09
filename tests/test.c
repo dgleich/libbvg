@@ -6,18 +6,37 @@
 #include <string.h>
 #include <time.h>
 
-void run_iteration(bvgraph g){
+void test_iteratively(bvgraph g, bvgraph iterate_g){
 	bvgraph_iterator git;
-	bvgraph_nonzero_iterator(&g, &git);
+	bvgraph_nonzero_iterator(&iterate_g, &git);
 
 	for (; bvgraph_iterator_valid(&git); bvgraph_iterator_next(&git)) {
-		int *links; unsigned int d;
-		bvgraph_iterator_outedges(&git, &links, &d);
-		printf("node %i has degree %d\n", git.curr, d);
-		int i = 0;
-		for (i; i<d; ++i) {
-			printf("node %i links to node %i\n", git.curr, links[i]);
+		int *iterate_links, *random_links;
+		unsigned int iterate_d, random_d;
+
+		printf("Loading node %d by non-zero iterator...\n", git.curr);
+		bvgraph_iterator_outedges(&git, &iterate_links, &iterate_d);
+		printf("Loading node %d by random access...\n", git.curr);
+		bvgraph_successors(&g, git.curr, &random_links, &random_d);
+
+		printf("Checking degree... ");
+		if (iterate_d == random_d){
+			printf("Degree correct.\n");
 		}
+		else{
+			printf("Degree wrong. Stop.\n");
+			return;
+		}
+
+		printf("Checking links... ");
+		int i = 0;
+		for (i; i<iterate_d; i++){
+			if (iterate_links[i] != random_links[i]){
+				printf("Link %d doesn't match. Stop.\n", i);
+				return;
+			}
+		}
+		printf("Links correct. Node %d checking done.\n", git.curr);
 	}
 	bvgraph_iterator_free(&git);
 }
@@ -71,7 +90,7 @@ void random_test(bvgraph g, int test_num){
 
 }
 
-void test_iteratively(bvgraph g){
+void print_all(bvgraph g){
 	int i, rval;
 	unsigned int d;
 
@@ -86,6 +105,7 @@ void test_iteratively(bvgraph g){
 			printf("node %i links to node %i\n", i, links[j]);
 		}
 	}
+
 }
 
 int main(int argc, char** argv){
@@ -101,7 +121,9 @@ int main(int argc, char** argv){
 	printf("edges = %lli\n", g.m);
 
 	if (strcmp(method, "iterate") == 0){
-		test_iteratively(g);
+		bvgraph iterate_g;
+		bvgraph_load(&iterate_g, name, strlen(name), 0);
+		test_iteratively(g, iterate_g);
 	}
 	else if (strcmp(method, "random") == 0){
 		int num = atoi(argv[3]);
@@ -109,6 +131,9 @@ int main(int argc, char** argv){
 	}
 	else if (strcmp(method, "head-tail") == 0){
 		head_tail_first_test(g);
+	}
+	else if (strcmp(method, "print") == 0){
+		print_all(g);
 	}
 	else{
 		printf("Wrong parameters. Stop.\n");
