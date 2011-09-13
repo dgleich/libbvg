@@ -333,7 +333,8 @@ int bvgraph_successors(bvgraph *g, int x, int** start, unsigned int *length)
         return bvgraph_random_successors(&ri, x, start, length);
     } else { 
         return (rval); 
-    }   
+    }
+    bvgraph_random_free(&ri);
 }
 
 
