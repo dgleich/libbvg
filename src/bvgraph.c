@@ -11,7 +11,7 @@
  
 /** History
  *  01-24-2008: Added function to initialize structure memory to fix a 
- *			  segfault on the 32-bit version.
+ *              segfault on the 32-bit version.
  */
 
 #include "bvgraph_internal.h"
@@ -39,10 +39,10 @@ const int bvgraph_unsupported_coding = 33;
 
 static void set_defaults(bvgraph *g)
 {
-	g->zeta_k = 3;
-	g->window_size = 7;
-	g->min_interval_length = 3;
-	g->max_ref_count = 3;
+    g->zeta_k = 3;
+    g->window_size = 7;
+    g->min_interval_length = 3;
+    g->max_ref_count = 3;
 }
 
 /**
@@ -64,8 +64,8 @@ static void set_defaults(bvgraph *g)
  */
 int bvgraph_load(bvgraph* g, const char *filename, unsigned int filenamelen, int offset_step)
 {
-	// this call will treat all the memory as internal
-	return bvgraph_load_external(g, filename, filenamelen, offset_step, NULL, 0, NULL, 0);
+    // this call will treat all the memory as internal
+    return bvgraph_load_external(g, filename, filenamelen, offset_step, NULL, 0, NULL, 0);
 }  
 
 /**
@@ -101,120 +101,120 @@ int bvgraph_load(bvgraph* g, const char *filename, unsigned int filenamelen, int
  * bvgraph_load_error_filename_too_long - indicates the filename was too long
  */
 int bvgraph_load_external(bvgraph *g,
-						  const char *filename, unsigned int filenamelen, int offset_step,
-						  unsigned char *gmemory, size_t gmemsize,
-						  unsigned long long* offsets, int offsetssize)
+                          const char *filename, unsigned int filenamelen, int offset_step,
+                          unsigned char *gmemory, size_t gmemsize,
+                          unsigned long long* offsets, int offsetssize)
 {
-	int rval = 0;
+    int rval = 0;
 
-	assert(offset_step == 0 || offset_step == -1 || offset_step == 1);
+    assert(offset_step == 0 || offset_step == -1 || offset_step == 1);
 
-	if (filenamelen > BVGRAPH_MAX_FILENAME_SIZE-1) { 
-		return bvgraph_load_error_filename_too_long;
-	}
-	
-	memset(g,0,sizeof(bvgraph));
+    if (filenamelen > BVGRAPH_MAX_FILENAME_SIZE-1) { 
+        return bvgraph_load_error_filename_too_long;
+    }
+    
+    memset(g,0,sizeof(bvgraph));
 
-	strncpy(g->filename, filename, filenamelen);
-	g->filename[filenamelen] = '\0';
-	g->filenamelen = filenamelen;
+    strncpy(g->filename, filename, filenamelen);
+    g->filename[filenamelen] = '\0';
+    g->filenamelen = filenamelen;
 
-	g->offset_step = offset_step;
+    g->offset_step = offset_step;
 
-	set_defaults(g);
+    set_defaults(g);
 
-	rval = parse_properties(g);
-	// check for any errors
-	if (rval != 0) { return rval; }
+    rval = parse_properties(g);
+    // check for any errors
+    if (rval != 0) { return rval; }
 
-	// continue processing
-	if (offset_step >= 0) 
-	{
-		if (offset_step == 0 || offset_step == 1) {	//modified 082911
-			// in this case, we ust load the graph
-			// file into memory
+    // continue processing
+    if (offset_step >= 0) 
+    {
+        if (offset_step == 0 || offset_step == 1) {    //modified 082911
+            // in this case, we ust load the graph
+            // file into memory
 
-			// first get the filesize
-			unsigned long long graphfilesize;
-			char *gfilename = strappend(g->filename, g->filenamelen, ".graph", 6);
-			rval = fsize(gfilename, &graphfilesize);
-			free(gfilename);
-			if (rval) { 
-				return bvgraph_call_io_error;
-			}
+            // first get the filesize
+            unsigned long long graphfilesize;
+            char *gfilename = strappend(g->filename, g->filenamelen, ".graph", 6);
+            rval = fsize(gfilename, &graphfilesize);
+            free(gfilename);
+            if (rval) { 
+                return bvgraph_call_io_error;
+            }
 
-			if (gmemory != NULL) {
-				// they want to use their own memory, make sure
-				// they allocated enough!
-				if (gmemsize < graphfilesize) {
-					return bvgraph_load_error_buffer_too_small;
-				}
-				g->memory = gmemory;
-				g->memory_size = gmemsize;
-				g->memory_external = 1;
-			} else {
-				// we have to allocate the memory ourselves
-				g->memory_size = (size_t)graphfilesize;
-				g->memory = malloc(sizeof(unsigned char)*g->memory_size);
-				if (!g->memory) {
-					return bvgraph_call_out_of_memory;
-				}
-				g->memory_external = 0;
-			}
+            if (gmemory != NULL) {
+                // they want to use their own memory, make sure
+                // they allocated enough!
+                if (gmemsize < graphfilesize) {
+                    return bvgraph_load_error_buffer_too_small;
+                }
+                g->memory = gmemory;
+                g->memory_size = gmemsize;
+                g->memory_external = 1;
+            } else {
+                // we have to allocate the memory ourselves
+                g->memory_size = (size_t)graphfilesize;
+                g->memory = malloc(sizeof(unsigned char)*g->memory_size);
+                if (!g->memory) {
+                    return bvgraph_call_out_of_memory;
+                }
+                g->memory_external = 0;
+            }
 
-			// now read the file
-			gfilename = strappend(g->filename, g->filenamelen, ".graph", 6);
-			{
-				size_t bytesread = 0;
-				FILE *gfile = fopen(gfilename, "rb");
-				free(gfilename);
-				if (!gfile) {
-					return bvgraph_call_io_error;
-				}
-				bytesread = fread(g->memory, 1, g->memory_size, gfile);
-				if (bytesread != graphfilesize) {
-					return bvgraph_call_io_error;
-				}
-				fclose(gfile);
-			}
-			// we now have the graph in memory!
+            // now read the file
+            gfilename = strappend(g->filename, g->filenamelen, ".graph", 6);
+            {
+                size_t bytesread = 0;
+                FILE *gfile = fopen(gfilename, "rb");
+                free(gfilename);
+                if (!gfile) {
+                    return bvgraph_call_io_error;
+                }
+                bytesread = fread(g->memory, 1, g->memory_size, gfile);
+                if (bytesread != graphfilesize) {
+                    return bvgraph_call_io_error;
+                }
+                fclose(gfile);
+            }
+            // we now have the graph in memory!
 
-			if (offset_step == 1){		//modified 082911
-				if (offsets != NULL) {
-					g->offsets = offsets;
-					g->offsets_external = 1;
-				} else {
-					// we have to allocate the memory ourselves
-					g->offsets = (unsigned long long*) malloc(sizeof(unsigned long long)*g->n);
-					g->offsets_external = 0;
-				}
-				// now read the file
-				char *ofilename = strappend(g->filename, g->filenamelen, ".offsets", 8);
-				bitfile bf;
-				long long off = 0;
-				int i, state;
-				FILE *ofile = fopen(ofilename, "rb");
-				g->offsets = (unsigned long long*)malloc(g->n*sizeof(unsigned long long));
-				state = bitfile_open(ofile, &bf);
-				if (state){
-					printf ("Bitfile IO error!\n");
-				}
-				for (i = 0; i < g->n; i++){
-					off = read_offset(g, &bf) + off;
-					g->offsets[i] = off;
-				}
-			}
-		}
-	}
-	else
-	{
-		g->memory_size = 0;
-	}
-	 
-	// presently the othercases are not supported, so we don't have to
-	// worry about them!
+            if (offset_step == 1){        //modified 082911
+                if (offsets != NULL) {
+                    g->offsets = offsets;
+                    g->offsets_external = 1;
+                } else {
+                    // we have to allocate the memory ourselves
+                    g->offsets = (unsigned long long*) malloc(sizeof(unsigned long long)*g->n);
+                    g->offsets_external = 0;
+                }
+                // now read the file
+                char *ofilename = strappend(g->filename, g->filenamelen, ".offsets", 8);
+                bitfile bf;
+                long long off = 0;
+                int i, state;
+                FILE *ofile = fopen(ofilename, "rb");
+                g->offsets = (unsigned long long*)malloc(g->n*sizeof(unsigned long long));
+                state = bitfile_open(ofile, &bf);
+                if (state){
+                    printf ("Bitfile IO error!\n");
+                }
+                for (i = 0; i < g->n; i++){
+                    off = read_offset(g, &bf) + off;
+                    g->offsets[i] = off;
+                }
+            }
+        }
+    }
+    else
+    {
+        g->memory_size = 0;
+    }
+     
+    // presently the othercases are not supported, so we don't have to
+    // worry about them!
 
-	return (0);
+    return (0);
 }
 
 /**
@@ -230,11 +230,11 @@ int bvgraph_load_external(bvgraph *g,
  */
 int bvgraph_close(bvgraph* g)
 {
-	if (!g->memory_external) { free(g->memory); }
-	if (!g->offsets_external) { free(g->offsets); }
-	memset(g, 0, sizeof(bvgraph));
+    if (!g->memory_external) { free(g->memory); }
+    if (!g->offsets_external) { free(g->offsets); }
+    memset(g, 0, sizeof(bvgraph));
 
-	return (0);
+    return (0);
 }
 
 /**
@@ -253,33 +253,33 @@ int bvgraph_close(bvgraph* g)
  */
 int bvgraph_required_memory(bvgraph *g, int offset_step, size_t *gbuf, size_t *offsetbuf)
 {
-	if (offset_step < 0) {
-		if (gbuf) { *gbuf = 0; }
-		if (offsetbuf) { *offsetbuf = 0; }
-	}
-	else if (offset_step < 2) {
-		unsigned long long graphfilesize;
-		char *gfilename = strappend(g->filename, g->filenamelen, ".graph", 6);
-		int rval = fsize(gfilename, &graphfilesize);
-		free(gfilename);
-		if (rval) { 
-			return bvgraph_call_io_error;
-		}
+    if (offset_step < 0) {
+        if (gbuf) { *gbuf = 0; }
+        if (offsetbuf) { *offsetbuf = 0; }
+    }
+    else if (offset_step < 2) {
+        unsigned long long graphfilesize;
+        char *gfilename = strappend(g->filename, g->filenamelen, ".graph", 6);
+        int rval = fsize(gfilename, &graphfilesize);
+        free(gfilename);
+        if (rval) { 
+            return bvgraph_call_io_error;
+        }
 
-		if (gbuf) { *gbuf = (size_t)graphfilesize; }
-		// always set the offsetbuf here even if we are about to change
-		// it.
-		if (offsetbuf) { *offsetbuf = 0; }
+        if (gbuf) { *gbuf = (size_t)graphfilesize; }
+        // always set the offsetbuf here even if we are about to change
+        // it.
+        if (offsetbuf) { *offsetbuf = 0; }
 
-		if (offset_step == 1) {
-			if (offsetbuf) { *offsetbuf = sizeof(unsigned long long)*g->n; }
-		}
-	}
-	else {
-		return bvgraph_call_unsupported;
-	}
+        if (offset_step == 1) {
+            if (offsetbuf) { *offsetbuf = sizeof(unsigned long long)*g->n; }
+        }
+    }
+    else {
+        return bvgraph_call_unsupported;
+    }
 
-	return (0);
+    return (0);
 }
 
 /** Access the outdegree for a given node.
@@ -300,13 +300,13 @@ int bvgraph_required_memory(bvgraph *g, int offset_step, size_t *gbuf, size_t *o
 
 int bvgraph_outdegree(bvgraph *g, int x, unsigned int *d) 
 {
-	bvgraph_random_iterator ri;
-	int rval = bvgraph_random_access_iterator(g, &ri);
-	if (rval == 0) {
-		rval = bvgraph_random_outdegree(&ri, x, d);
-	}
-	bvgraph_random_free(&ri);
-	return (rval);
+    bvgraph_random_iterator ri;
+    int rval = bvgraph_random_access_iterator(g, &ri);
+    if (rval == 0) {
+        rval = bvgraph_random_outdegree(&ri, x, d);
+    }
+    bvgraph_random_free(&ri);
+    return (rval);
 }
 
 /** Access the successors for a given node.
@@ -327,13 +327,13 @@ int bvgraph_outdegree(bvgraph *g, int x, unsigned int *d)
 
 int bvgraph_successors(bvgraph *g, int x, int** start, unsigned int *length) 
 {
-	bvgraph_random_iterator ri;
-	int rval = bvgraph_random_access_iterator(g, &ri);
-	if (rval == 0) {
-		return bvgraph_random_successors(&ri, x, start, length);
-	} else { 
-		return (rval); 
-	}   
+    bvgraph_random_iterator ri;
+    int rval = bvgraph_random_access_iterator(g, &ri);
+    if (rval == 0) {
+        return bvgraph_random_successors(&ri, x, start, length);
+    } else { 
+        return (rval); 
+    }   
 }
 
 
@@ -345,43 +345,43 @@ int bvgraph_successors(bvgraph *g, int x, int** start, unsigned int *length)
  */
 const char* bvgraph_error_string(int code)
 {
-	if (code == bvgraph_call_out_of_memory) {
-		return "malloc error --- probably out of memory";
-	}
-	else if (code == bvgraph_call_io_error) {
-		return "io error --- probably file not found";
-	}
-	else if (code == bvgraph_call_unsupported) {
-		return "the call tried to perform an unsupported operation";
-	}
-	else if (code == bvgraph_load_error_filename_too_long) {
-		return "filename too long to store";
-	}
-	else if (code == bvgraph_load_error_buffer_too_small) {
-		return "one of the provided buffers was too small";
-	}
-	else if (code == bvgraph_property_file_error) {
-		return "the property file is not a valid property file format";
-	}
-	else if (code == bvgraph_property_file_compression_flag_error) {
-		return "the property file contained an unknown compression flag";
-	}
-	else if (code == bvgraph_call_io_error) {
-		return "the file version is not supported";
-	}
-	else if (code == bvgraph_vertex_out_of_range){
-		return "vertex is out of range";
-	}
-	else if (code == bvgraph_requires_offsets){
-		return "offsets are required";
-	}
-	else if (code == bvgraph_unsupported_coding){
-		return "coding unsupported";
-	}
-	else if (code == 0) {
-		return "the call succeeded";
-	}
-	else {
-		return "unknown error";
-	}
+    if (code == bvgraph_call_out_of_memory) {
+        return "malloc error --- probably out of memory";
+    }
+    else if (code == bvgraph_call_io_error) {
+        return "io error --- probably file not found";
+    }
+    else if (code == bvgraph_call_unsupported) {
+        return "the call tried to perform an unsupported operation";
+    }
+    else if (code == bvgraph_load_error_filename_too_long) {
+        return "filename too long to store";
+    }
+    else if (code == bvgraph_load_error_buffer_too_small) {
+        return "one of the provided buffers was too small";
+    }
+    else if (code == bvgraph_property_file_error) {
+        return "the property file is not a valid property file format";
+    }
+    else if (code == bvgraph_property_file_compression_flag_error) {
+        return "the property file contained an unknown compression flag";
+    }
+    else if (code == bvgraph_call_io_error) {
+        return "the file version is not supported";
+    }
+    else if (code == bvgraph_vertex_out_of_range){
+        return "vertex is out of range";
+    }
+    else if (code == bvgraph_requires_offsets){
+        return "offsets are required";
+    }
+    else if (code == bvgraph_unsupported_coding){
+        return "coding unsupported";
+    }
+    else if (code == 0) {
+        return "the call succeeded";
+    }
+    else {
+        return "unknown error";
+    }
 }
