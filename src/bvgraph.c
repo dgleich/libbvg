@@ -305,6 +305,7 @@ int bvgraph_outdegree(bvgraph *g, int x, unsigned int *d)
 	if (rval == 0) {
 		rval = bvgraph_random_outdegree(&ri, x, d);
 	}
+	bvgraph_random_free(&ri);
 	return (rval);
 }
 

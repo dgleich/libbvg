@@ -152,39 +152,27 @@ int bvgraph_random_access_iterator(bvgraph* g, bvgraph_random_iterator *i)
 	int outd_alloc = 10;
 	int windcount = 0;
 
-	// check and see if we know something better about the maximum outdegree
-	if (g->max_outd != 0) {
-		// if we set this variable, then we will avoid all
-		// reallocations as we pass through the file.  I'm not 
-		// sure if that is an issue, but it may be.
-		outd_alloc = g->max_outd;
-		i->max_outd = g->max_outd;
-	}
-	else {
-		i->max_outd = 0; 
-	}
+	// use the default max degree because we won't persist
+	// the data in most cases.
+	// TODO check this for performance.
+	i->max_outd = 0; 
 
 	i->g = g;
 	i->curr = -1;
 	i->curr_outd = -1;
 	i->cyclic_buffer_size = i->g->window_size+1;
 
-	if (g->offset_step == -1) {
-		char *graphfilename = strappend(g->filename, g->filenamelen, ".graph", 6);
-		FILE *f = fopen(graphfilename, "rb");
-		free(graphfilename);
-		if (!f) { return bvgraph_call_io_error; }
-
-		rval = bitfile_open(f,&i->bf);
-		if (rval) { return rval; }
-	} else if (g->offset_step == 0) {
-		rval = bitfile_map(g->memory, g->memory_size, &i->bf);
-	} else if (g->offset_step == 1) {
-		rval = bitfile_map(g->memory, g->memory_size, &i->bf);
-		rval = bitfile_map(g->memory, g->memory_size, &i->outd_bf);
-		i->offset_step = 1;
+	if (g->offset_step < 1) {
+		return bvgraph_call_unsupported;
 	}
-	
+
+	rval = bitfile_map(g->memory, g->memory_size, &i->bf);
+	rval |= bitfile_map(g->memory, g->memory_size, &i->outd_bf);
+
+	// TODO deallocate these on failure
+
+	i->offset_step = 1;
+
 	// beyond this point, the bitfile was successfully allocated, so we must 
 	// deallocate it if we exit.
 	i->outd_cache = malloc(sizeof(int)*i->cyclic_buffer_size);
@@ -203,23 +191,35 @@ int bvgraph_random_access_iterator(bvgraph* g, bvgraph_random_iterator *i)
 				// interator
 				//
 				rval = int_vector_create(&i->block, outd_alloc);
-				rval = int_vector_create(&i->left, outd_alloc);
-				rval = int_vector_create(&i->len, outd_alloc);
-				rval = int_vector_create(&i->buf1, outd_alloc);
-				rval = int_vector_create(&i->buf2, outd_alloc);
+				rval |= int_vector_create(&i->left, outd_alloc);
+				rval |= int_vector_create(&i->len, outd_alloc);
+				rval |= int_vector_create(&i->buf1, outd_alloc);
+				rval |= int_vector_create(&i->buf2, outd_alloc);
 				
+				if (rval == 0) {
+					// we successfully allocated everything
+					return (0);
+				}
+
+                // TODO figure out how to release i->block, i->left, i->len
+				// i->buf1, i->buf2
+
 				// in this case, we have to free everything allocated
-				/* no need to maintain window?
 				while (windcount >= 0) {
 					int_vector_free(&i->window[windcount]);
 					windcount--;
 				}
-				*/
+				
+				int_vector_free(&i->successors);
 			}
+			free(i->window);
 		}
 		else { rval = bvgraph_call_out_of_memory; }
+
+		free(i->outd_cache);
 	} 
 	else { rval = bvgraph_call_out_of_memory; }
+	
 	bitfile_close(&i->bf);
 	if (i->bf.f) { fclose(i->bf.f); } 
 

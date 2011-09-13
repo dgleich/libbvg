@@ -6,39 +6,80 @@
 #include <string.h>
 #include <time.h>
 
-void test_iteratively(bvgraph g, bvgraph iterate_g){
+#define MAX_PAIR_NUM 1000000
+
+struct pair{
+    int from;
+    int to;
+};
+
+struct pair* ALL_PAIR = NULL;
+int PAIR_SIZE = 0;
+
+void load_all(const char* name){
+    bvgraph g = {0};
+    bvgraph_load(&g, name, strlen(name), 0);
+
 	bvgraph_iterator git;
-	bvgraph_nonzero_iterator(&iterate_g, &git);
+	int rval = bvgraph_nonzero_iterator(&g, &git);
+    if (rval){
+        printf("Construct nonzero iterator failed. Stop.\n");
+        return;
+    }
+
+    ALL_PAIR = malloc(sizeof(int)*2*MAX_PAIR_NUM);
 
 	for (; bvgraph_iterator_valid(&git); bvgraph_iterator_next(&git)) {
-		int *iterate_links, *random_links;
-		unsigned int iterate_d, random_d;
-
-		printf("Loading node %d by non-zero iterator...\n", git.curr);
-		bvgraph_iterator_outedges(&git, &iterate_links, &iterate_d);
-		printf("Loading node %d by random access...\n", git.curr);
-		bvgraph_successors(&g, git.curr, &random_links, &random_d);
-
-		printf("Checking degree... ");
-		if (iterate_d == random_d){
-			printf("Degree correct.\n");
-		}
-		else{
-			printf("Degree wrong. Stop.\n");
-			return;
-		}
-
-		printf("Checking links... ");
+		int *links = NULL;
+		unsigned int d = 0;
+        
+        bvgraph_iterator_outedges(&git, &links, &d);
+        
 		int i = 0;
-		for (i; i<iterate_d; i++){
-			if (iterate_links[i] != random_links[i]){
-				printf("Link %d doesn't match. Stop.\n", i);
-				return;
-			}
-		}
-		printf("Links correct. Node %d checking done.\n", git.curr);
+		for (i; i<d; ++i) {
+            ALL_PAIR[PAIR_SIZE].from = git.curr;
+            ALL_PAIR[PAIR_SIZE].to = links[i];
+            PAIR_SIZE++;
+        }
 	}
 	bvgraph_iterator_free(&git);
+}
+
+int exist_pair(int from, int to){
+    //use binary search to search pair
+    int index = 0;
+    int min = 0;
+    int max = PAIR_SIZE;
+    while (min <= max){
+        index = (min + max) / 2;
+        if (ALL_PAIR[index].from < from){
+            min = index + 1;
+        }
+        else if (ALL_PAIR[index].from > from){
+            max = index - 1;
+        }
+        else{
+            // compare to
+            if (ALL_PAIR[index].to == to){
+                return 1;
+            }
+            else{
+                while (ALL_PAIR[index].from == from){
+                    if (ALL_PAIR[index].to > to){
+                        index--;
+                    }
+                    else{
+                        index++;
+                    }
+                    if (ALL_PAIR[index].to == to){
+                        return 1;
+                    }
+                }
+            }
+        }
+    }
+
+    return 0;
 }
 
 void head_tail_first_test(bvgraph g){
@@ -52,18 +93,22 @@ void head_tail_first_test(bvgraph g){
 			node = i / 2;
 		}
 		else {
-			node = g.n - i / 2;
+			node = g.n - 1 - i / 2;
 		}
 		//get successors example
 		int *links;	
 		bvgraph_successors(&g, node, &links, &d);
-		printf ("node %d has degree %d\n", node, d);
 
 		int j = 0;
 		for (j; j< d; j++){
-			printf("node %i links to node %i\n", node, links[j]);
+            if (!exist_pair(node, links[j])){
+                printf("Wrong links from node %d to node %d. Stop.\n", i, links[j]);
+                //return;
+            }
 		}
 	}
+
+    printf("All links from head-tail test are tested and correct.\n");
 
 }
 
@@ -79,32 +124,75 @@ void random_test(bvgraph g, int test_num){
 		int *links;
 
 		bvgraph_successors(&g, node, &links, &d);
-		printf ("node %d has degree %d\n", node, d);
 
 		int j = 0;
 		for (j; j< d; j++){
-			printf("node %i links to node %i\n", node, links[j]);
+            if (!exist_pair(node, links[j])){
+                printf("Wrong links from node %d to node %d. Stop.\n", i, links[j]);
+                return;
+            }
 		}
 	}
-	printf("Total %d random nodes generated and tested.\n", test_num);
+	printf("Total %d random nodes generated and tested and correct.\n", test_num);
 
 }
 
 void print_all(bvgraph g){
-	int i, rval;
-	unsigned int d;
+	int i = 0;
+	unsigned int d = 0;
 
-	for (i = 0; i < g.n; i++){
+	bvgraph_random_iterator ri;
+	int rval = bvgraph_random_access_iterator(&g, &ri);
+
+	if (rval){
+		printf ("Random access iterator allocation failed. Stop.\n");
+        return;
+	}
+	
+	for (i; i < g.n; i++){
 		//get successors example
 		int *links;
-		bvgraph_successors(&g, i, &links, &d);
-		printf ("node %d has degree %d\n", i, d);
+		bvgraph_random_successors(&ri, i, &links, &d);
+
+		//printf ("node %d has degree %d\n", i, d);
 		
 		int j = 0;
 		for (j; j< d; j++){
-			printf("node %i links to node %i\n", i, links[j]);
+			//printf("node %i links to node %i\n", i, links[j]);
+            if (!exist_pair(i, links[j])){
+                printf("Wrong links from node %d to node %d. Stop.\n", i, links[j]);
+                return;
+            }
 		}
 	}
+
+	bvgraph_random_free(&ri);
+
+    printf("All links are tested and correct.\n");
+
+}
+
+void test_performance(bvgraph g, int test_num){
+
+	//randomly generate test case
+	int i = 0;
+	unsigned int d;
+	srand(time(NULL));
+    int edge_count = 0;
+    clock_t start, end;
+
+    start = clock();
+	for (i; i < test_num; i++){
+		int node = rand() % g.n;
+		int *links;
+		bvgraph_successors(&g, node, &links, &d);
+        edge_count += d;
+	}
+    end = clock();
+    double dif = ((double)end - (double)start) / CLOCKS_PER_SEC;
+    double edge_per_sec = edge_count / dif;
+
+    printf("Used %.2lf secs. Edges = %d. Edge per second = %.2lf\n", dif, edge_count, edge_per_sec);
 
 }
 
@@ -113,10 +201,9 @@ void print_help(){
 	printf("./a.out dataset param\n");
 	printf("dataset: the graph dataset without extenion. Ex: harvard500\n");
 	printf("param:\n");
-	printf("\titerate   - to test iteratively.\n");
 	printf("\trandom    - to test by randomly generated nodes. Need a parameter for # of nodes.\n");
 	printf("\thead-tail - to test from head and tail roundly.\n");
-	printf("\tprint     - print degree and links for all nodes in dataset\n");	
+	printf("\tall       - to test all nodes in dataset\n");	
 }
 
 int main(int argc, char** argv){
@@ -137,12 +224,8 @@ int main(int argc, char** argv){
 	printf("nodes = %d\n", g.n);
 	printf("edges = %lli\n", g.m);
 
-	if (strcmp(method, "iterate") == 0){
-		bvgraph iterate_g;
-		bvgraph_load(&iterate_g, name, strlen(name), 0);
-		test_iteratively(g, iterate_g);
-	}
-	else if (strcmp(method, "random") == 0){
+	if (strcmp(method, "random") == 0){
+        load_all(name);
 		if (argv[3] == NULL){
 			printf("Need node number. Stop\n");
 			return 1;
@@ -151,11 +234,22 @@ int main(int argc, char** argv){
 		random_test(g, num);
 	}
 	else if (strcmp(method, "head-tail") == 0){
+        load_all(name);
 		head_tail_first_test(g);
 	}
-	else if (strcmp(method, "print") == 0){
+	else if (strcmp(method, "all") == 0){
+        load_all(name);
 		print_all(g);
 	}
+    else if (strcmp(method, "perform") == 0){
+        // test performance
+        if (argv[3] == NULL){
+            printf("Need node number. Stop\n");
+            return 1;
+        }
+        int num = atoi(argv[3]);
+        test_performance(g, num);
+    }
 	else{
 		print_help();
 	}
