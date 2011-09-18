@@ -1,0 +1,5 @@
+*.o
+libbvg.a
+bvpr
+/bvgraph2smat
+*.mex*
