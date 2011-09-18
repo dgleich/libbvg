@@ -30,6 +30,10 @@
 
 #define BVGRAPH_MAX_FILENAME_SIZE 1024
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 enum bvgraph_compression_flag_tag {
     BVGRAPH_FLAG_DELTA = 1,
     BVGRAPH_FLAG_GAMMA = 2,
@@ -155,5 +159,9 @@ int bvgraph_parallel_iterators_free(bvgraph_parallel_iterators *pits);
 int bvgraph_required_memory(bvgraph *g, int offset_step, size_t *gbuf, size_t *offsetbuf);
 
 const char* bvgraph_error_string(int error);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // LIBBVG_BVGRAPH_H
