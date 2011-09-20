@@ -132,6 +132,8 @@ int bvgraph_random_successors(bvgraph_random_iterator *ri,
     else if (ri->offset_step <= 0) {
         return (bvgraph_requires_offsets);
     } else {
+        //printf("process node: %d\n", x);
+        //getchar();
         int ref, ref_index;
         int i, extra_count, block_count = 0;
         bvgraph_int_vector *block = &ri->block, *left = &ri->left, 
@@ -178,10 +180,18 @@ int bvgraph_random_successors(bvgraph_random_iterator *ri,
         }
         ref_index = (x-ref + cyclic_buffer_size)%(cyclic_buffer_size);
 
+        // variables for reference parts
         int* ref_links = NULL;
         unsigned int outd_ref = 0;
+        bvgraph_random_iterator ref_ri;
 
         if (ref > 0) {
+            // construct a new random access iterator to get links of reference
+            // note that random iterator must be different from original one
+            // cause they store different successors at the same time
+            bvgraph_random_access_iterator(g, &ref_ri);
+            bvgraph_random_successors(&ref_ri, x-ref, &ref_links, &outd_ref);
+
             // total number of successors copied and total number specified
             int copied, total; 
             if ( (block_count = read_block_count(g, bf)) != 0 ) {
@@ -195,10 +205,6 @@ int bvgraph_random_successors(bvgraph_random_iterator *ri,
 
             copied = 0; 
             total = 0;
-
-            // get successors and outdegree of reference here
-            // to avoid duplicate work on loading degree
-            bvgraph_successors(g, x-ref, &ref_links, &outd_ref);
 
             for (i = 0; i < block_count; i++) {
                 block->a[i] = read_block(g, bf) + (i == 0 ? 0 : 1);
@@ -349,11 +355,18 @@ int bvgraph_random_successors(bvgraph_random_iterator *ri,
 
             buf1_index = buf1_index + buf2_index;
             buf2_index = 0;
-        }
+
+            // deallocate the memory of reference iterator
+            bvgraph_random_free(&ref_ri);
+            
+       }
 
     }
 
-    if (start){ *start = ri->successors.a; }
+    if (start){
+        *start = ri->successors.a;
+    }
+
 
     return (0);
 
@@ -370,6 +383,7 @@ int bvgraph_random_free(bvgraph_random_iterator* ri)
     //if (ri->g && ri->curr == ri->g->n) {
     //    ri->g->max_outd = ri->max_out;
     //}
+
     bitfile_close(&ri->bf);
     bitfile_close(&ri->outd_bf);
     if (ri->bf.f) { fclose(ri->bf.f); }
@@ -378,6 +392,7 @@ int bvgraph_random_free(bvgraph_random_iterator* ri)
     for (i=0; i < ri->cyclic_buffer_size; i++) {
         int_vector_free(&ri->window[i]);
     }
+
     free(ri->window);
     int_vector_free(&ri->block);
     int_vector_free(&ri->left);

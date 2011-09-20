@@ -305,10 +305,7 @@ static int refill(bitfile* bf)
  */
 int bitfile_position(bitfile* bf, const long long position)
 {
-	//printf("bf position: %d\n", bf->position);
-	//printf("bf pos: %d\n", bf->pos);
     const long long bit_delta = ((bf->position + bf->pos) << 3) - position;
-	//printf("%d\n", bit_delta);
     if (bit_delta >= 0 && bit_delta <= bf->fill) {
         // in this case, we have all the data loaded into the current byte
         // so we will just update our position in the byte.
@@ -318,8 +315,10 @@ int bitfile_position(bitfile* bf, const long long position)
         // position the byte
         const long long delta = (position >> 3) - (bf->position + bf->pos);
         const int residual = (int)(position & 7);
-        // TODO check for optimizations on the long long/size_t conversions
-        if (delta <= bf->avail && delta >= -(long long)bf->pos) {
+        // TODO check for optimizations on the long long/size_t conversion
+
+        if (delta <= (long long)bf->avail && delta >= -(long long)bf->pos) {
+
             // in this case, everything is in the buffer
             bf->avail -= (size_t)delta;
             bf->pos += (size_t)delta;
@@ -328,7 +327,7 @@ int bitfile_position(bitfile* bf, const long long position)
             bitfile_flush(bf);
             bf->position = (size_t)(position>>3);
             //fseek(bf->f, bf->position, SEEK_SET);
-            position_stream(bf->f, bf->position);
+            position_stream(bf->f, bf->position);   //wrong!
         }
 
         if (residual != 0) {

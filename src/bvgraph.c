@@ -297,7 +297,6 @@ int bvgraph_required_memory(bvgraph *g, int offset_step, size_t *gbuf, size_t *o
  * @return 0 on success
  */
 
-
 int bvgraph_outdegree(bvgraph *g, int x, unsigned int *d) 
 {
     bvgraph_random_iterator ri;
@@ -330,11 +329,12 @@ int bvgraph_successors(bvgraph *g, int x, int** start, unsigned int *length)
     bvgraph_random_iterator ri;
     int rval = bvgraph_random_access_iterator(g, &ri);
     if (rval == 0) {
-        return bvgraph_random_successors(&ri, x, start, length);
+        bvgraph_random_successors(&ri, x, start, length);
+        //bvgraph_random_free(&ri);
+        return (0);
     } else { 
         return (rval); 
     }
-    bvgraph_random_free(&ri);
 }
 
 
