@@ -132,8 +132,6 @@ int bvgraph_random_successors(bvgraph_random_iterator *ri,
     else if (ri->offset_step <= 0) {
         return (bvgraph_requires_offsets);
     } else {
-        //printf("process node: %d\n", x);
-        //getchar();
         int ref, ref_index;
         int i, extra_count, block_count = 0;
         bvgraph_int_vector *block = &ri->block, *left = &ri->left, 
