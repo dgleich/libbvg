@@ -40,11 +40,14 @@ mexopts = '';
 c = computer;
 if strcmp(c,'PCWIN64') || ...
         strcmp(c,'GLNXA64') || ...
+        strcmp(c,'MACI64')
         strcmp(c,'SOL64')
     mexopts = '-largeArrayDims';
 end
     
-
+if isunix
+    mexopts = [mexopts 'CFLAGS="\$CFLAGS -std=gnu89"']
+end
 srcfiles = {'bitfile.c', 'bvgraph.c', 'bvgraph_iterator.c', 'bvgraphfun.c', 'properties.c', 'util.c'};
 files{1} = 'bvgfun.c';
 for sfi=1:length(srcfiles)
@@ -57,7 +60,7 @@ for fi=1:length(files)
     files{fi} = sprintf('%s ',files{fi});
 end
 p = mfilename('fullpath');
-[path,name,ext,version] = fileparts(p);
+[path,name,ext] = fileparts(p);
 olddir = cd;
 cd(path);
 try
