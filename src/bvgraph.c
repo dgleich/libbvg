@@ -290,17 +290,31 @@ int bvgraph_outdegree(bvgraph *g, int x, unsigned int *d)
  *
  * To use this method, the graph must be loaded with offsets.
  *
+ * You must deallocate the returned memory yourself.
+ *
  * @param g the bvgraph structure with offsets loaded
  * @param x the node
- * @param[out] d the outdegree
+ * @param[out] s a pointer to newly allocated memory for the list of successors
+ * @param[out] d a pointer to the out-degree.
  * @return 0 on success
  */
-int bvgraph_successors(bvgraph *g, int x, int *s) 
+int bvgraph_successors(bvgraph *g, int x, int **s, unsigned int *d) 
 {
     bvgraph_random_access_iterator ri;
     int rval = bvgraph_random_access_iterator(g, &ri);
     if (rval == 0) {
-        return bvgraph_random_outdegree(&ri, x, d);
+        rval = bvgraph_random_outdegree(&ri, x, d);
+        if (rval == 0) {
+            int *start = NULL;
+            rval = bvgraph_random_successors(&ri, x, &start, d);
+            if (rval == 0) {
+                // copy to a newly allocated array
+                *s = malloc(sizeof(int)*d);
+                assert(s); // TODO fail on allocation error
+                memcpy(s, start, sizeof(int)*d); // TODO check this call
+            }
+        }
+        bvgraph_random_free(&ri);
     } else { 
         return (rval); 
     }   
