@@ -1,0 +1,5 @@
+tests/a.out
+*.o
+test/refill_test
+libbvg.a
+

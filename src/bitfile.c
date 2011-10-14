@@ -237,8 +237,7 @@ static int bitfile_read(bitfile* bf)
 
         if (bf->avail <= 0) { 
             return -2; 
-        }
-        else {
+        } else {
             bf->position += bf->pos;
             bf->pos = 0;
         }
@@ -249,47 +248,40 @@ static int bitfile_read(bitfile* bf)
 }
 
 
-
-
-/** Fills {@link #current} to 16 bits.
+/** Fills the bit-buffer to at least 16-bits
+ *
+ * This method will ensure that bf->current has 16-bits of data,
+ * *if possible* given the current state of the file.  It will
+ * return the size of the fill
  * 
- * <p>This method must be called <em>only</em> when 8 &le; {@link #fill} &lt; 16. It
- * will try to put 8 more bits into {@link #current}, so that at least 16 bits will be valid.
- * It will not throw an {@link EOFException}&mdash;simply, {@link #current} will remain unchanged.
- * 
- * @return {@link #fill}.
+ * @param bf the bitfile
+ * @return the current value of fill.
  */
-/*static int refill16(bitfile* bf) 
-{
-    assert( bf->fill >= 8 );
-    assert( bf->fill < 16 );
-
-    if (bf->avail > 0) {
-        // if there is a current byte in the buffer, use it directly.
-        bf->avail--;
-        bf->current = (bf->current << 8) | (bf->buffer[bf->pos++] & 0xFF);
+ 
+// TODO, check the logistics of this with the bvgraph codes
+static int refill16(bitfile *bf) {
+    if (bf->fill < 16) { // make sure there is work to do
+        if (bf->avail >= 2) {
+            bf->current = (bf->current << 8) | bf->buffer[bf->pos++] & 0xFF;
+            bf->current = (bf->current << 8) | bf->buffer[bf->pos++] & 0xFF;
+            bf->avail -= 2;
+            bf->fill += 16;
+        } else {
+            int byte = bitfile_read(bf);
+            if (byte >= 0) { // check for error in read
+                bf->current = (bf->current << 8) | byte;
+                bf->fill += 8;
+                byte = bitfile_read(bf);
+                if (byte >= 0) {
+                    bf->current = (bf->current << 8) | byte;
+                    bf->fill += 8;
+                }
+            } 
+        }
     }
-
-    bf->current = (bf->current << 8) | bitfile_read(bf);
-    return (int)(bf->fill += 8);
+        
+    return bf->fill;
 }
-           
-static int refill(bitfile* bf)
-{
-    if (bf->fill == 0) {
-        bf->current = bitfile_read(bf);
-        return (int)(bf->fill = 8);
-    }
-    
-    if (bf->avail > 0) {
-        bf->avail--;
-        bf->current = (bf->current << 8) | (bf->buffer[bf->pos++] & 0xFF);
-        return (int)(bf->fill += 8);
-    }
-    
-    bf->current = (bf->current << 8) | bitfile_read(bf);
-    return (int)(bf->fill += 8);
-}*/
 
 /** Positions the stream at a particular bit.
  *
