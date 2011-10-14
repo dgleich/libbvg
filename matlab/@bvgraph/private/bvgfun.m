@@ -40,11 +40,12 @@ mexopts = '';
 c = computer;
 if strcmp(c,'PCWIN64') || ...
         strcmp(c,'GLNXA64') || ...
+        strcmp(c,'MACI64') || ...
         strcmp(c,'SOL64')
     mexopts = '-largeArrayDims';    
 end
 
-if strcmp(c,'GLNXA64')
+if isunix
     mexopts = [mexopts ' CFLAGS="\$CFLAGS -std=gnu99"'];
 end
     
