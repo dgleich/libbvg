@@ -14,6 +14,10 @@
 
 #include <stdio.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct bitfile_tag {
     FILE* f;
     unsigned char *buffer;  // buffer points to the current buffer
@@ -45,6 +49,10 @@ int bitfile_read_unary(bitfile* bf);
 int bitfile_read_gamma(bitfile* bf);
 int bitfile_read_zeta(bitfile* bf, const int k);
 int bitfile_read_nibble(bitfile* bf);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* LIBBVG_BITFILE_H */
 

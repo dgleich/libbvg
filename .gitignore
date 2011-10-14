@@ -1,4 +1,5 @@
 *.o
-bvpr
 libbvg.a
-*.mexmaci64
+bvpr
+/bvgraph2smat
+*.mex*
