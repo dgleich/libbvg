@@ -11,7 +11,7 @@ LIBBVG_SRC_DIR := src
 BVPAGERANKNAME := bvpr
 BVPAGERANK_SRC_DIR := tools/bvpagerank
 
-CFLAGS := $(CFLAGS) -Wall -O2 
+CFLAGS := $(CFLAGS) -Wall -O2 -Wextra -Wno-unused-parameter
 CXXFLAGS := $(CXXFLAGS) -Wall -O2 
 
 LIBBVG_INCLUDE := -Iinclude -Isrc

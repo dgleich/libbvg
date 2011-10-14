@@ -64,7 +64,8 @@ int atoin(const char* str, uint len)
 		} else {
 			break;
 		}
-		*p++; i++;
+		p++; 
+		i++;
 	}
 
 	return (value*sign);
@@ -103,7 +104,7 @@ const char* strchrn(const char* str, uint len, int c)
 	uint pos = 0;
 	while (pos < len) {
 		if (*str == c) { return str; }
-		*str++; pos++;
+		str++; pos++;
 	}
 	return (NULL);
 }

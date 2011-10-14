@@ -106,7 +106,7 @@ long long skip_bytes(FILE *f, long long n)
 
 /** Position a stream at a particular byte
  */
-int position_stream(FILE *f, long long n) {
+int position_stream(FILE *f, unsigned long long n) {
 #if defined(_MSC_VER)
     return _fseeki64(f, n, SEEK_SET);
 #elif defined(__GNUC__)
@@ -306,7 +306,7 @@ static int refill(bitfile* bf)
 int bitfile_position(bitfile* bf, const long long position)
 {
     const long long bit_delta = ((bf->position + bf->pos) << 3) - position;
-    if (bit_delta >= 0 && bit_delta <= bf->fill) {
+    if (bit_delta >= 0 && bit_delta <= (long long)bf->fill) {
         // in this case, we have all the data loaded into the current byte
         // so we will just update our position in the byte.
         bf->fill = (int)bit_delta;
@@ -318,7 +318,6 @@ int bitfile_position(bitfile* bf, const long long position)
         // TODO check for optimizations on the long long/size_t conversion
 
         if (delta <= (long long)bf->avail && delta >= -(long long)bf->pos) {
-
             // in this case, everything is in the buffer
             bf->avail -= (size_t)delta;
             bf->pos += (size_t)delta;
@@ -348,7 +347,8 @@ int bitfile_position(bitfile* bf, const long long position)
 long long bitfile_skip(bitfile* bf, long long n)
 {
     // handle the case when everything is in memory
-    if (n <= bf->fill) {
+    assert(n >= 0);
+    if ((unsigned long long)n <= bf->fill) {
         if (n < 0) { return (-1); } // TODO give a real error code
         bf->fill -= n;
         bf->total_bits_read += n;
@@ -357,13 +357,15 @@ long long bitfile_skip(bitfile* bf, long long n)
     else {
         const long long prev_read_bits = bf->total_bits_read;
         // number of bytes to read
-        long long nb; 
+        unsigned long long nb; 
         int residual;
         n -= bf->fill;
         bf->total_bits_read += bf->fill;
         bf->fill = 0;
+        
+        assert(n >= 0);
         nb = n >> 3;
-
+  
         if (bf->buffer != NULL && nb > bf->avail && nb < (bf->avail + bf->bufsize)) {
             // try loading the next byte, just in case it happens
             // to be the right one
@@ -504,7 +506,6 @@ int bitfile_read_bit(bitfile* bf)
 int bitfile_read_int(bitfile* bf, unsigned int len)
 {
     int i, x = 0;
-    assert ( len >=  0 );
     assert ( len <= 32 );
 
     if (len <= bf->fill) {

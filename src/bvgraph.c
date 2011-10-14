@@ -96,7 +96,7 @@ int bvgraph_load(bvgraph* g, const char *filename, unsigned int filenamelen, int
  * @param gmemsize the size of the gmemory block
  * @param offsets an array of offsets
  * (if NULL, then this parameter is treated as internal memory)
- * @param offsetssize the number of offsets
+ * @param offsetssize the number of offsets (*NOT USED*)
  * @return 0 if successful
  * bvgraph_load_error_filename_too_long - indicates the filename was too long
  */

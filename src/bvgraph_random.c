@@ -157,8 +157,8 @@ int bvgraph_random_successors(bvgraph_random_iterator *ri,
         ri->outd_cache[x%ri->cyclic_buffer_size] = d;
         ri->curr_outd = d;
         *length = d;
-
-        if (d > ri->max_outd) { ri->max_outd = d; }
+        
+        if (d > (unsigned int)ri->max_outd) { ri->max_outd = d; }
 
         if (d == 0) { 
             len = 0;    //modified
@@ -321,7 +321,7 @@ int bvgraph_random_successors(bvgraph_random_iterator *ri,
             // this variable is intended to shadow the vector len
             int len = 0;
 
-            for (i=0; i < outd_ref; )
+            for (i=0; i < (int)outd_ref; )
             {
                 if (len <= 0)
                 {
