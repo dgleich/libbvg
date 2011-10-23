@@ -218,6 +218,8 @@ void print_all(bvgraph g)
 
     bvgraph_random_free(&ri);
 
+//    printf("All links are tested and correct.\n");
+
 }
 
 void test_performance(bvgraph g, int test_num)
