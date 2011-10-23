@@ -162,6 +162,9 @@ int bvgraph_random_access_iterator(bvgraph* g, bvgraph_random_iterator *i)
     i->curr_outd = -1;
     i->cyclic_buffer_size = i->g->window_size+1;
 
+    // for successors cache
+    i->successors_cache = NULL;
+
     if (g->offset_step < 1) {
         return bvgraph_call_unsupported;
     }

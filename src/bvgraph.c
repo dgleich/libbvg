@@ -96,7 +96,7 @@ int bvgraph_load(bvgraph* g, const char *filename, unsigned int filenamelen, int
  * @param gmemsize the size of the gmemory block
  * @param offsets an array of offsets
  * (if NULL, then this parameter is treated as internal memory)
- * @param offsetssize the number of offsets (*NOT USED*)
+ * @param offsetssize the number of offsets
  * @return 0 if successful
  * bvgraph_load_error_filename_too_long - indicates the filename was too long
  */
@@ -204,6 +204,9 @@ int bvgraph_load_external(bvgraph *g,
                     g->offsets[i] = off;
                 }
             }
+
+            // load pre-computed table
+            //bitfile_load_table("/Users/wyday/Research/libbvg/data/gamma.in.16");
         }
     }
     else
@@ -330,7 +333,6 @@ int bvgraph_successors(bvgraph *g, int x, int** start, unsigned int *length)
     int rval = bvgraph_random_access_iterator(g, &ri);
     if (rval == 0) {
         bvgraph_random_successors(&ri, x, start, length);
-        //bvgraph_random_free(&ri);
         return (0);
     } else { 
         return (rval); 

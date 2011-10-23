@@ -27,6 +27,7 @@
  */
 
 #include "bitfile.h"
+#include "../tools/uthash-1.9.4/src/uthash.h"
 
 //#define MAX_DEBUG
 
@@ -35,6 +36,7 @@
 #endif
 
 #define BVGRAPH_MAX_FILENAME_SIZE 1024
+#define MAX_CACHE_SIZE 1000
 
 /** Define a 64-bit type 
  */
@@ -131,6 +133,14 @@ struct bvgraph_iterator_tag {
 	struct bvgraph_int_vector_tag block, left, len, buf1, buf2;
 };
 
+struct successor{
+    int node;   // key
+    int* a;     // successors
+    int d;      // number of degree
+    int loaded;   // number of usage
+    UT_hash_handle hh;
+};
+
 /** A random access iterator for the bvgraph.
  *
  * Use this type through its alias bvgraph_iterator.
@@ -162,7 +172,12 @@ struct bvgraph_random_iterator_tag {
 	// the end of the offset cache
 	int offset_cache_end;
 	// the start of both caches
-	int cache_start;			
+	int cache_start;
+    // a cache for successors
+    struct successor *successors_cache;
+
+    // a table to maintain the top k loaded nodes
+    // int* top_loaded;
 
 	int cyclic_buffer_size;
 	struct bvgraph_int_vector_tag* window;
@@ -249,5 +264,9 @@ int merge_int_arrays(const int* a1, size_t a1len, const int* a2,
 		                     size_t a2len, int *out, size_t outlen);
 
 const char* bvgraph_error_string(int error);
+
+int add_to_cache(int node, int *links, int d);
+int loaded_sort(struct successor *a, struct successor *b);
+struct successor *find_in_cache(int node);
 
 #endif // LIBBVG_BVGRAPH_H

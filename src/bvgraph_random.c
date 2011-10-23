@@ -18,6 +18,8 @@
 #include "bvgraph_internal.h"
 #include "bvgraph_inline_io.h"
 
+struct successor *CACHE = NULL;
+
 /** Declare static methods for this iterator
  */
 
@@ -157,8 +159,8 @@ int bvgraph_random_successors(bvgraph_random_iterator *ri,
         ri->outd_cache[x%ri->cyclic_buffer_size] = d;
         ri->curr_outd = d;
         *length = d;
-        
-        if (d > (unsigned int)ri->max_outd) { ri->max_outd = d; }
+
+        if (d > (unsigned)ri->max_outd) { ri->max_outd = d; }
 
         if (d == 0) { 
             len = 0;    //modified
@@ -166,6 +168,7 @@ int bvgraph_random_successors(bvgraph_random_iterator *ri,
             return (0);
         }
 
+        // move this after recursive call
         int_vector_ensure_size(&ri->successors, d);
         int_vector_ensure_size(&ri->buf1, d);
         int_vector_ensure_size(&ri->buf2, d);
@@ -176,6 +179,9 @@ int bvgraph_random_successors(bvgraph_random_iterator *ri,
         } else {
             ref = -1;
         }
+
+        // add recursive call here
+
         ref_index = (x-ref + cyclic_buffer_size)%(cyclic_buffer_size);
 
         // variables for reference parts
@@ -184,9 +190,6 @@ int bvgraph_random_successors(bvgraph_random_iterator *ri,
         bvgraph_random_iterator ref_ri;
 
         if (ref > 0) {
-            // construct a new random access iterator to get links of reference
-            // note that random iterator must be different from original one
-            // cause they store different successors at the same time
             bvgraph_random_access_iterator(g, &ref_ri);
             bvgraph_random_successors(&ref_ri, x-ref, &ref_links, &outd_ref);
 
@@ -252,7 +255,7 @@ int bvgraph_random_successors(bvgraph_random_iterator *ri,
                 }
             }
         }
-            
+
         buf1_index = 0;
         buf2_index = 0;
 
@@ -321,7 +324,7 @@ int bvgraph_random_successors(bvgraph_random_iterator *ri,
             // this variable is intended to shadow the vector len
             int len = 0;
 
-            for (i=0; i < (int)outd_ref; )
+            for (i=0; i < (signed)outd_ref; )
             {
                 if (len <= 0)
                 {
@@ -355,8 +358,10 @@ int bvgraph_random_successors(bvgraph_random_iterator *ri,
             buf2_index = 0;
 
             // deallocate the memory of reference iterator
-            bvgraph_random_free(&ref_ri);
-            
+            //if (ref_succ == NULL){
+            //    add_to_cache(x, ri->successors.a, d);
+                bvgraph_random_free(&ref_ri);
+            //}
        }
 
     }
@@ -364,8 +369,7 @@ int bvgraph_random_successors(bvgraph_random_iterator *ri,
     if (start){
         *start = ri->successors.a;
     }
-
-
+   
     return (0);
 
 }
@@ -401,3 +405,76 @@ int bvgraph_random_free(bvgraph_random_iterator* ri)
     return (0);
 }
 
+struct successor *find_in_cache(int node)
+{
+    struct successor *s;
+    // struct successor *cache = ri->successors_cache;
+    HASH_FIND_INT(CACHE, &node, s);
+    if (s != NULL) {
+        HASH_DELETE(hh, CACHE, s);
+        HASH_ADD_INT(CACHE, node, s);
+    }
+
+    return s;
+}
+
+int loaded_sort(struct successor *a, struct successor *b)
+{
+    return (a->loaded - b->loaded);
+}
+
+int add_to_cache(int node, int *links, int d)
+{
+
+    // check if ri->curr exists in cache
+    //struct successor *found = find_in_cache(node);
+    struct successor *read, *temp;
+    //struct successor *curr;
+    //struct successor *cache = ri->successors_cache;
+    
+    // 2 cases:
+    // 1) cache is full, delete the last n element, and add new element
+    // get the least loaded node (the cache is sorted)
+    if (HASH_COUNT(CACHE) >= MAX_CACHE_SIZE){
+//        return 0;
+        HASH_ITER(hh, CACHE, read, temp) {
+            //printf("node %d is the least loaded node\n", read->node);
+            HASH_DEL(CACHE, read);
+            free(read->a);
+            free(read);
+            break;
+        }
+        
+    }
+    // 2) cache is not full, add directly
+    //printf("add node %d (%d)\n", node, d);
+
+    struct successor *add;
+    add = malloc(sizeof(struct successor));
+    add->node = node;
+    add->d = d;
+    add->a = malloc(sizeof(int)*d);
+    memcpy(add->a, links, sizeof(int)*d);
+    add->loaded = 1;
+
+    HASH_ADD_INT(CACHE, node, add); 
+    //HASH_SORT(CACHE, loaded_sort);
+
+
+//    HASH_ITER(hh, CACHE, curr, temp){
+//        printf("[ref] current hash node: %d [%d]\n", curr->node, curr->loaded);
+
+/*
+        int i = 0;
+        for (i; i<curr->d; i++) {
+            printf("%d\t", curr->a[i]);
+        }
+        printf("\n");
+*/        
+//    }
+
+//    getchar();
+
+
+    return (0);
+}

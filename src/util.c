@@ -210,12 +210,12 @@ int int_vector_create_copy(bvgraph_int_vector* u, bvgraph_int_vector *v)
 
 int int_vector_ensure_size(bvgraph_int_vector *v, uint n)
 {
-//	printf("elements: %d\n", v->elements);
 //	int i;
 //	for (i = 0; i < v->elements; i++){
 //		printf("%d\t", v->a[i]);
 //	}
 //	printf("\n");
+
 	if (n > v->elements) {
 		int* newa = malloc(sizeof(int)*n);
 		if (!newa) { return bvgraph_call_out_of_memory; }

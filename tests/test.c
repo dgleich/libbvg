@@ -6,8 +6,6 @@
 #include <string.h>
 #include <time.h>
 
-#define MAX_PAIR_NUM 17000000
-
 struct pair{
     int from;
     int to;
@@ -47,7 +45,7 @@ void load_all(const char* name)
 {
     bvgraph g = {0};
     bvgraph_load(&g, name, strlen(name), 0);
-
+    
     bvgraph_iterator git;
     int rval = bvgraph_nonzero_iterator(&g, &git);
     if (rval){
@@ -55,7 +53,7 @@ void load_all(const char* name)
         return;
     }
 
-    ALL_PAIR = malloc(sizeof(int)*2*MAX_PAIR_NUM);
+    ALL_PAIR = malloc(sizeof(int)*2*(int)g.m);
 
     for (; bvgraph_iterator_valid(&git); bvgraph_iterator_next(&git)) {
         int *links = NULL;
@@ -204,12 +202,13 @@ void print_all(bvgraph g)
         int *links;
         //bvgraph_random_outdegree(&ri, i, &d);
         bvgraph_random_successors(&ri, i, &links, &d);
+        //bvgraph_successors(&g, i, &links, &d);
 
-        //printf ("node %d has degree %d\n", i, d);
+        printf ("node %d has degree %d\n", i, d);
         
         int j = 0;
         for (j; j< d; j++){
-            printf("node %i links to node %i\n", i, links[j]);
+//            printf("node %i links to node %i\n", i, links[j]);
             if (!exist_pair(i, links[j])){
                 printf("Wrong links from node %d to node %d. Stop.\n", i, links[j]);
                 return;
@@ -219,8 +218,6 @@ void print_all(bvgraph g)
 
     bvgraph_random_free(&ri);
 
-    printf("All links are tested and correct.\n");
-
 }
 
 void test_performance(bvgraph g, int test_num)
@@ -229,7 +226,6 @@ void test_performance(bvgraph g, int test_num)
     int i = 0;
     unsigned int d;
     srand(time(NULL));
-    int edge_count = 0;
     clock_t start, end;
     bvgraph_random_iterator ri;
     int rval = bvgraph_random_access_iterator(&g, &ri);
@@ -238,14 +234,24 @@ void test_performance(bvgraph g, int test_num)
         printf ("Random access iterator allocation failed. Stop.\n");
         return;
     }
+
+    int node = 0;
+    int *links = NULL;
+    int edge_count = 0;
  
     start = clock();
-    for (i; i < test_num; i++){
-        int node = rand() % g.n;
-        int *links;
-        //bvgraph_random_outdegree(&ri, node, &d);
+    for (i = 0; i < test_num; i++) {
+        node = rand() % g.n;
+        bvgraph_random_outdegree(&ri, node, &d);
         bvgraph_random_successors(&ri, node, &links, &d);
+        int j = 0;
+        int link;
+        for (j; j<d; j++){
+            link = links[j];
+        }
         edge_count += d;
+
+        //printf ("node %d has degree %d\n", node, d);
     }
     end = clock();
     double dif = ((double)end - (double)start) / CLOCKS_PER_SEC;
