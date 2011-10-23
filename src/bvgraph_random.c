@@ -190,6 +190,7 @@ int bvgraph_random_successors(bvgraph_random_iterator *ri,
         bvgraph_random_iterator ref_ri;
 
         if (ref > 0) {
+            // get the reference successors
             bvgraph_random_access_iterator(g, &ref_ri);
             bvgraph_random_successors(&ref_ri, x-ref, &ref_links, &outd_ref);
 

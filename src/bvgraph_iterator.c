@@ -206,6 +206,7 @@ int bvgraph_random_access_iterator(bvgraph* g, bvgraph_random_iterator *i)
 
                 // TODO figure out how to release i->block, i->left, i->len
                 // i->buf1, i->buf2
+                //
 
                 // in this case, we have to free everything allocated
                 while (windcount >= 0) {
