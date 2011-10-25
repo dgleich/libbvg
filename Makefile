@@ -36,5 +36,5 @@ $(BVPAGERANKNAME): lib $(BVPAGERANK_SRC_DIR)/bvpagerank.cc
 	$(CXX) bvpagerank.o -o $(BVPAGERANKNAME) -lbvg -L.
 
 test: lib
-	cd tests && $(MAKE)
+	cd test && $(MAKE)
 

@@ -27,7 +27,7 @@
  */
 
 #include "bitfile.h"
-#include "../tools/uthash-1.9.4/src/uthash.h"
+#include "uthash.h"
 
 //#define MAX_DEBUG
 
