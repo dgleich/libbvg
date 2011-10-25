@@ -141,37 +141,20 @@ int bvgraph_random_successors(bvgraph_random_iterator *ri,
 
         bvgraph *g = ri->g;
         bitfile *bf = &ri->bf;
-
-        unsigned int d;
-        int interval_count;
-        int buf1_index, buf2_index;
-
-        const int cyclic_buffer_size = g->window_size + 1;
-        // in our case, window isn't set at all, so we need to use the position
-        // method to set the file pointer, this could modify ri itself.
-        // this step requires offsets
-        //
+        
+        unsigned int d;     //degree
         ri->curr = x;
         int rval = position_bvgraph(ri, x, &d);
         if (rval) {
             return (rval);
         }
-        ri->outd_cache[x%ri->cyclic_buffer_size] = d;
-        ri->curr_outd = d;
+
         *length = d;
 
-        if (d > (unsigned)ri->max_outd) { ri->max_outd = d; }
-
         if (d == 0) { 
-            len = 0;    //modified
             *start = NULL;
             return (0);
         }
-
-        // move this after recursive call
-        int_vector_ensure_size(&ri->successors, d);
-        int_vector_ensure_size(&ri->buf1, d);
-        int_vector_ensure_size(&ri->buf2, d);
 
         // read a reference only if the window is bigger than 0
         if (g->window_size > 0) {
@@ -180,20 +163,46 @@ int bvgraph_random_successors(bvgraph_random_iterator *ri,
             ref = -1;
         }
 
-        // add recursive call here
+        int* temp = NULL;
+        int* ref_links = NULL;
+        unsigned int outd_ref = 0;
+        
+        // get successors of referred node
+        if (ref > 0) {
+            // get the reference links first
+            bvgraph_random_successors(ri, x-ref, &temp, &outd_ref);
+
+            // copy the reference successors cause ri->successors.a might be cleared
+            ref_links = malloc(sizeof(int)*outd_ref);
+            memcpy(ref_links, temp, sizeof(int)*outd_ref);
+            
+            // re-assigned the original node and position to ri since ri has been changed
+            ri->curr = x;
+            position_bvgraph(ri, x, &d);
+            if (g->window_size > 0) { ref = read_reference(g, bf); } else { ref = -1; }
+        }
+
+        int interval_count;
+        int buf1_index, buf2_index;
+
+        const int cyclic_buffer_size = g->window_size + 1;
+        // in our case, window isn't set at all, so we need to use the position
+        // method to set the file pointer, this could modify ri itself.
+        // this step requires offsets
+        //
+
+        ri->outd_cache[x%ri->cyclic_buffer_size] = d;
+        ri->curr_outd = d;
+
+        if (d > (unsigned)ri->max_outd) { ri->max_outd = d; }
+
+        int_vector_ensure_size(&ri->successors, d);
+        int_vector_ensure_size(&ri->buf1, d);
+        int_vector_ensure_size(&ri->buf2, d);
 
         ref_index = (x-ref + cyclic_buffer_size)%(cyclic_buffer_size);
 
-        // variables for reference parts
-        int* ref_links = NULL;
-        unsigned int outd_ref = 0;
-        bvgraph_random_iterator ref_ri;
-
         if (ref > 0) {
-            // get the reference successors
-            bvgraph_random_access_iterator(g, &ref_ri);
-            bvgraph_random_successors(&ref_ri, x-ref, &ref_links, &outd_ref);
-
             // total number of successors copied and total number specified
             int copied, total; 
             if ( (block_count = read_block_count(g, bf)) != 0 ) {
@@ -357,20 +366,17 @@ int bvgraph_random_successors(bvgraph_random_iterator *ri,
 
             buf1_index = buf1_index + buf2_index;
             buf2_index = 0;
-
-            // deallocate the memory of reference iterator
-            //if (ref_succ == NULL){
-            //    add_to_cache(x, ri->successors.a, d);
-                bvgraph_random_free(&ref_ri);
-            //}
-       }
-
+            
+            // free the successors of referred node
+            free(ref_links);
+        }
     }
+
 
     if (start){
         *start = ri->successors.a;
     }
-   
+    
     return (0);
 
 }
