@@ -665,6 +665,7 @@ int bitfile_read_zeta(bitfile* bf, const int k)
             bf->fill -= precomp >> 16;
             return precomp & 0xFFFF;
         }
+
     }
     
     const int h = bitfile_read_unary(bf);
