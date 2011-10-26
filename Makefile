@@ -11,8 +11,8 @@ LIBBVG_SRC_DIR := src
 BVPAGERANKNAME := bvpr
 BVPAGERANK_SRC_DIR := tools/bvpagerank
 
-CFLAGS := $(CFLAGS) -Wall -O3 -Wextra -Wno-unused-parameter
-CXXFLAGS := $(CXXFLAGS) -Wall -O3
+CFLAGS := $(CFLAGS) -Wall -O2 -Wextra -Wno-unused-parameter
+CXXFLAGS := $(CXXFLAGS) -Wall -O2
 
 LIBBVG_INCLUDE := -Iinclude -Isrc
 LIBBVG_SRC := bitfile.c bvgraph.c bvgraph_iterator.c bvgraph_random.c bvgraphfun.c properties.c util.c
@@ -25,7 +25,7 @@ BVPAGERANK_INCLUDE := -Iinclude
 all: lib $(BVPAGERANKNAME) test
 
 lib: $(LIBBVG_FULL_SRC)
-	gcc -g -c $(LIBBVG_INCLUDE) $(CFLAGS) $(LIBBVG_FULL_SRC) -pg
+	gcc -c $(LIBBVG_INCLUDE) $(CFLAGS) $(LIBBVG_FULL_SRC)
 	ar -rc $(LIBBVGNAME) $(LIBBVG_SRC:.c=.o)
 
 clean:
