@@ -19,6 +19,10 @@
 
 #include <stdio.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct bitfile_tag {
     FILE* f;
     unsigned char *buffer;  // buffer points to the current buffer
@@ -70,6 +74,10 @@ int bitfile_position(bitfile* bf, const long long pos);
 long long bitfile_skip(bitfile* bf, long long n);
 int bitfile_skip_gammas(bitfile* bf, int n);
 int bitfile_skip_deltas(bitfile* bf, int n);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* LIBBVG_BITFILE_H */
 
