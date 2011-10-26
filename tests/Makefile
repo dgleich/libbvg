@@ -9,7 +9,7 @@ LIB := -L ../
 .PHONY: all clean
 
 all:
-	gcc -g $(SRC) -lbvg $(LIB) -pg
+	gcc $(SRC) -lbvg $(LIB) 
 
 clean:
 	$(RM) $(SRC:.c=.o)
