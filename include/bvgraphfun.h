@@ -14,6 +14,10 @@
 
 #include "bvgraph.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 int bvgraph_mult(bvgraph *g, double *x, double *y);
 int bvgraph_transmult(bvgraph *g, double *x, double *y);
 int bvgraph_diag(bvgraph *g, double *x);
@@ -25,5 +29,9 @@ int bvgraph_csr_large(bvgraph *g, size_t* ai, size_t* aj);
 
 int bvgraph_substochastic_mult(bvgraph* g, double* x, double *y);
 int bvgraph_substochastic_transmult(bvgraph* g, double* x, double *y);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* LIBBVG_BVGRAPHFUN_H */
