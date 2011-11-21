@@ -273,9 +273,6 @@ int add_to_cache(int node, int *links, int d);
 int loaded_sort(struct successor *a, struct successor *b);
 struct successor *find_in_cache(int node);
 
-#endif // LIBBVG_BVGRAPH_H
-
-
 #ifdef __cplusplus
 }
 #endif
