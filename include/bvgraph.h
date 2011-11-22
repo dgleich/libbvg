@@ -36,7 +36,7 @@
 #endif
 
 #define BVGRAPH_MAX_FILENAME_SIZE 1024
-#define MAX_CACHE_SIZE 1000
+#define MAX_CACHE_SIZE 10000
 
 #ifdef __cplusplus
 extern "C" {
@@ -187,6 +187,7 @@ struct bvgraph_random_iterator_tag {
     struct bvgraph_int_vector_tag* window;
 
     struct bvgraph_int_vector_tag successors; 
+    struct bvgraph_int_vector_tag ref_successors;
     int curr_outd;
 
     // variables used inside the next function
@@ -223,6 +224,9 @@ extern const int bvgraph_unsupported_version;
 extern const int bvgraph_vertex_out_of_range;
 extern const int bvgraph_requires_offsets;
 extern const int bvgraph_unsupported_coding;
+
+bvgraph *bvgraph_new(void);
+void bvgraph_free(bvgraph *g);
 
 int bvgraph_load(bvgraph* g, const char *filename, unsigned int filenamelen,
                  int offset_step);
