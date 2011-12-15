@@ -3,12 +3,15 @@ import libbvg as bvg
 import unittest
 import sys
 import random
+import os
 
 class BVGraphTest(unittest.TestCase):
-    def __init__(self,filename):
-        unittest.TestCase.__init__(self)
-        self.graphname = sys.argv[1]
+    """Base class of BVGraph Test object.
+    """
     def setUp(self):
+        self.graphname = os.getenv('PYLIBBVG_TESTGRAPH')
+        if self.graphname is None:
+            self.graphname = '../../data/harvard500' 
         smatfile = open(self.graphname+'.smat','rt')
         header = smatfile.readline().split()
         self.check_nnodes = int(header[0])
@@ -47,9 +50,9 @@ class BVGraphTest(unittest.TestCase):
             self.assertSetEqual(self.checkgraph[src],gneigh)
 
     def test_adjacency(self):
-        #self.check_adjacency(self.bvg)
+        self.check_adjacency(self.bvg)
         self.check_adjacency(self.bvgstream)
-        #self.check_adjacency(self.bvgdisk)
+        self.assertRaises(TypeError, self.check_adjacency, self.bvgdisk)
 
     def check_edges(self, graph):
         for src, dst in graph.edges():
@@ -57,14 +60,18 @@ class BVGraphTest(unittest.TestCase):
 
     def test_edges(self):
         self.check_edges(self.bvgstream)
+        self.check_edges(self.bvg)
+        self.assertRaises(TypeError, self.check_edges, self.bvgdisk)
 
     def check_edges_degree(self, graph):
-        for src, dst, degree in graph.edges_and_degrees:
+        for src, dst, degree in graph.edges_and_degrees():
             self.assertIn(dst, self.checkgraph[src])
-            self.assertEqual(len(checkgraph[src], degree))
+            self.assertEqual(len(self.checkgraph[src]), degree)
     
     def test_edges_degree(self):
+        self.check_edges_degree(self.bvg)
         self.check_edges_degree(self.bvgstream)
+        self.assertRaises(TypeError, self.check_edges_degree, self.bvgdisk)
 
     def check_node_iterator(self, graph):
         for n in graph.nodes():
@@ -76,7 +83,7 @@ class BVGraphTest(unittest.TestCase):
         self.check_node_iterator(self.bvgdisk)
 
     def check_iteration(self, graph):
-        for v in graph:
+        for v in graph.vertices():
             src = v.curr
             degree = v.degree
             self.assertEqual(degree, len(self.checkgraph[src]))
@@ -85,6 +92,18 @@ class BVGraphTest(unittest.TestCase):
 
     def test_iteration(self):
         self.check_iteration(self.bvgstream)
+        self.check_iteration(self.bvg)
+        self.assertRaises(TypeError, self.check_iteration, self.bvgdisk)
+
+    def check_random_access(self, graph):
+        for n in graph.nodes():
+            gneigh = set([dst for dst in graph[n]])
+            self.assertSetEqual(self.checkgraph[n], gneigh)
+
+    def test_random_access(self):
+        self.assertRaises(TypeError, self.check_random_access, self.bvgstream)
+        self.assertRaises(TypeError, self.check_random_access, self.bvgdisk)
+        self.check_random_access(self.bvg)
 
     def check_random_iterator(self, graph, num):
         random.seed()
@@ -95,6 +114,8 @@ class BVGraphTest(unittest.TestCase):
     
     def test_random_iterator(self):
         self.check_random_iterator(self.bvg, 100)
+        self.assertRaises(TypeError, self.check_random_iterator, self.bvgstream, 100)
+        self.assertRaises(TypeError, self.check_random_iterator, self.bvgdisk, 100)
 
     def check_vertex_iterator(self, graph):
         for v in graph.vertices():
@@ -106,6 +127,8 @@ class BVGraphTest(unittest.TestCase):
 
     def test_vertex_iterator(self):
         self.check_vertex_iterator(self.bvgstream)
+        self.check_vertex_iterator(self.bvg)
+        self.assertRaises(TypeError, self.check_vertex_iterator, self.bvgdisk)
 
     def check_operator(self, graph):
         ingraph = 100
@@ -128,17 +151,17 @@ class BVGraphTest(unittest.TestCase):
         self.check_length(self.bvgstream)
         self.check_length(self.bvgdisk)
 
-    def runTest(self):
-        self.test_simple()
-        self.test_adjacency()
-        self.test_edges()
-        self.test_iteration()
-        self.test_random_iterator()
-        self.test_operator()
-        self.test_length()
-        self.test_vertex_iterator()
-        self.test_edges_degree
-        self.test_node_iterator
+#    def runTest(self):
+#        self.test_simple()
+#        self.test_adjacency()
+#        self.test_edges()
+#        self.test_iteration()
+#        self.test_random_iterator()
+#        self.test_operator()
+#        self.test_length()
+#        self.test_vertex_iterator()
+#        self.test_edges_degree
+#        self.test_node_iterator
 
 ## new an object without loading graph
 #G = bvg.Graph()
@@ -153,5 +176,7 @@ class BVGraphTest(unittest.TestCase):
 #testG.setUp()
 #testG.check_graph_simple(G1)
 
-suite = unittest.TestLoader().loadTestsFromTestCase(BVGraphTest)
-unittest.TextTestRunner(verbosity=2).run(suite)
+if __name__ == '__main__':
+    unittest.main()
+#suite = unittest.TestLoader().loadTestsFromTestCase(BVGraphTest)
+#unittest.TextTestRunner(verbosity=2).run(suite)

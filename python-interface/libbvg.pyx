@@ -65,6 +65,7 @@ cdef class BVGraph:
     cdef unsigned int d
     cdef int* links
     cdef char* filename
+    cdef int offset_step
     
     ### constructor
     def __cinit__(self, filename, offset_step=None):
@@ -86,12 +87,13 @@ cdef class BVGraph:
             raise NameError('Filename is not a string.')
 
         if isinstance(offset_step, int):
-            rval = self.cload(filename, offset_step)
+            self.offset_step = offset_step
+            rval = self._cload(filename, offset_step)
             self.filename = filename
             if rval == 1:
                 raise IOError()
         else:
-            rval = self.cload(filename, 1)
+            rval = self._cload(filename, 1)
             self.filename = filename
             if rval == 1:
                 raise IOError()
@@ -141,7 +143,7 @@ cdef class BVGraph:
 
     def is_directed(self):
         """Return True if graph is directed, False otherwise."""
-        return False
+        return True
 
     def successors(self, x):
         """Random access to certain node x.
@@ -158,12 +160,20 @@ cdef class BVGraph:
 
         """
 
+        if self.offset_step != 1:
+            raise TypeError()
+
         cdef clibbvg.bvgraph_random_iterator rit
         cdef int* successors
         cdef unsigned int degree
-        clibbvg.bvgraph_random_access_iterator(self.g, &rit)
-        clibbvg.bvgraph_random_successors(&rit, x, &successors, &degree)
-        
+        rval = clibbvg.bvgraph_random_access_iterator(self.g, &rit)
+        if rval != 0:
+            raise MemoryError()
+            
+        rval = clibbvg.bvgraph_random_successors(&rit, x, &successors, &degree)
+        if rval != 0:
+            raise MemoryError()
+
         a = []
         for i in range(0, degree):
             a.append(successors[i])
@@ -179,17 +189,26 @@ cdef class BVGraph:
             >>> d = G.out_degree(x) # degree of x
         
         """
+
+        if self.offset_step != 1:
+            raise TypeError()
+
         cdef clibbvg.bvgraph_random_iterator rit
         cdef unsigned int degree
-        clibbvg.bvgraph_random_access_iterator(self.g, &rit)
+        rval = clibbvg.bvgraph_random_access_iterator(self.g, &rit)
+        if rval != 0:
+            raise MemoryError()
+
         if clibbvg.bvgraph_random_outdegree(&rit, x, &degree) == 0:
             return degree
         else:
-            return -1
+            raise MemoryError()
 
     ### iteration
     def __iter__(self):
         """Iterate over the nodes.  Use the expression 'for n in G'
+
+        Same as G.nodes().
 
         Example:
             >>> G = bvg.BVGraph('../../data/harvard500', 0)
@@ -197,31 +216,10 @@ cdef class BVGraph:
             ...     # n is a Vertex object of current node of iteration
 
         """
-        # declare and initialize a new iterator
-        cdef clibbvg.bvgraph_iterator nit
-        clibbvg.bvgraph_nonzero_iterator(self.g, &nit)
-        
-        cdef int* links
-        cdef unsigned d
 
-        while clibbvg.bvgraph_iterator_valid(&nit):
-            # get successors and degree
-            clibbvg.bvgraph_iterator_outedges(&nit, &links, &d)
-
-            # copy links into list
-            a = []
-            for i in range(0, d):
-                a.append(links[i])
-
-            # new a vertex object and yield
-            v = Vertex(nit.curr, d, a)
-            yield v
-
-            # iterate to next vertex
-            clibbvg.bvgraph_iterator_next(&nit)
-
-        # free iterator object
-        clibbvg.bvgraph_iterator_free(&nit)
+        for i in xrange(0, self.nverts):
+            yield i
+        #return self.nodes()    # return non-iterator type?
 
     def vertex(self, node):
         """Random access for vertex
@@ -237,15 +235,22 @@ cdef class BVGraph:
             ...     # (v.curr, neigh) is an edge
         
         """
+
+        if self.offset_step != 1:
+            raise TypeError()
  
         cdef clibbvg.bvgraph_random_iterator ri
-        clibbvg.bvgraph_random_access_iterator(self.g, &ri)
+        rval = clibbvg.bvgraph_random_access_iterator(self.g, &ri)
+        if rval != 0:
+            raise MemoryError()
         
         cdef int* links
         cdef unsigned d
 
         # get degree and successros
-        clibbvg.bvgraph_random_successors(&ri, node, &links, &d)
+        rval = clibbvg.bvgraph_random_successors(&ri, node, &links, &d)
+        if rval != 0:
+            raise MemoryError()
 
         # copy links into list
         a = []
@@ -253,7 +258,9 @@ cdef class BVGraph:
             a.append(links[i])
         
         # free random iterator object
-        clibbvg.bvgraph_random_free(&ri)
+        rval = clibbvg.bvgraph_random_free(&ri)
+        if rval != 0:
+            raise MemoryError()
 
         # new an object and return
         v = Vertex(node, d, a)
@@ -269,9 +276,19 @@ cdef class BVGraph:
 
         """
  
-        for i in xrange(0, self.nverts):
-            yield i
+        return xrange(0, self.nverts)
    
+    def number_of_nodes(self):
+        """Return the number of nodes in the graph.
+
+        Returns
+        -------
+        nnodes : int
+            The number of nodes in the graph.
+        
+        """
+        return self.nverts
+
     ## edge iterator
     def edges(self):
         """A sequential iterator over all the edges
@@ -283,10 +300,15 @@ cdef class BVGraph:
             ...     # (src, dst) is an edge
 
         """
+
+        if self.offset_step < 0:
+            raise TypeError()
  
         # declare and initialize a new iterator
         cdef clibbvg.bvgraph_iterator it
-        clibbvg.bvgraph_nonzero_iterator(self.g, &it)
+        rval = clibbvg.bvgraph_nonzero_iterator(self.g, &it)
+        if rval != 0:
+            raise MemoryError()
         
         cdef int* links
         cdef unsigned d
@@ -320,10 +342,15 @@ cdef class BVGraph:
             ...     # degree is number of links from src
 
         """
+
+        if self.offset_step < 0:
+            raise TypeError()
  
         # declare and initialize a new iterator
         cdef clibbvg.bvgraph_iterator it
-        clibbvg.bvgraph_nonzero_iterator(self.g, &it)
+        rval = clibbvg.bvgraph_nonzero_iterator(self.g, &it)
+        if rval != 0:
+            raise MemoryError()
         
         cdef int* links
         cdef unsigned d
@@ -356,10 +383,15 @@ cdef class BVGraph:
             ...         # (src, neigh) is an edge
 
         """
+
+        if self.offset_step < 0:
+            raise TypeError()
  
         # declare and initialize a new iterator
         cdef clibbvg.bvgraph_iterator nit
-        clibbvg.bvgraph_nonzero_iterator(self.g, &nit)
+        rval = clibbvg.bvgraph_nonzero_iterator(self.g, &nit)
+        if rval != 0:
+            raise MemoryError()
         
         cdef int* links
         cdef unsigned d
@@ -382,6 +414,16 @@ cdef class BVGraph:
 
         # free iterator object
         clibbvg.bvgraph_iterator_free(&nit)
+
+    def neighbors_iter(self, n):
+        """Return an iterator over all neighbors of node n.
+        """
+        for neigh in self.successors(n):
+            yield neigh
+
+    def nodes_iter(self):
+        for i in xrange(0, self.nverts):
+            yield i
 
     ## length function
     def __len__(self):
@@ -412,7 +454,7 @@ cdef class BVGraph:
             >>> G.load(filename, 1)     # loading with offsets
 
         """
-        return self.cload(filename, offset_step)
+        return self._cload(filename, offset_step)
 
     ## random iterator
     def random_iterator(self, node_list):
@@ -428,14 +470,21 @@ cdef class BVGraph:
             ...         # (node, succ) is an edge
         """
 
+        if self.offset_step != 1:
+            raise TypeError()
+
         ## iterate over node_list
         cdef clibbvg.bvgraph_random_iterator ri
         cdef int* links
         cdef unsigned d
-        clibbvg.bvgraph_random_access_iterator(self.g, &ri)
+        rval = clibbvg.bvgraph_random_access_iterator(self.g, &ri)
+        if rval != 0:
+            raise MemoryError()
 
         for node in node_list:
-            clibbvg.bvgraph_random_successors(&ri, node, &links, &d)
+            rval = clibbvg.bvgraph_random_successors(&ri, node, &links, &d)
+            if rval != 0:
+                raise MemoryError()
             
             # copy links into list
             a = []
@@ -444,7 +493,9 @@ cdef class BVGraph:
  
             yield node, a
 
-        clibbvg.bvgraph_random_free(&ri)
+        rval = clibbvg.bvgraph_random_free(&ri)
+        if rval != 0:
+            raise MemoryError()
     
     ## adjacency iter function
     def adjacency_iter(self):
@@ -460,9 +511,14 @@ cdef class BVGraph:
             ...         # attr is always 1
         """
 
+        if self.offset_step < 0:
+            raise TypeError()
+
         # declare and initialize a new iterator
         cdef clibbvg.bvgraph_iterator it
-        clibbvg.bvgraph_nonzero_iterator(self.g, &it)
+        rval = clibbvg.bvgraph_nonzero_iterator(self.g, &it)
+        if rval != 0:
+            raise MemoryError()
         
         cdef int* links
         cdef unsigned d
@@ -487,80 +543,80 @@ cdef class BVGraph:
         clibbvg.bvgraph_iterator_free(&it)
 
     ### load function
-    cdef int cload(self, char* filename, int offset_step):
+    cdef int _cload(self, char* filename, int offset_step):
         cdef int length = len(filename)
         return clibbvg.bvgraph_load(self.g, filename, length, offset_step)
 
     ### iterators
-    cdef int cnonzero_iterator(self):
+    cdef int _cnonzero_iterator(self):
         return clibbvg.bvgraph_nonzero_iterator(self.g, &self.it)
     
-    cdef int crandom_access_iterator(self):
+    cdef int _crandom_access_iterator(self):
         return clibbvg.bvgraph_random_access_iterator(self.g, &self.ri)
 
     ### for sequential access
-    cdef int citerator_valid(self):
+    cdef int _citerator_valid(self):
         return clibbvg.bvgraph_iterator_valid(&self.it)
 
-    cdef int citerator_next(self):
+    cdef int _citerator_next(self):
         return clibbvg.bvgraph_iterator_next(&self.it)
 
-    cdef int citerator_outedges(self):
+    cdef int _citerator_outedges(self):
         return clibbvg.bvgraph_iterator_outedges(&self.it, &self.links, &self.d)
     
-    cdef int citerator_free(self):
+    cdef int _citerator_free(self):
         return clibbvg.bvgraph_iterator_free(&self.it)
     ######
 
     ### for random access
-    cdef int crandom_outdegree(self, int x):
+    cdef int _crandom_outdegree(self, int x):
         cdef unsigned int d
         if clibbvg.bvgraph_random_outdegree(&self.ri, x, &d) == 0:
             return d
         else:
             return -1
 
-    cdef int crandom_successors(self, int x):
+    cdef int _crandom_successors(self, int x):
         return clibbvg.bvgraph_random_successors(&self.ri, x, &self.links, &self.d)
 
-    cdef int crandom_free(self):
+    cdef int _crandom_free(self):
         return clibbvg.bvgraph_random_free(&self.ri)
     ######
 
     ### interface for python
     def load(self, filename, offset_step):
-        return self.cload(filename, offset_step)
+        return self._cload(filename, offset_step)
 
     ### sequential access
     def nonzero_iterator(self):
-        return self.cnonzero_iterator()
+        return self._cnonzero_iterator()
 
     def iterator_valid(self):
-        return self.citerator_valid()
+        return self._citerator_valid()
 
     def iterator_next(self):
-        return self.citerator_next()
+        return self._citerator_next()
 
     def iterator_outedges(self):
-        self.citerator_outedges()
+        self._citerator_outedges()
         a = []
         for i in range(0, self.d):
             a.append(self.links[i])
         return a
 
     def iterator_free(self):
-        return self.citerator_free()
+        return self._citerator_free()
 
     ### random access
     def random_access_iterator(self):
-        return self.crandom_access_iterator()
+        return self._crandom_access_iterator()
 
     def random_outdegree(self, x):
-        self.crandom_outdegree(x)
+        self._crandom_outdegree(x)
         return self.d
 
     def random_successors(self, x):
-        self.crandom_successors(x)
+        self._crandom_successors(x)
        
         # use list to store
         a = []
@@ -569,21 +625,8 @@ cdef class BVGraph:
         return a
 
     def random_free(self):
-        return self.crandom_free()
+        return self._crandom_free()
     
-    ### some other functions
-    def node_size(self):
-        return self.g.n
-
-    def edge_size(self):
-        return self.g.m
-
-    def get_degree(self):
-        return self.d
-    
-    def get_current_node(self):
-        return self.it.curr
-
 ## load graph
 def load_graph(filename, offline=None, offsets=None):
     """Load the graph with filename and offset setting
