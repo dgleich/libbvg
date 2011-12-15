@@ -94,7 +94,7 @@ cdef class BVGraph:
                 raise IOError()
         else:
             self.offset_step = 1
-            rval = self._cload(filename, offset_step)
+            rval = self._cload(filename, self.offset_step)
             self.filename = filename
             if rval == 1:
                 raise IOError()
