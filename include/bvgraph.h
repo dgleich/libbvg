@@ -27,7 +27,6 @@
  */
 
 #include "bitfile.h"
-#include "../tools/uthash-1.9.4/src/uthash.h"
 
 //#define MAX_DEBUG
 
@@ -138,7 +137,6 @@ struct successor{
     int* a;     // successors
     int d;      // number of degree
     int loaded;   // number of usage
-    UT_hash_handle hh;
 };
 
 /** A random access iterator for the bvgraph.
