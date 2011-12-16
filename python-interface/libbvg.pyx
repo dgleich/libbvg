@@ -141,10 +141,31 @@ cdef class BVGraph:
         for node in self.successors(n):
             adj_dic[node] = {}
         return adj_dic
+    
+    ### iteration
+    def __iter__(self):
+        """Iterate over the nodes.  Use the expression 'for n in G'
+
+        Same as G.nodes().
+
+        Example:
+            >>> G = bvg.BVGraph('../../data/harvard500', 0)
+            >>> for n in G:
+            ...     # n is a Vertex object of current node of iteration
+
+        """
+
+        for i in xrange(0, self.nverts):
+            yield i
+        #return self.nodes()    # return non-iterator type?
 
     def is_directed(self):
         """Return True if graph is directed, False otherwise."""
         return True
+
+    def is_multigraph(self):
+        """Return True if graph is multi-graph, False otherwise."""
+        return False
 
     def successors(self, x):
         """Random access to certain node x.
@@ -180,6 +201,85 @@ cdef class BVGraph:
             a.append(successors[i])
         return a
 
+    def neighbors(self, n):
+        """Return a list of the nodes connected to the node n.
+
+        Same as self.successors(n).
+
+        """
+        return self.successors(n)
+
+    def degree(self, nbunch=None, weight=None):
+        """Return the degree of node x.
+
+        Same as out_degree.
+
+        Parameters:
+            nbunch: iterable container, optional (default=all nodes)
+                A container of nodes.  The container will be iterated
+                through once.
+
+            weight: string or None, optional (default=None)
+                The edge attribute that holds the numerical value used 
+                as a weight.  If None, then each edge has weight 1.
+                The degree is the sum of the edge weights adjacent to the node.
+
+        """
+        if nbunch in self:  # return a single node
+            return self.out_degree(nbunch)
+        else:
+            dic = {}
+            if nbunch is None:
+                return dict(self.degree_iter())
+
+            for node in nbunch:
+                dic[node] = self.out_degree(node)
+
+            return dic
+    
+    def degree_iter(self):
+        """Return an iterator for (node, degree).
+
+        Example:
+            >>> for node, degree in degree_iter():
+            ...     # node is the node number
+            ...     # degree is the out-degree of the node
+
+        """
+
+        if self.offset_step < 0:
+            raise TypeError()
+ 
+        # declare and initialize a new iterator
+        cdef clibbvg.bvgraph_iterator nit
+        rval = clibbvg.bvgraph_nonzero_iterator(self.g, &nit)
+        if rval != 0:
+            raise MemoryError()
+        
+        cdef int* links
+        cdef unsigned d
+
+        while clibbvg.bvgraph_iterator_valid(&nit):
+            # get successors and degree
+            clibbvg.bvgraph_iterator_outedges(&nit, &links, &d)
+            
+            node = int(nit.curr)
+            degree = int(d)
+            yield (node, degree)
+
+            # iterate to next vertex
+            clibbvg.bvgraph_iterator_next(&nit)
+
+        # free iterator object
+        clibbvg.bvgraph_iterator_free(&nit)
+
+    def out_degree_iter(self):
+        """Return an iterator for (node, degree).
+
+        Same as degree_iter().
+        """
+        return self.degree_iter()
+
     def out_degree(self, x):
         """Return the out degree of node x
 
@@ -201,26 +301,17 @@ cdef class BVGraph:
             raise MemoryError()
 
         if clibbvg.bvgraph_random_outdegree(&rit, x, &degree) == 0:
-            return degree
+            return int(degree)
         else:
             raise MemoryError()
 
-    ### iteration
-    def __iter__(self):
-        """Iterate over the nodes.  Use the expression 'for n in G'
+    def order(self):
+        """Return the number of nodes in the graph.
 
-        Same as G.nodes().
-
-        Example:
-            >>> G = bvg.BVGraph('../../data/harvard500', 0)
-            >>> for n in G:
-            ...     # n is a Vertex object of current node of iteration
-
+        Same as len(G).
         """
 
-        for i in xrange(0, self.nverts):
-            yield i
-        #return self.nodes()    # return non-iterator type?
+        return len(self)
 
     def vertex(self, node):
         """Random access for vertex
@@ -291,7 +382,7 @@ cdef class BVGraph:
         return self.nverts
 
     ## edge iterator
-    def edges(self):
+    def edges(self, data=False):
         """A sequential iterator over all the edges
 
         Example:
