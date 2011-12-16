@@ -407,6 +407,14 @@ int bitfile_position(bitfile* bf, const long long position)
     }
 }
 
+/** Return the current position
+ * @return the number of bits current into the bitfile
+ */
+long long bitfile_tell(bitfile *bf)
+{
+    return bf->total_bits_read;
+} 
+
 /** Skips the given number of bits. 
  *
  * @param n the number of bits to skip.

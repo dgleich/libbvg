@@ -179,7 +179,7 @@ int bvgraph_load_external(bvgraph *g,
             }
             // we now have the graph in memory!
 
-            if (offset_step == 1){        //modified 082911
+            if (offset_step == 1) {        //modified 082911
                 if (offsets != NULL) {
                     g->offsets = offsets;
                     g->offsets_external = 1;
@@ -192,21 +192,32 @@ int bvgraph_load_external(bvgraph *g,
                 char *ofilename = strappend(g->filename, g->filenamelen, ".offsets", 8);
                 bitfile bf;
                 long long off = 0;
-                int i, state;
-                FILE *ofile = fopen(ofilename, "rb");
+                int i;
                 g->offsets = (unsigned long long*)malloc(g->n*sizeof(unsigned long long));
-                state = bitfile_open(ofile, &bf);
-                if (state){
-                    printf ("Bitfile IO error!\n");
-                }
-                for (i = 0; i < g->n; i++){
-                    off = read_offset(g, &bf) + off;
-                    g->offsets[i] = off;
+                FILE *ofile = fopen(ofilename, "rb");
+                if (ofile) {
+                    rval = bitfile_open(ofile, &bf);
+                    if (rval) {
+                        return bvgraph_call_io_error;
+                    }
+                    for (i = 0; i < g->n; i++){
+                        off = read_offset(g, &bf) + off;
+                        g->offsets[i] = off;
+                    }
+                } else {
+                    // need to build the offsets
+                    bvgraph_iterator git;
+                    int rval = bvgraph_nonzero_iterator(g, &git);
+                    if (rval) { return rval; }
+                    g->offsets[0] = 0;
+                    for (; bvgraph_iterator_valid(&git); bvgraph_iterator_next(&git)) {
+                        if (git.curr+1 < g->n) {
+                            g->offsets[git.curr+1] = bitfile_tell(&git.bf);
+                        }
+                    }
+                    bvgraph_iterator_free(&git);
                 }
             }
-
-            // load pre-computed table
-            //bitfile_load_table("/Users/wyday/Research/libbvg/data/gamma.in.16");
         }
     }
     else
