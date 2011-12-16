@@ -8,10 +8,62 @@ import os
 class BVGraphTest(unittest.TestCase):
     """Base class of BVGraph Test object.
     """
+    
+    def assertIn(self, member, container, msg=None):
+        """Just like self.assertTrue(a in b), but with a nicer default message."""
+        if member not in container:
+            standardMsg = '%s not found in %s' % (safe_repr(member),
+                                                  safe_repr(container))
+            self.fail(self._formatMessage(msg, standardMsg))
+
+
+    def assertSetEqual(self, set1, set2, msg=None):
+        """A set-specific equality assertion.
+
+        Args:
+            set1: The first set to compare.
+            set2: The second set to compare.
+            msg: Optional message to use on failure instead of a list of
+                    differences.
+
+        assertSetEqual uses ducktyping to support different types of sets, and
+        is optimized for sets specifically (parameters must support a
+        difference method).
+        """
+        try:
+            difference1 = set1.difference(set2)
+        except TypeError, e:
+            self.fail('invalid type when attempting set difference: %s' % e)
+        except AttributeError, e:
+            self.fail('first argument does not support set difference: %s' % e)
+
+        try:
+            difference2 = set2.difference(set1)
+        except TypeError, e:
+            self.fail('invalid type when attempting set difference: %s' % e)
+        except AttributeError, e:
+            self.fail('second argument does not support set difference: %s' % e)
+
+        if not (difference1 or difference2):
+            return
+
+        lines = []
+        if difference1:
+            lines.append('Items in the first set but not the second:')
+            for item in difference1:
+                lines.append(repr(item))
+        if difference2:
+            lines.append('Items in the second set but not the first:')
+            for item in difference2:
+                lines.append(repr(item))
+
+        standardMsg = '\n'.join(lines)
+        self.fail(self._formatMessage(msg, standardMsg))
+
     def setUp(self):
         self.graphname = os.getenv('PYLIBBVG_TESTGRAPH')
         if self.graphname is None:
-            self.graphname = '../../data/harvard500' 
+            self.graphname = '../data/harvard500' 
         smatfile = open(self.graphname+'.smat','rt')
         header = smatfile.readline().split()
         self.check_nnodes = int(header[0])

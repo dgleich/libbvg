@@ -382,7 +382,7 @@ cdef class BVGraph:
         return self.nverts
 
     ## edge iterator
-    def edges(self, data=False):
+    def edges(self):
         """A sequential iterator over all the edges
 
         Example:
