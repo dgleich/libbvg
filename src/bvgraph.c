@@ -45,6 +45,20 @@ static void set_defaults(bvgraph *g)
     g->max_ref_count = 3;
 }
 
+bvgraph *bvgraph_new(void)
+{
+    bvgraph *g;
+    g = malloc(sizeof(bvgraph));
+
+    return (g);
+}
+
+void bvgraph_free(bvgraph *g)
+{
+    free(g);
+    g = NULL;
+}
+
 /**
  * Load the metadata associated with a bvgraph.  Largely, this involves
  * just parsing the properties files.

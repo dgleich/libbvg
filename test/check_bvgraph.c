@@ -200,6 +200,7 @@ void print_all(bvgraph g)
     for (i; i < g.n; i++){
         //get successors example
         int *links;
+        //printf("Process node %d...\n", i);
         //bvgraph_random_outdegree(&ri, i, &d);
         bvgraph_random_successors(&ri, i, &links, &d);
         //bvgraph_successors(&g, i, &links, &d);
@@ -208,7 +209,7 @@ void print_all(bvgraph g)
         
         int j = 0;
         for (j; j< d; j++){
-//            printf("node %i links to node %i\n", i, links[j]);
+            //printf("node %i links to node %i\n", i, links[j]);
             if (!exist_pair(i, links[j])){
                 printf("Wrong links from node %d to node %d. Stop.\n", i, links[j]);
                 return;
