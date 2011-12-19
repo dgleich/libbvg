@@ -7,5 +7,5 @@ test/check_bvgraph
 bvgraph2smat
 bvpr
 *.mex*
-data/harvard-500.smat
-
+data/harvard500.smat
+python/*.so

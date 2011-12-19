@@ -1,5 +1,5 @@
 #!/usr/bin/python
-import libbvg as bvg
+import bvg
 import unittest
 import sys
 import random
