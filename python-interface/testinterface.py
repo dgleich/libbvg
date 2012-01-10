@@ -7,23 +7,24 @@ import sys
 
 ## new an object with graph loaded
 data = sys.argv[1]
-G1 = bvg.Graph(data, 0)  # load with offset step = 0 (iteration)
-G2 = bvg.Graph(data, 1)  # load with offset step = 1 (random access)
+G1 = bvg.BVGraph(data, 0)  # load with offset step = 0 (iteration)
+G2 = bvg.BVGraph(data, 1)  # load with offset step = 1 (random access)
 
 node = int(sys.argv[2])  # node is given
 
 ## test successors and degree
-#a = G2.successors(node)
-#for v in a:
-#    print v
-#print 'Degree = ' + str(G2.out_degree(node))
+a = G2.successors(node)
+for v in a:
+    print v
+print 'Degree = ' + str(G2.out_degree(node))
 
 ## test direct access to number of nodes and edges
-#print G1.nverts
-#print G1.nedges
+print G1.nverts
+print G1.nedges
 
 ## test iteration in G
-#for v in G1:
+for v in G1:
+    print v
 #    src = v.curr
 #    deg = v.degree
 #    print 'src = ' + str(src) + ', degree = ' + str(deg)
@@ -32,17 +33,16 @@ node = int(sys.argv[2])  # node is given
 #        print '  ' + str(src) + ' --- ' + str(dst)
 
 ## test random access for vertex
-#v = G2.vertex(node)
-#print v.curr
-#print v.degree
+v = G2.vertex(node)
+print v.curr
+print v.degree
 
 #for neigh in v:
 #    dst = neigh
 #    print '  ' + str(v.curr) + ' --- ' + str(dst)
 
 ## test node iterator
-#nodes = G1.nodes()
-#for n in nodes:
+#for n in G1.nodes():
 #    print n
 
 ## test edge iterator
@@ -85,16 +85,17 @@ node = int(sys.argv[2])  # node is given
 #    print 'node in new G'
 
 ## test random iterator
-#R1 = G1.random_iterator()
 #nodes = [1, 2, 10, 20, 100, 200, 300]
+#R1 = G2.random_iterator(nodes)
 
-#for (node, successors) in R1.iterate(nodes):
+#for (node, successors) in R1:
 #    print node
 #    for i in range(0, len(successors)):
 #        print '  ' + str(node) + ' --- ' + str(i)
 
 ## test adjacency_iter()
-for n, v in G1.adjacency_iter():
-    print 'node ' + str(n) + ' has neighbors:'
-    for nbr, attr in v.items():
-        print '  ' + str(nbr) + ' with weight ' + str(attr)
+#for n, v in G1.adjacency_iter():
+#    print 'node ' + str(n) + ' has neighbors:'
+#    for nbr, attr in v.items():
+#        print '  ' + str(nbr) + ' with weight ' + str(attr)
+
