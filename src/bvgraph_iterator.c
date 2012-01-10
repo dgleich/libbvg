@@ -71,7 +71,7 @@ int bvgraph_nonzero_iterator(bvgraph* g, bvgraph_iterator *i)
 
         rval = bitfile_open(f,&i->bf);
         if (rval) { return rval; }
-    } else if (g->offset_step == 0) {
+    } else if (g->offset_step == 0 || g->offset_step == 1) {
         rval = bitfile_map(g->memory, g->memory_size, &i->bf);
     } else {
         return bvgraph_call_unsupported;
