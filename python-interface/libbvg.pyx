@@ -157,6 +157,8 @@ cdef class BVGraph:
 
         for i in xrange(0, self.nverts):
             yield i
+
+        #return xrange(0, self.nverts)
         #return self.nodes()    # return non-iterator type?
 
     def is_directed(self):
@@ -164,7 +166,7 @@ cdef class BVGraph:
         return True
 
     def is_multigraph(self):
-        """Return True if graph is multi-graph, False otherwise."""
+        """Return True if graph is a multi-graph, False otherwise."""
         return False
 
     def successors(self, x):
@@ -311,7 +313,7 @@ cdef class BVGraph:
         Same as len(G).
         """
 
-        return len(self)
+        return self.nverts
 
     def vertex(self, node):
         """Random access for vertex
@@ -381,8 +383,18 @@ cdef class BVGraph:
         """
         return self.nverts
 
-    ## edge iterator
     def edges(self, data=False):
+        """A external function for edges iterator.
+
+        Should be modified for nx.max_flow and nx.min_cut
+        """
+        if data:
+            return self.edges_internal(1)
+        else:
+            return self.edges_internal(0)
+
+    ## edge iterator
+    def edges_internal(self, data):
         """A sequential iterator over all the edges
 
         Example:
@@ -412,7 +424,10 @@ cdef class BVGraph:
             src = it.curr
             for i in xrange(0, d):
                 dst = links[i]
-                e = src, dst
+                if data == 1:
+                    e = src, dst, {'capacity':1}
+                else:
+                    e = src, dst
                 yield e
 
             # iterate to next vertex
@@ -420,7 +435,7 @@ cdef class BVGraph:
 
         # free iterator object
         clibbvg.bvgraph_iterator_free(&it)
-
+    
     ## edge-degree iterator
     def edges_and_degrees(self):
         """A sequential iterator over all the edges and degrees
@@ -514,8 +529,9 @@ cdef class BVGraph:
             yield neigh
 
     def nodes_iter(self):
-        for i in xrange(0, self.nverts):
-            yield i
+        return xrange(0, self.nverts)
+        #for i in xrange(0, self.nverts):
+        #    yield i
 
     ## length function
     def __len__(self):
