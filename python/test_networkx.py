@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import libbvg as bvg
+import bvg as bvg
 import networkx as nx
 
 G = bvg.BVGraph('../../data/harvard500', 1)
