@@ -4,4 +4,4 @@ all:
 	python setup.py build_ext --inplace
 
 clean:
-	rm -rf libbvg.so libbvg.c build
+	rm -rf bvg.so bvg.c build

@@ -1,5 +1,5 @@
 #!/usr/bin/python
-import libbvg as bvg
+import bvg as bvg
 import sys
 
 ## new an object without loading graph

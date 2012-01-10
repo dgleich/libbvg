@@ -4,8 +4,8 @@ from Cython.Distutils import build_ext
 import numpy
 
 ext_modules = [
-    Extension("libbvg",
-              ["libbvg.pyx"],
+    Extension("bvg",
+              ["bvg.pyx"],
               include_dirs=["../include/", numpy.get_include()],
               library_dirs=["../"],
               libraries=["bvg"])]
