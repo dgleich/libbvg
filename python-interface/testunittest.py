@@ -72,6 +72,15 @@ class BVGraphTest(unittest.TestCase):
         self.check_edges_degree(self.bvg)
         self.check_edges_degree(self.bvgstream)
         self.assertRaises(TypeError, self.check_edges_degree, self.bvgdisk)
+    
+    def check_degree_iter(self, graph):
+        for src, degree in graph.degree_iter():
+            self.assertEqual(len(self.checkgraph[src]), degree)
+    
+    def test_degree_iter(self):
+        self.check_degree_iter(self.bvg)
+        self.check_degree_iter(self.bvgstream)
+        self.assertRaises(TypeError, self.check_degree_iter, self.bvgdisk)
 
     def check_node_iterator(self, graph):
         for n in graph.nodes():
@@ -82,7 +91,7 @@ class BVGraphTest(unittest.TestCase):
         self.check_node_iterator(self.bvgstream)
         self.check_node_iterator(self.bvgdisk)
 
-    def check_iteration(self, graph):
+    def check_vertices(self, graph):
         for v in graph.vertices():
             src = v.curr
             degree = v.degree
@@ -90,10 +99,10 @@ class BVGraphTest(unittest.TestCase):
             gneigh = set([dst for dst in v])
             self.assertSetEqual(self.checkgraph[src], gneigh)
 
-    def test_iteration(self):
-        self.check_iteration(self.bvgstream)
-        self.check_iteration(self.bvg)
-        self.assertRaises(TypeError, self.check_iteration, self.bvgdisk)
+    def test_vertices(self):
+        self.check_vertices(self.bvgstream)
+        self.check_vertices(self.bvg)
+        self.assertRaises(TypeError, self.check_vertices, self.bvgdisk)
 
     def check_random_access(self, graph):
         for n in graph.nodes():
