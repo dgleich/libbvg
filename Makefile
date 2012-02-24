@@ -25,7 +25,7 @@ LOADLIBES += -L. -lbvg
 all: everything
 
 # declare phony targets
-.PHONY: all lib clean everything
+.PHONY: all lib clean everything python
 
 #lib: $(LIBBVG_FULL_SRC)
 	#gcc -c $(LIBBVG_INCLUDE) $(CFLAGS) $(LIBBVG_FULL_SRC)
@@ -39,7 +39,7 @@ $(LIBBVGNAME): $(LIBBVG_FULL_SRC:.c=.o)
 clean:
 	$(RM) $(LIBBVG_SRC:.c=.o) $(LIBBVGNAME) $(ALLPROGS) $(ALLOBJS)
 	cd test && $(MAKE) clean
-	cd python-interface && $(MAKE) clean
+	cd python && $(MAKE) clean
 
 $(BVPAGERANKNAME): lib $(BVPAGERANK_SRC_DIR)/bvpagerank.o
 	$(CXX) $(LDFLAGS) $(BVPAGERANK_SRC_DIR)/bvpagerank.o -o $(BVPAGERANKNAME) $(LOADLIBES) $(LDLIBS)
@@ -59,4 +59,4 @@ test: lib
 	cd test && $(MAKE) all
 
 python: lib
-	cd python-interface && $(MAKE) all
+	cd python && $(MAKE) all

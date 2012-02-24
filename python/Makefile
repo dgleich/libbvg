@@ -1,10 +1,10 @@
 all: ext test
 	
-ext: 
+ext: clibbvg.pxd bvg.pyx ../libbvg.a
 	python setup.py build_ext --inplace
 
 clean:
-	rm -rf libbvg.so libbvg.c build
+	python setup.py clean --all --inplace
 	
 ../data/harvard500.smat:../data/harvard500.graph ../bvgraph2smat
 	../bvgraph2smat ../data/harvard500 -f smat
