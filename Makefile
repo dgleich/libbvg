@@ -37,7 +37,7 @@ $(LIBBVGNAME): $(LIBBVG_FULL_SRC:.c=.o)
 	ar -rcs $(LIBBVGNAME) $(LIBBVG_FULL_SRC:.c=.o)
 
 clean:
-	$(RM) $(LIBBVG_SRC:.c=.o) $(LIBBVGNAME) $(ALLPROGS) $(ALLOBJS)
+	$(RM) $(LIBBVG_FULL_SRC:.c=.o) $(LIBBVGNAME) $(ALLPROGS) $(ALLOBJS)
 	cd test && $(MAKE) clean
 	cd python && $(MAKE) clean
 
