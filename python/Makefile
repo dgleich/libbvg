@@ -1,15 +1,7 @@
-all: ext test
-	
-ext: clibbvg.pxd bvg.pyx ../libbvg.a
+.PHONY: all clean
+
+all:
 	python setup.py build_ext --inplace
 
 clean:
-	python setup.py clean --all --inplace
-	
-../data/harvard500.smat:../data/harvard500.graph ../bvgraph2smat
-	../bvgraph2smat ../data/harvard500 -f smat
-
-test: ext ../data/harvard500.smat
-	python testunittest.py
-	
-.PHONY: all clean test ext
+	rm -rf bvg.so bvg.c build
