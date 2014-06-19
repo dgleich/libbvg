@@ -50,7 +50,7 @@
 int bvgraph_mult(bvgraph *g, double *x, double *y)
 {
     bvgraph_iterator iter;
-    int *links; unsigned int i, d;
+    long long *links; unsigned long long i, d;
     int rval = bvgraph_nonzero_iterator(g, &iter);
     if (rval != 0) { return rval; } 
     for (; bvgraph_iterator_valid(&iter); 
@@ -78,7 +78,7 @@ int bvgraph_mult(bvgraph *g, double *x, double *y)
 int bvgraph_transmult(bvgraph *g, double *x, double *y)
 {
     bvgraph_iterator iter;
-    int *links; unsigned int i, d;
+    long long *links; unsigned long long i, d;
     int rval = bvgraph_nonzero_iterator(g, &iter);
     if (rval != 0) { return rval; }
     memset(y, 0, sizeof(double)*g->n); 
@@ -104,7 +104,7 @@ int bvgraph_transmult(bvgraph *g, double *x, double *y)
 int bvgraph_diag(bvgraph *g, double *x)
 {
     bvgraph_iterator iter;
-    int *links; unsigned int i, d;
+    long long *links; unsigned long long i, d;
     int rval = bvgraph_nonzero_iterator(g, &iter);
     if (rval != 0) { return rval; } 
     for (; bvgraph_iterator_valid(&iter); 
@@ -139,7 +139,7 @@ int bvgraph_relax_sor(bvgraph *g, double *x, double w)
 int bvgraph_sum_row(bvgraph *g, double *x)
 {
     bvgraph_iterator iter;
-    unsigned int d;
+    unsigned long long d;
     int rval = bvgraph_nonzero_iterator(g, &iter);
     if (rval != 0) { return rval; } 
     for (; bvgraph_iterator_valid(&iter); 
@@ -163,7 +163,7 @@ int bvgraph_sum_row(bvgraph *g, double *x)
 int bvgraph_sum_col(bvgraph *g, double *x)
 {
     bvgraph_iterator iter;
-    int *links; unsigned int i, d;
+    long long *links; unsigned long long i, d;
     int rval = bvgraph_nonzero_iterator(g, &iter);
     if (rval != 0) { return rval; } 
     for (; bvgraph_iterator_valid(&iter); 
@@ -181,7 +181,7 @@ int bvgraph_sum_col(bvgraph *g, double *x)
 int bvgraph_csr(bvgraph *g, int* ai, int* aj)
 {
     bvgraph_iterator iter;
-    int *links; unsigned int i, d;
+    long long *links; unsigned long long i, d;
     int rval = bvgraph_nonzero_iterator(g, &iter);
     int entry = 0;
     *ai++ = entry;
@@ -205,7 +205,7 @@ int bvgraph_csr(bvgraph *g, int* ai, int* aj)
 int bvgraph_csr_large(bvgraph *g, size_t* ai, size_t* aj)
 {
     bvgraph_iterator iter;
-    int *links; unsigned int i, d;
+    long long *links; unsigned long long i, d;
     int rval = bvgraph_nonzero_iterator(g, &iter);
     size_t entry = 0;
     *ai++ = entry;
@@ -238,7 +238,7 @@ int bvgraph_csr_large(bvgraph *g, size_t* ai, size_t* aj)
 int bvgraph_substochastic_mult(bvgraph *g, double *x, double *y)
 {
     bvgraph_iterator iter;
-    int *links; unsigned int i, d;
+    long long *links; unsigned long long i, d;
     int rval = bvgraph_nonzero_iterator(g, &iter);
     if (rval != 0) { return rval; } 
     for (; bvgraph_iterator_valid(&iter); 
@@ -268,7 +268,7 @@ int bvgraph_substochastic_mult(bvgraph *g, double *x, double *y)
 int bvgraph_substochastic_transmult(bvgraph *g, double *x, double *y)
 {
     bvgraph_iterator iter;
-    int *links; unsigned int i, d;
+    long long *links; unsigned long long i, d;
     int rval = bvgraph_nonzero_iterator(g, &iter);
     if (rval != 0) { return rval; } 
     memset(y, 0, sizeof(double)*g->n);
@@ -295,7 +295,7 @@ int bvgraph_substochastic_transmult(bvgraph *g, double *x, double *y)
 int bvgraph_substochastic_sum_row(bvgraph *g, double *x)
 {
     bvgraph_iterator iter; register double y1,y2,t,z,id;
-    unsigned int d;
+    unsigned long long d;
     int rval = bvgraph_nonzero_iterator(g, &iter);
     if (rval != 0) { return rval; } 
     for (; bvgraph_iterator_valid(&iter); 
@@ -321,7 +321,7 @@ int bvgraph_substochastic_sum_row(bvgraph *g, double *x)
 int bvgraph_substochastic_sum_col(bvgraph *g, double *x)
 {
     bvgraph_iterator iter;
-    int *links; unsigned int i, d;
+    long long *links; unsigned long long i, d;
     int rval = bvgraph_nonzero_iterator(g, &iter);
     if (rval != 0) { return rval; } 
     for (; bvgraph_iterator_valid(&iter); 
