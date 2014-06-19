@@ -17,12 +17,13 @@ refill_test: refill_test.o
 check_bvgraph: check_bvgraph.o
 
 test: 
-	./bitfile_test
-	./refill_test
-	./bvgraph_test ../data/harvard500
-	./check_bvgraph ../data/harvard500 random 10000
-	./check_bvgraph ../data/wb-cs.stanford random 10000
-	
+#	./bitfile_test
+#	./refill_test
+#	./bvgraph_test ../data/harvard500
+#	./check_bvgraph ../data/harvard500 random 10000
+#	./check_bvgraph ../data/wb-cs.stanford random 10000
+	./bitfile_64bit_test
+#	./bvgraph_test /scratch2/dgleich/data/clueweb12/clueweb12
 	
 
 
