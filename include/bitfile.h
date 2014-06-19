@@ -23,6 +23,26 @@
 extern "C" {
 #endif
 
+#if defined(__GNUC__)
+#include <stdint.h>
+#endif
+
+#ifndef int64
+#if defined(_MSC_VER)
+	typedef signed __int64 int64;
+#elif defined(__GNUC__)
+	typedef int64_t int64;
+#endif
+#endif
+	
+#ifndef uint64
+#if defined(_MSC_VER)
+	typedef unsigned __int64 uint64;
+#elif defined(__GNUC__)
+	typedef uint64_t uint64;
+#endif	
+#endif
+
 struct bitfile_tag {
     FILE* f;
     unsigned char *buffer;  // buffer points to the current buffer
@@ -63,11 +83,12 @@ int bitfile_close(bitfile* bf);
 int bitfile_flush(bitfile* bf);
 
 int bitfile_read_bit(bitfile* bf);
-int bitfile_read_int(bitfile* bf, unsigned int len);
+uint64 bitfile_read_int(bitfile* bf, unsigned int len);
 int bitfile_read_unary(bitfile* bf);
-int bitfile_read_gamma(bitfile* bf);
-int bitfile_read_zeta(bitfile* bf, const int k);
-int bitfile_read_nibble(bitfile* bf);
+uint64 bitfile_read_gamma(bitfile* bf);
+uint64 bitfile_read_zeta(bitfile* bf, const int k);
+uint64 bitfile_read_nibble(bitfile* bf);
+int bitfile_check_long(uint64 x);
 
 long long bitfile_tell(bitfile* bf);
 int bitfile_position(bitfile* bf, const long long pos);

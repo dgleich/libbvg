@@ -3,11 +3,11 @@
 cdef extern from "../include/bvgraph.h":
     ctypedef long long bvg_long_int
     ctypedef struct bvgraph:
-        int n
+        bvg_long_int n
         bvg_long_int m
         pass
     ctypedef struct bvgraph_iterator:
-        int curr
+        bvg_long_int curr
         pass
     ctypedef struct bvgraph_random_iterator:
         pass
@@ -26,14 +26,14 @@ cdef extern from "../include/bvgraph.h":
     # for sequential access
     int bvgraph_iterator_valid(bvgraph_iterator* i)
     int bvgraph_iterator_next(bvgraph_iterator* i)
-    int bvgraph_iterator_outedges(bvgraph_iterator* i, int** start, unsigned int* length)
+    int bvgraph_iterator_outedges(bvgraph_iterator* i, long long** start, unsigned long long* length)
     int bvgraph_iterator_free(bvgraph_iterator *i)
 
     int bvgraph_outdegree(bvgraph *g, int x, unsigned int *d)
     int bvgraph_successors(bvgraph *g, int x, int** start, unsigned int *length)
 
     # for random access
-    int bvgraph_random_outdegree(bvgraph_random_iterator *ri, int x, unsigned int *d)
-    int bvgraph_random_successors(bvgraph_random_iterator *ri, int x, int** start, unsigned int *length)
+    int bvgraph_random_outdegree(bvgraph_random_iterator *ri, long long x, unsigned long long *d)
+    int bvgraph_random_successors(bvgraph_random_iterator *ri, long long x, long long** start, unsigned long long *length)
     int bvgraph_random_free(bvgraph_random_iterator *ri)
 

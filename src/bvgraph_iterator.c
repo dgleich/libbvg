@@ -43,7 +43,7 @@
 int bvgraph_nonzero_iterator(bvgraph* g, bvgraph_iterator *i)
 {
     int rval = 0;
-    int outd_alloc = 10;
+    long long outd_alloc = 10;
     int windcount = 0;
 
     // check and see if we know something better about the maximum outdegree
@@ -80,7 +80,7 @@ int bvgraph_nonzero_iterator(bvgraph* g, bvgraph_iterator *i)
     // beyond this point, the bitfile was successfully allocated, so we must 
     // deallocate it if we exit.
 
-    i->outd_cache = malloc(sizeof(int)*i->cyclic_buffer_size);
+    i->outd_cache = malloc(sizeof(long long)*i->cyclic_buffer_size);
     if (i->outd_cache) {
         i->window = malloc(sizeof(bvgraph_int_vector)*i->cyclic_buffer_size);
         if (i->window) {
@@ -178,7 +178,7 @@ int bvgraph_random_access_iterator(bvgraph* g, bvgraph_random_iterator *i)
 
     // beyond this point, the bitfile was successfully allocated, so we must 
     // deallocate it if we exit.
-    i->outd_cache = malloc(sizeof(int)*i->cyclic_buffer_size);
+    i->outd_cache = malloc(sizeof(long long)*i->cyclic_buffer_size);
     if (i->outd_cache) {
         i->window = malloc(sizeof(bvgraph_int_vector)*i->cyclic_buffer_size);
         if (i->window) {
@@ -239,11 +239,10 @@ int bvgraph_random_access_iterator(bvgraph* g, bvgraph_random_iterator *i)
  * start: starting point of links (array)
  * len: outdegree
  */
-int bvgraph_iterator_outedges(bvgraph_iterator* i, int** start, unsigned int* len)
+int bvgraph_iterator_outedges(bvgraph_iterator* i, long long** start, unsigned long long* len)
 {
     if (start) { *start = i->successors.a; }
     if (len) { *len = i->curr_outd; }
-
     return (0);
 }
 
@@ -257,8 +256,8 @@ int bvgraph_iterator_outedges(bvgraph_iterator* i, int** start, unsigned int* le
  * @param out the final array
  * @param outlen the length of the output array
  */
-int merge_int_arrays(const int* a1, size_t a1len, const int* a2, 
-                     size_t a2len, int *out, size_t outlen)
+int merge_int_arrays(const long long* a1, size_t a1len, const long long* a2, 
+                     size_t a2len, long long *out, size_t outlen)
 {
     size_t a1i=0, a2i=0, oi=0;
     // make sure we don't have to worry about having enough space
@@ -269,9 +268,9 @@ int merge_int_arrays(const int* a1, size_t a1len, const int* a2,
         out[oi++] = a1[a1i] < a2[a2i] ? a1[a1i++] : a2[a2i++];
     }
     if (a1i < a1len) {
-        memcpy(&out[oi], &a1[a1i], (a1len - a1i)*sizeof(int));
+        memcpy(&out[oi], &a1[a1i], (a1len - a1i)*sizeof(long long));
     } else {
-        memcpy(&out[oi], &a2[a2i], (a2len - a2i)*sizeof(int));
+        memcpy(&out[oi], &a2[a2i], (a2len - a2i)*sizeof(long long));
     }
     return (0);
 }
@@ -284,9 +283,9 @@ int merge_int_arrays(const int* a1, size_t a1len, const int* a2,
  */
 int bvgraph_iterator_next(bvgraph_iterator* iter)
 {
-    const int x = ++(iter->curr);
-    int ref = 0, ref_index = 0;
-    int i = 0, extra_count = 0, block_count = 0;
+    const long long x = ++(iter->curr);
+    long long ref = 0, ref_index = 0;
+    long long i = 0, extra_count = 0, block_count = 0;
 
     // TODO: make these static arrays for the iterator
     // bvgraph_int_vector block, left, len, buf1, buf2;
@@ -294,14 +293,14 @@ int bvgraph_iterator_next(bvgraph_iterator* iter)
     bvgraph *g = iter->g;
     bitfile *bf = &iter->bf;
 
-    int d, copied, total, interval_count;
-    int buf1_index, buf2_index;
+    long long d, copied, total, interval_count;
+    long long buf1_index, buf2_index;
 
     // make sure the iterator is still valid
     if (!bvgraph_iterator_valid(iter)) {
         return bvgraph_call_unsupported;
     }
-
+	
     d = iter->outd_cache[x%iter->cyclic_buffer_size]=read_outdegree(g, bf);
     iter->curr_outd = d;
 
@@ -322,13 +321,13 @@ int bvgraph_iterator_next(bvgraph_iterator* iter)
     int_vector_ensure_size(&iter->successors, d);
     int_vector_create(&buf1, d);
     int_vector_create(&buf2, d);*/
-
+	
     int_vector_ensure_size(&iter->successors, d);
     int_vector_ensure_size(&iter->buf1, d);
     int_vector_ensure_size(&iter->buf2, d);
 
 #ifdef MAX_DEBUG
-    fprintf(stderr, "** begin successors\ncurr = %i\n", iter->curr);
+    fprintf(stderr, "** begin successors\ncurr = %lu\n", iter->curr);
 #endif 
             
     // we read the reference only if the actual window size is larger than one 
@@ -348,13 +347,13 @@ int bvgraph_iterator_next(bvgraph_iterator* iter)
         }
 
 #ifdef MAX_DEBUG
-    fprintf(stderr, "block_count = %i\n", block_count);
+    fprintf(stderr, "block_count = %lu\n", block_count);
 #endif 
         // the number of successors copied, and the total number of successors specified
         // in some copy
         copied = 0; 
         total = 0;
-
+		
         for (i = 0; i < block_count; i++) {
             iter->block.a[i] = read_block(g, bf) + (i == 0 ? 0 : 1);
             // TODO: test success
@@ -379,8 +378,7 @@ int bvgraph_iterator_next(bvgraph_iterator* iter)
     {
         if (g->min_interval_length != 0 && (interval_count = bitfile_read_gamma(bf)) != 0) 
         {
-            int prev = 0;
-
+            long long prev = 0;
             // TODO: test success
             int_vector_ensure_size(&iter->left, interval_count);
             int_vector_ensure_size(&iter->len, interval_count);
@@ -405,12 +403,12 @@ int bvgraph_iterator_next(bvgraph_iterator* iter)
     buf2_index = 0;
 
 #ifdef MAX_DEBUG
-    fprintf("extra_count = %i\ninterval_count = %i\nref = %i\n", extra_count, interval_count, ref);
+    fprintf("extra_count = %lu\ninterval_count = %lu\nref = %lu\n", extra_count, interval_count, ref);
 #endif 
     // read the residuals into a buffer
     {
-        int prev = -1;
-        int residual_count = extra_count;
+        long long prev = -1;
+        long long residual_count = extra_count;
         while (residual_count > 0) {
             residual_count--;
             if (prev == -1) { iter->buf1.a[buf1_index++] = prev = x + nat2int(read_residual(g, bf)); }
@@ -427,7 +425,7 @@ int bvgraph_iterator_next(bvgraph_iterator* iter)
         // copy the extra interval data
         for (i = 0; i < interval_count; i++)
         {
-            int j, cur_left = iter->left.a[i];
+            long long j, cur_left = iter->left.a[i];
             for (j = 0; j < iter->len.a[i]; j++) {
                 iter->buf2.a[buf2_index++] = cur_left + j;
             }
@@ -435,6 +433,7 @@ int bvgraph_iterator_next(bvgraph_iterator* iter)
 
         if (extra_count > 0)
         {
+			
             // merge buf1, buf2 into arcs
             merge_int_arrays(iter->buf1.a, buf1_index, iter->buf2.a, buf2_index, 
                 iter->successors.a, iter->successors.elements);
@@ -442,11 +441,11 @@ int bvgraph_iterator_next(bvgraph_iterator* iter)
             // now copy arcs back to buffer1, and free buffer2
             buf1_index = buf1_index + buf2_index;
             buf2_index = 0;           
-            memcpy(iter->buf1.a, iter->successors.a, buf1_index*sizeof(int));
+            memcpy(iter->buf1.a, iter->successors.a, buf1_index*sizeof(long long));
         }
         else
         {
-            memcpy(iter->buf1.a, iter->buf2.a, buf2_index*sizeof(int));
+            memcpy(iter->buf1.a, iter->buf2.a, buf2_index*sizeof(long long));
             buf1_index = buf2_index;
             buf2_index = 0;
         }
@@ -454,10 +453,11 @@ int bvgraph_iterator_next(bvgraph_iterator* iter)
 
     if (ref <= 0)
     {
+		
         // don't do anything except copy
         // the data to arcs
         if (interval_count == 0 || extra_count == 0) {
-            memcpy(iter->successors.a, iter->buf1.a, sizeof(int)*buf1_index);
+            memcpy(iter->successors.a, iter->buf1.a, sizeof(long long)*buf1_index);
         }
     }
     else
@@ -465,9 +465,9 @@ int bvgraph_iterator_next(bvgraph_iterator* iter)
         // TODO clean this code up          
         // copy the information from the masked iterator
         
-        int mask_index = 0;
+        long long mask_index = 0;
         // this variable is intended to shadow the vector len
-        int len = 0;
+        long long len = 0;
 
         for (i=0; i < iter->outd_cache[ref_index]; )
         {
@@ -503,14 +503,15 @@ int bvgraph_iterator_next(bvgraph_iterator* iter)
     }
 
     // update the window
+	
     {
-        int curr_index = iter->curr % iter->cyclic_buffer_size;
+        long long curr_index = iter->curr % iter->cyclic_buffer_size;
         int_vector_ensure_size(&iter->window[curr_index], d);
         
         // unwrap the buffered output
-        memcpy(iter->window[curr_index].a, iter->successors.a, sizeof(int)*d);
+        memcpy(iter->window[curr_index].a, iter->successors.a, sizeof(long long)*d);
     }
-
+	
     return (0);
 }
 
@@ -587,9 +588,9 @@ int bvgraph_iterator_copy(bvgraph_iterator *i, bvgraph_iterator *j)
     // beyond this point, the bitfile was successfully allocated, so we must 
     // deallocate it if we exit.
 
-    i->outd_cache = malloc(sizeof(int)*i->cyclic_buffer_size);
+    i->outd_cache = malloc(sizeof(long long)*i->cyclic_buffer_size);
     if (i->outd_cache) {
-        memcpy(i->outd_cache, j->outd_cache, sizeof(int)*i->cyclic_buffer_size);
+        memcpy(i->outd_cache, j->outd_cache, sizeof(long long)*i->cyclic_buffer_size);
         i->window = malloc(sizeof(bvgraph_int_vector)*i->cyclic_buffer_size);
         if (i->window) {
             rval = int_vector_create_copy(&i->successors, &j->successors);
@@ -644,7 +645,7 @@ static int compute_avgbalance(bvgraph *g, int niters, int wnode, int wedge,
         long long *avgbalance)
 {
     int rval; 
-    unsigned int d;
+    unsigned long long d;
     long long balance = 0;
     bvgraph_iterator iter;
 
@@ -685,7 +686,7 @@ static int distribute_iters(bvgraph *g, bvgraph_parallel_iterators *pits,
         int wnode, int wedge, long long avgbalance)
 {
     int rval, nsteps, iter;
-    unsigned int d;
+    unsigned long long d;
     long long balance = 0; 
     bvgraph_iterator git;
 

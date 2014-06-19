@@ -42,10 +42,12 @@
  * @param str the string with a digit
  * @param len the length of the string
  * @return the value encoded by the string
+ *
+ * MODIFICATION: add support for 64-bit integers
  */
-int atoin(const char* str, uint len)
+long long atoin(const char* str, uint len)
 {
-	int value = 0;
+	long long value = 0LL;
 	int sign = 1;
 	int digit = 0;
 	uint i = 0;
@@ -186,10 +188,10 @@ int fsize(const char *filename, unsigned long long *s)
 	return 0;
 }
 
-int int_vector_create(bvgraph_int_vector* v, uint n)
+int int_vector_create(bvgraph_int_vector* v, unsigned long long n)
 {
 	v->elements = n;
-	v->a = malloc(sizeof(int)*n);
+	v->a = (long long *)malloc(sizeof(long long)*n);
 	if (!v->a) { return bvgraph_call_out_of_memory; }
 	return (0);
 }
@@ -202,13 +204,13 @@ int int_vector_create(bvgraph_int_vector* v, uint n)
 int int_vector_create_copy(bvgraph_int_vector* u, bvgraph_int_vector *v)
 {
 	u->elements = v->elements;
-	u->a = malloc(sizeof(int)*u->elements);
+	u->a = (long long *)malloc(sizeof(long long)*u->elements);
 	if (!u->a) { return bvgraph_call_out_of_memory; }
-	memcpy(u->a, v->a, sizeof(int)*u->elements);
+	memcpy(u->a, v->a, sizeof(long long)*u->elements);
 	return (0);
 }
 
-int int_vector_ensure_size(bvgraph_int_vector *v, uint n)
+int int_vector_ensure_size(bvgraph_int_vector *v, unsigned long long n)
 {
 //	int i;
 //	for (i = 0; i < v->elements; i++){
@@ -217,7 +219,7 @@ int int_vector_ensure_size(bvgraph_int_vector *v, uint n)
 //	printf("\n");
 
 	if (n > v->elements) {
-		int* newa = malloc(sizeof(int)*n);
+		long long* newa = (long long *)malloc(sizeof(long long)*n);
 		if (!newa) { return bvgraph_call_out_of_memory; }
 
 //		printf("copying memory... [%d]\n", v->elements);
@@ -226,7 +228,7 @@ int int_vector_ensure_size(bvgraph_int_vector *v, uint n)
 //			printf("%d\n", v->a[0]);
 //		}
 //		if (v->a != NULL){
-			memcpy(newa, v->a, sizeof(int)*v->elements);
+			memcpy(newa, v->a, sizeof(long long)*v->elements);
 //		}
 //		printf("freeing memory...\n");
 		free(v->a);
