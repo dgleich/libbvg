@@ -615,8 +615,11 @@ int bitfile_check_long(uint64 x)
 {
     unsigned int high = 0;
     high = (x & 0xffffffff00000000) >> 32;
-    if (high == 0) { return 0; }
-    else { return 1; }
+    if (high == 0) { 
+		return 0; 
+	} else { 
+		return 1; 
+	}
 }
 
 /**
@@ -671,7 +674,7 @@ int64 bitfile_read_gamma(bitfile* bf)
     int precomp;
     if ( ( bf->fill >= 16 || refill16(bf) >= 16 ) &&
          ( (precomp = GAMMA[ bf->current >> ( bf->fill - 16 ) & 0xFFFF ]) != 0 ) ) {
-	    bf->total_bits_read += precomp >> 16;
+        bf->total_bits_read += precomp >> 16;
         bf->fill -= precomp >> 16;
         return (int64)( precomp & 0xFFFF );
     }
@@ -700,8 +703,11 @@ int64 bitfile_read_zeta(bitfile* bf, const int k)
     const int h = bitfile_read_unary(bf);
     const int64 left = 1ULL << h * k;
     const int64 m = bitfile_read_int(bf,h*k + k - 1);
-    if (m < left) { return (m + left - 1); }
-    else { return (m << 1) + bitfile_read_bit(bf) - 1; }
+    if (m < left) { 
+        return (m + left - 1); 
+    } else { 
+        return (m << 1) + bitfile_read_bit(bf) - 1; 
+    }
 }
 
 /**
