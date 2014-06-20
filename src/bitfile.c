@@ -100,7 +100,7 @@ long long skip_bytes(FILE *f, long long n)
     off_t start,end;
     int rval;
     start=ftello(f);
-    rval=fseeko(f,(off_t)n,SEEK_CUR);
+    rval=fseeko(f, (off_t)n, SEEK_CUR);
     if (rval == -1) { return -1; }
     end=ftello(f);
     return ((long long)(end-start));
@@ -202,9 +202,7 @@ int bitfile_map(unsigned char* mem, size_t len, bitfile *bf)
  */
 int bitfile_close(bitfile* bf)
 {
-    if (bf->use_buffer && !bf->wrapping) 
-		{ free(bf->buffer); }
-
+    if (bf->use_buffer && !bf->wrapping) { free(bf->buffer); }
     return (0);
 }
 
@@ -444,9 +442,7 @@ long long bitfile_skip(bitfile* bf, long long n)
         assert(n >= 0);
         nb = n >> 3;
   
-        if (bf->buffer != NULL && 
-			nb > bf->avail && 
-			nb < (bf->avail + bf->bufsize)) {
+        if (bf->buffer != NULL && nb > bf->avail && nb < (bf->avail + bf->bufsize)) {
             // try loading the next byte, just in case it happens
             // to be the right one
             bf->total_bits_read += (bf->avail + 1) << 3;
@@ -561,7 +557,7 @@ static int read_from_current(bitfile *bf, const size_t len)
 {
     unsigned int rval;
     if (len == 0) { return 0; }
-    if (bf->fill == 0){  
+    if (bf->fill == 0) {  
 		bf->current = bitfile_read(bf); 
 		bf->fill = 8; 
 	}
@@ -586,16 +582,16 @@ int bitfile_read_bit(bitfile* bf)
  * @param len the number of bits
  * @return the non-negative integer represented by the bits
  */
-uint64 bitfile_read_int(bitfile* bf, unsigned int len)
+int64 bitfile_read_int(bitfile* bf, unsigned int len)
 {
     int i;
-	uint64 x = 0;
+    int64 x = 0;
     assert ( len <= 64 );
     if (bf->fill < 16) { refill16(bf); }
     //printf("bf->fill: %d\n", bf->fill);
 
     if (len <= bf->fill) {
-        return (uint64)read_from_current(bf, len);
+        return (int64)read_from_current(bf, len);
     }
 
     len -= (unsigned int)bf->fill;
@@ -617,14 +613,10 @@ uint64 bitfile_read_int(bitfile* bf, unsigned int len)
  */
 int bitfile_check_long(uint64 x)
 {
-	unsigned int high = 0;
-	high = (x & 0xffffffff00000000) >> 32;
-	if (high == 0){
-		return 0;
-	}
-	else{
-		return 1;
-	}
+    unsigned int high = 0;
+    high = (x & 0xffffffff00000000) >> 32;
+    if (high == 0) { return 0; }
+    else { return 1; }
 }
 
 /**
@@ -650,21 +642,20 @@ int bitfile_read_unary(bitfile* bf)
     if (current_left_aligned != 0)
     {
         if ((current_left_aligned & 0xFF000000) != 0)
-			 { x = 7 - BYTEMSB[current_left_aligned >> 24]; }
+            { x = 7 - BYTEMSB[current_left_aligned >> 24]; }
         else if ((current_left_aligned & 0xFF0000) != 0) 
-			{ x = 15 - BYTEMSB[current_left_aligned >> 16]; }
+            { x = 15 - BYTEMSB[current_left_aligned >> 16]; }
         else if ((current_left_aligned & 0xFF00) != 0) 
-			{ x = 23 - BYTEMSB[current_left_aligned >> 8]; }
+            { x = 23 - BYTEMSB[current_left_aligned >> 8]; }
         else 
-			{ x = 31 - BYTEMSB[current_left_aligned & 0xFF]; }
+            { x = 31 - BYTEMSB[current_left_aligned & 0xFF]; }
         bf->total_bits_read += x + 1;
         bf->fill -= x + 1;
         return (x);
     }
     
     x = (int)bf->fill;
-    while ( (bf->current = bitfile_read(bf)) == 0) 
-		{ x += 8; }
+    while ( (bf->current = bitfile_read(bf)) == 0) { x += 8; }
     x += 7 - (int)( bf->fill = BYTEMSB[bf->current] );
     bf->total_bits_read += x + 1;
     return (x);
@@ -675,17 +666,17 @@ int bitfile_read_unary(bitfile* bf)
  * @param bf the bitfile
  * @return the value of the gamma coded integer
  */
-uint64 bitfile_read_gamma(bitfile* bf)
+int64 bitfile_read_gamma(bitfile* bf)
 {
     int precomp;
     if ( ( bf->fill >= 16 || refill16(bf) >= 16 ) &&
-		 ( (precomp = GAMMA[ bf->current >> ( bf->fill - 16 ) & 0xFFFF ]) != 0 ) ) {
+         ( (precomp = GAMMA[ bf->current >> ( bf->fill - 16 ) & 0xFFFF ]) != 0 ) ) {
 	    bf->total_bits_read += precomp >> 16;
         bf->fill -= precomp >> 16;
-        return (uint64)(precomp & 0xFFFF);
+        return (int64)( precomp & 0xFFFF );
     }
     const int msb = bitfile_read_unary(bf);
-	return ((1ULL << msb) | bitfile_read_int(bf, msb)) - 1;
+	return ( ( 1ULL << msb ) | bitfile_read_int(bf, msb) ) - 1;
 }
 /**
  * Read a zeta coded integer.
@@ -693,22 +684,22 @@ uint64 bitfile_read_gamma(bitfile* bf)
  * @param k the parameter k in the gamma code.
  * @return the value of the zeta(k) coded integer.
  */
-uint64 bitfile_read_zeta(bitfile* bf, const int k)
+int64 bitfile_read_zeta(bitfile* bf, const int k)
 {
     if ( k == 3 ) {
         int precomp;
         if ( ( bf->fill >= 16 || refill16(bf) >= 16 ) &&
-			 ( precomp = ZETA[ bf->current >> ( bf->fill - 16 ) & 0xFFFF ] ) != 0 ) {
+             ( precomp = ZETA[ bf->current >> ( bf->fill - 16 ) & 0xFFFF ] ) != 0 ) {
             bf->total_bits_read += precomp >> 16;
             bf->fill -= precomp >> 16;
-            return (uint64)(precomp & 0xFFFF);
+            return (int64)( precomp & 0xFFFF );
         }
 
     }
     
     const int h = bitfile_read_unary(bf);
-    const uint64 left = 1ULL << h * k;
-    const uint64 m = bitfile_read_int(bf,h*k + k - 1);
+    const int64 left = 1ULL << h * k;
+    const int64 m = bitfile_read_int(bf,h*k + k - 1);
     if (m < left) { return (m + left - 1); }
     else { return (m << 1) + bitfile_read_bit(bf) - 1; }
 }
@@ -718,10 +709,10 @@ uint64 bitfile_read_zeta(bitfile* bf, const int k)
  * @param bf the bitfile
  * @return the nibble coded integer.
  */
-uint64 bitfile_read_nibble(bitfile* bf)
+int64 bitfile_read_nibble(bitfile* bf)
 {
     int b;
-    uint64 x = 0ULL;
+    int64 x = 0ULL;
     do {
         x <<= 3;
         b = bitfile_read_bit(bf);
