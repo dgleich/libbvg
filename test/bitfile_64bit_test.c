@@ -21,10 +21,10 @@ int main(int argc, char **argv)
     int i, size;
     int64_t res;
     int state;
-	if (!f) {
+    if (!f) {
         printf("Unable to open the file!\n");
         return 1;
-	}
+    }
     printf("Testing read 32-bit integers ... \n");
     state = bitfile_open(f, &bf);
     if (state) {
