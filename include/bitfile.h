@@ -23,10 +23,11 @@
 extern "C" {
 #endif
 
+#ifndef BVGRAPH_STDINT
 #if defined(__GNUC__)
 #include <stdint.h>
 #endif
-
+	
 #ifndef int64
 #if defined(_MSC_VER)
 	typedef signed __int64 int64;
@@ -41,6 +42,8 @@ extern "C" {
 #elif defined(__GNUC__)
 	typedef uint64_t uint64;
 #endif	
+#endif	
+#define BVGRAPH_STDINT "DEFINED"
 #endif
 
 struct bitfile_tag {
@@ -83,11 +86,11 @@ int bitfile_close(bitfile* bf);
 int bitfile_flush(bitfile* bf);
 
 int bitfile_read_bit(bitfile* bf);
-uint64 bitfile_read_int(bitfile* bf, unsigned int len);
+int64 bitfile_read_int(bitfile* bf, unsigned int len);
 int bitfile_read_unary(bitfile* bf);
-uint64 bitfile_read_gamma(bitfile* bf);
-uint64 bitfile_read_zeta(bitfile* bf, const int k);
-uint64 bitfile_read_nibble(bitfile* bf);
+int64 bitfile_read_gamma(bitfile* bf);
+int64 bitfile_read_zeta(bitfile* bf, const int k);
+int64 bitfile_read_nibble(bitfile* bf);
 int bitfile_check_long(uint64 x);
 
 long long bitfile_tell(bitfile* bf);
