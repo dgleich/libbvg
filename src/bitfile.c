@@ -616,10 +616,10 @@ int bitfile_check_long(uint64_t x)
     unsigned int high = 0;
     high = (x & 0xffffffff00000000) >> 32;
     if (high == 0) { 
-		return 0; 
-	} else { 
-		return 1; 
-	}
+        return 0; 
+    } else { 
+        return 1; 
+    }
 }
 
 /**
