@@ -23,28 +23,18 @@
 extern "C" {
 #endif
 
-#ifndef BVGRAPH_STDINT
-#if defined(__GNUC__)
-#include <stdint.h>
+#if defined(__STDC__)
+#    if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)
+#        define BVGRAPH_PSTDINT
+#    endif
 #endif
-	
-#ifndef int64
-#if defined(_MSC_VER)
-	typedef signed __int64 int64;
-#elif defined(__GNUC__)
-	typedef int64_t int64;
-#endif
-#endif
-	
-#ifndef uint64
-#if defined(_MSC_VER)
-	typedef unsigned __int64 uint64;
-#elif defined(__GNUC__)
-	typedef uint64_t uint64;
-#endif	
-#endif	
-#define BVGRAPH_STDINT "DEFINED"
-#endif
+    
+#ifdef BVGRAPH_PSTDINT
+#include “pstdint.h”  
+#else
+#include <stdint.h> /* use the c99 version */
+#include <inttypes.h>    
+#endif     
 
 struct bitfile_tag {
     FILE* f;
@@ -86,12 +76,12 @@ int bitfile_close(bitfile* bf);
 int bitfile_flush(bitfile* bf);
 
 int bitfile_read_bit(bitfile* bf);
-int64 bitfile_read_int(bitfile* bf, unsigned int len);
+int64_t bitfile_read_int(bitfile* bf, unsigned int len);
 int bitfile_read_unary(bitfile* bf);
-int64 bitfile_read_gamma(bitfile* bf);
-int64 bitfile_read_zeta(bitfile* bf, const int k);
-int64 bitfile_read_nibble(bitfile* bf);
-int bitfile_check_long(uint64 x);
+int64_t bitfile_read_gamma(bitfile* bf);
+int64_t bitfile_read_zeta(bitfile* bf, const int k);
+int64_t bitfile_read_nibble(bitfile* bf);
+int bitfile_check_long(uint64_t x);
 
 long long bitfile_tell(bitfile* bf);
 int bitfile_position(bitfile* bf, const long long pos);
