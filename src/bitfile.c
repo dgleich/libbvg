@@ -558,9 +558,9 @@ static int read_from_current(bitfile *bf, const size_t len)
     unsigned int rval;
     if (len == 0) { return 0; }
     if (bf->fill == 0) {  
-		bf->current = bitfile_read(bf); 
-		bf->fill = 8; 
-	}
+        bf->current = bitfile_read(bf); 
+        bf->fill = 8; 
+    }
     bf->total_bits_read += len;
     rval = (unsigned)bf->current;
     return (rval >> ( bf->fill -= len) & ((1 << len) - 1));
