@@ -582,16 +582,16 @@ int bitfile_read_bit(bitfile* bf)
  * @param len the number of bits
  * @return the non-negative integer represented by the bits
  */
-int64 bitfile_read_int(bitfile* bf, unsigned int len)
+int64_t bitfile_read_int(bitfile* bf, unsigned int len)
 {
     int i;
-    int64 x = 0;
+    int64_t x = 0;
     assert ( len <= 64 );
     if (bf->fill < 16) { refill16(bf); }
     //printf("bf->fill: %d\n", bf->fill);
 
     if (len <= bf->fill) {
-        return (int64)read_from_current(bf, len);
+        return (int64_t)read_from_current(bf, len);
     }
 
     len -= (unsigned int)bf->fill;
@@ -611,7 +611,7 @@ int64 bitfile_read_int(bitfile* bf, unsigned int len)
  * @return 0 -- high 4 bytes are all 0s; 1 -- high 4 bytes are not all 0s
  *  (0 -- cannot be cast to int; 1 -- can be cast to int) 
  */
-int bitfile_check_long(uint64 x)
+int bitfile_check_long(uint64_t x)
 {
     unsigned int high = 0;
     high = (x & 0xffffffff00000000) >> 32;
@@ -669,14 +669,14 @@ int bitfile_read_unary(bitfile* bf)
  * @param bf the bitfile
  * @return the value of the gamma coded integer
  */
-int64 bitfile_read_gamma(bitfile* bf)
+int64_t bitfile_read_gamma(bitfile* bf)
 {
     int precomp;
     if ( ( bf->fill >= 16 || refill16(bf) >= 16 ) &&
          ( (precomp = GAMMA[ bf->current >> ( bf->fill - 16 ) & 0xFFFF ]) != 0 ) ) {
         bf->total_bits_read += precomp >> 16;
         bf->fill -= precomp >> 16;
-        return (int64)( precomp & 0xFFFF );
+        return (int64_t)( precomp & 0xFFFF );
     }
     const int msb = bitfile_read_unary(bf);
 	return ( ( 1ULL << msb ) | bitfile_read_int(bf, msb) ) - 1;
@@ -687,7 +687,7 @@ int64 bitfile_read_gamma(bitfile* bf)
  * @param k the parameter k in the gamma code.
  * @return the value of the zeta(k) coded integer.
  */
-int64 bitfile_read_zeta(bitfile* bf, const int k)
+int64_t bitfile_read_zeta(bitfile* bf, const int k)
 {
     if ( k == 3 ) {
         int precomp;
@@ -695,14 +695,14 @@ int64 bitfile_read_zeta(bitfile* bf, const int k)
              ( precomp = ZETA[ bf->current >> ( bf->fill - 16 ) & 0xFFFF ] ) != 0 ) {
             bf->total_bits_read += precomp >> 16;
             bf->fill -= precomp >> 16;
-            return (int64)( precomp & 0xFFFF );
+            return (int64_t)( precomp & 0xFFFF );
         }
 
     }
     
     const int h = bitfile_read_unary(bf);
-    const int64 left = 1ULL << h * k;
-    const int64 m = bitfile_read_int(bf,h*k + k - 1);
+    const int64_t left = 1ULL << h * k;
+    const int64_t m = bitfile_read_int(bf,h*k + k - 1);
     if (m < left) { 
         return (m + left - 1); 
     } else { 
@@ -715,10 +715,10 @@ int64 bitfile_read_zeta(bitfile* bf, const int k)
  * @param bf the bitfile
  * @return the nibble coded integer.
  */
-int64 bitfile_read_nibble(bitfile* bf)
+int64_t bitfile_read_nibble(bitfile* bf)
 {
     int b;
-    int64 x = 0ULL;
+    int64_t x = 0ULL;
     do {
         x <<= 3;
         b = bitfile_read_bit(bf);
