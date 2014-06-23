@@ -4,4 +4,4 @@ compiler:
   - clang
 # Change this to your needs
 #script: ./configure && make
-script: ./make
+script: make clean && make
