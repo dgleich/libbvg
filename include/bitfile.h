@@ -23,18 +23,8 @@
 extern "C" {
 #endif
 
-#if defined(__STDC__)
-#    if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)
-#        define BVGRAPH_PSTDINT
-#    endif
-#endif
-    
-#ifdef BVGRAPH_PSTDINT
 #include “pstdint.h”  
-#else
-#include <stdint.h> /* use the c99 version */
-#include <inttypes.h>    
-#endif     
+#include <inttypes.h>        
 
 struct bitfile_tag {
     FILE* f;
