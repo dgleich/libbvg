@@ -19,7 +19,6 @@
 
 #include <stdio.h>
 #include "pstdint.h"  
-#include <inttypes.h>  
 
 #ifdef __cplusplus
 extern "C" {
