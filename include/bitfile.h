@@ -18,13 +18,12 @@
  */
 
 #include <stdio.h>
+#include "pstdint.h"  
+#include <inttypes.h>  
 
 #ifdef __cplusplus
 extern "C" {
-#endif
-
-#include “pstdint.h”  
-#include <inttypes.h>        
+#endif      
 
 struct bitfile_tag {
     FILE* f;
