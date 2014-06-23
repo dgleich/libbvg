@@ -202,7 +202,8 @@ int bitfile_map(unsigned char* mem, size_t len, bitfile *bf)
  */
 int bitfile_close(bitfile* bf)
 {
-    if (bf->use_buffer && !bf->wrapping) { free(bf->buffer); }
+    if (bf->use_buffer && !bf->wrapping) 
+    { free(bf->buffer); }
     return (0);
 }
 
