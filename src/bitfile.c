@@ -591,7 +591,7 @@ int64_t bitfile_read_int(bitfile* bf, unsigned int len)
     //printf("bf->fill: %d\n", bf->fill);
 
     if (len <= bf->fill) {
-        return (int64_t)read_from_current(bf, len);
+        return read_from_current(bf, len);
     }
 
     len -= (unsigned int)bf->fill;
