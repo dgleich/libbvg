@@ -69,7 +69,6 @@ int bitfile_read_unary(bitfile* bf);
 int64_t bitfile_read_gamma(bitfile* bf);
 int64_t bitfile_read_zeta(bitfile* bf, const int k);
 int64_t bitfile_read_nibble(bitfile* bf);
-int bitfile_check_long(uint64_t x);
 
 long long bitfile_tell(bitfile* bf);
 int bitfile_position(bitfile* bf, const long long pos);
