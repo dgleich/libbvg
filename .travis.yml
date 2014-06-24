@@ -7,5 +7,5 @@ compiler:
 install: 
   - wget http://cython.org/release/Cython-0.20.2.tar.gz
   - tar -xzvf Cython-0.20.2.tar.gz
-  - cd Cython-0.20.2 && python setup.py install
+  - cd Cython-0.20.2 && sudo python setup.py install
 script: make clean && make
