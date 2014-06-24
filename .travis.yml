@@ -4,6 +4,9 @@ compiler:
   - clang
 # Change this to your needs
 #script: ./configure && make
-#install: 
-#  - sudo easy_install cython
+install:
+  - python -c 'import Cython; print (Cython)'
+  - sudo pip uninstall --yes Cython
+  - sudo time easy_install cython
+  - python -c 'import Cython; print (Cython)'
 script: make clean && make
