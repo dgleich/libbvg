@@ -55,7 +55,7 @@ static int skip_node(bvgraph_random_iterator *ri,
  * @param x the index of the node
  * @param[out] d the outdegree
  */
-static int position_bvgraph(bvgraph_random_iterator *ri, int x, unsigned int *d)
+static int position_bvgraph(bvgraph_random_iterator *ri, long long x, unsigned long long *d)
 {
     if (x < 0 || x >= ri->g->n) {
         return (bvgraph_vertex_out_of_range);
@@ -84,7 +84,7 @@ static int position_bvgraph(bvgraph_random_iterator *ri, int x, unsigned int *d)
  * @param[out] d the node degree.
  */
 int bvgraph_random_outdegree(bvgraph_random_iterator *ri, 
-                             int i, unsigned int *d)
+                             long long i, unsigned long long *d)
 {
     if (i<0 || i >= ri->g->n) {
         return (bvgraph_vertex_out_of_range);
@@ -126,7 +126,7 @@ int bvgraph_random_outdegree(bvgraph_random_iterator *ri,
  * @param[out] len the node degree.
  */
 int bvgraph_random_successors(bvgraph_random_iterator *ri, 
-                             int x, int** start, unsigned int *length)
+                             long long x, long long** start, unsigned long long *length)
 {
     if (x<0 || x >= ri->g->n) {
         return (bvgraph_vertex_out_of_range);
@@ -134,15 +134,15 @@ int bvgraph_random_successors(bvgraph_random_iterator *ri,
     else if (ri->offset_step <= 0) {
         return (bvgraph_requires_offsets);
     } else {
-        int ref, ref_index;
-        int i, extra_count, block_count = 0;
+        long long ref, ref_index;
+        long long i, extra_count, block_count = 0;
         bvgraph_int_vector *block = &ri->block, *left = &ri->left, 
         *len = &ri->len;
 
         bvgraph *g = ri->g;
         bitfile *bf = &ri->bf;
         
-        unsigned int d;     //degree
+        unsigned long long d;     //degree
         ri->curr = x;
         int rval = position_bvgraph(ri, x, &d);
         if (rval) {
@@ -162,10 +162,10 @@ int bvgraph_random_successors(bvgraph_random_iterator *ri,
         } else {
             ref = -1;
         }
-
-        int* temp = NULL;
-        int* ref_links = NULL;
-        unsigned int outd_ref = 0;
+		
+        long long* temp = NULL;
+        long long* ref_links = NULL;
+        unsigned long long outd_ref = 0;
         
         // get successors of referred node
         if (ref > 0) {
@@ -173,8 +173,8 @@ int bvgraph_random_successors(bvgraph_random_iterator *ri,
             bvgraph_random_successors(ri, x-ref, &temp, &outd_ref);
 
             // copy the reference successors cause ri->successors.a might be cleared
-            ref_links = malloc(sizeof(int)*outd_ref);
-            memcpy(ref_links, temp, sizeof(int)*outd_ref);
+            ref_links = malloc(sizeof(long long)*outd_ref);
+            memcpy(ref_links, temp, sizeof(long long)*outd_ref);
             
             // re-assigned the original node and position to ri since ri has been changed
             ri->curr = x;
@@ -182,8 +182,8 @@ int bvgraph_random_successors(bvgraph_random_iterator *ri,
             if (g->window_size > 0) { ref = read_reference(g, bf); } else { ref = -1; }
         }
 
-        int interval_count;
-        int buf1_index, buf2_index;
+        long long interval_count;
+        long long buf1_index, buf2_index;
 
         const int cyclic_buffer_size = g->window_size + 1;
         // in our case, window isn't set at all, so we need to use the position
@@ -201,17 +201,17 @@ int bvgraph_random_successors(bvgraph_random_iterator *ri,
         int_vector_ensure_size(&ri->buf2, d);
 
         ref_index = (x-ref + cyclic_buffer_size)%(cyclic_buffer_size);
-
+		
         if (ref > 0) {
             // total number of successors copied and total number specified
-            int copied, total; 
+            long long copied, total; 
             if ( (block_count = read_block_count(g, bf)) != 0 ) {
                 // TODO: test success
                 int_vector_ensure_size(&ri->block, block_count);
             }
 
             #ifdef MAX_DEBUG
-                fprintf(stderr, "block_count = %i\n", block_count);
+                fprintf(stderr, "block_count = %llu\n", block_count);
             #endif 
 
             copied = 0; 
@@ -238,13 +238,13 @@ int bvgraph_random_successors(bvgraph_random_iterator *ri,
         else {
             extra_count = d;
         }
-
+		
         interval_count = 0;
         if (extra_count > 0)
         {
             if (g->min_interval_length != 0 && (interval_count = bitfile_read_gamma(bf)) != 0) 
             {
-                int prev = 0;
+                long long prev = 0;
 
                 // TODO: test success
                 int_vector_ensure_size(left, interval_count);
@@ -274,15 +274,15 @@ int bvgraph_random_successors(bvgraph_random_iterator *ri,
         #endif 
         // read the residuals into a buffer
         {
-            int prev = -1;
-            int residual_count = extra_count;
+            long long prev = -1;
+            long long residual_count = extra_count;
             while (residual_count > 0) {
                 residual_count--;
                 if (prev == -1) { ri->buf1.a[buf1_index++] = prev = x + nat2int(read_residual(g, bf)); }
                 else { ri->buf1.a[buf1_index++] = prev = read_residual(g, bf) + prev + 1; }
             }
         }
-
+		
         if (interval_count == 0) {
             // don't do anything
         }
@@ -291,7 +291,7 @@ int bvgraph_random_successors(bvgraph_random_iterator *ri,
             // copy the extra interval data
             for (i = 0; i < interval_count; i++)
             {
-                int j, cur_left = ri->left.a[i];
+                long long j, cur_left = ri->left.a[i];
                 for (j = 0; j < ri->len.a[i]; j++) {
                     ri->buf2.a[buf2_index++] = cur_left + j;
                 }
@@ -306,22 +306,22 @@ int bvgraph_random_successors(bvgraph_random_iterator *ri,
                 // now copy arcs back to buffer1, and free buffer2
                 buf1_index = buf1_index + buf2_index;
                 buf2_index = 0;           
-                memcpy(ri->buf1.a, ri->successors.a, buf1_index*sizeof(int));
+                memcpy(ri->buf1.a, ri->successors.a, buf1_index*sizeof(long long));
             }
             else
             {
-                memcpy(ri->buf1.a, ri->buf2.a, buf2_index*sizeof(int));
+                memcpy(ri->buf1.a, ri->buf2.a, buf2_index*sizeof(long long));
                 buf1_index = buf2_index;
                 buf2_index = 0;
             }
         }
-
+		
         if (ref <= 0)
         {
             // don't do anything except copy
             // the data to arcs
             if (interval_count == 0 || extra_count == 0) {
-                memcpy(ri->successors.a, ri->buf1.a, sizeof(int)*buf1_index);
+                memcpy(ri->successors.a, ri->buf1.a, sizeof(long long)*buf1_index);
             }
         }
 
@@ -330,9 +330,9 @@ int bvgraph_random_successors(bvgraph_random_iterator *ri,
             // TODO clean this code up          
             // copy the information from the masked iterator
 
-            int mask_index = 0;
+            long long mask_index = 0;
             // this variable is intended to shadow the vector len
-            int len = 0;
+            long long len = 0;
 
             for (i=0; i < (signed)outd_ref; )
             {

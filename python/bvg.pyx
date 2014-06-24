@@ -62,8 +62,8 @@ cdef class BVGraph:
     cdef clibbvg.bvgraph *g
     cdef clibbvg.bvgraph_iterator it
     cdef clibbvg.bvgraph_random_iterator ri
-    cdef unsigned int d
-    cdef int* links
+    cdef unsigned long long d
+    cdef long long* links
     cdef char* filename
     cdef int offset_step
     
@@ -188,8 +188,8 @@ cdef class BVGraph:
             raise TypeError()
 
         cdef clibbvg.bvgraph_random_iterator rit
-        cdef int* successors
-        cdef unsigned int degree
+        cdef long long* successors
+        cdef unsigned long long degree
         rval = clibbvg.bvgraph_random_access_iterator(self.g, &rit)
         if rval != 0:
             raise MemoryError()
@@ -258,15 +258,15 @@ cdef class BVGraph:
         if rval != 0:
             raise MemoryError()
         
-        cdef int* links
-        cdef unsigned d
+        cdef long long* links
+        cdef unsigned long long d
 
         while clibbvg.bvgraph_iterator_valid(&nit):
             # get successors and degree
             clibbvg.bvgraph_iterator_outedges(&nit, &links, &d)
             
-            node = int(nit.curr)
-            degree = int(d)
+            node = long (nit.curr)
+            degree = long (d)
             yield (node, degree)
 
             # iterate to next vertex
@@ -297,7 +297,7 @@ cdef class BVGraph:
             raise TypeError()
 
         cdef clibbvg.bvgraph_random_iterator rit
-        cdef unsigned int degree
+        cdef unsigned long long degree
         rval = clibbvg.bvgraph_random_access_iterator(self.g, &rit)
         if rval != 0:
             raise MemoryError()
@@ -338,8 +338,8 @@ cdef class BVGraph:
         if rval != 0:
             raise MemoryError()
         
-        cdef int* links
-        cdef unsigned d
+        cdef long long* links
+        cdef unsigned long long d
 
         # get degree and successros
         rval = clibbvg.bvgraph_random_successors(&ri, node, &links, &d)
@@ -414,8 +414,8 @@ cdef class BVGraph:
         if rval != 0:
             raise MemoryError()
         
-        cdef int* links
-        cdef unsigned d
+        cdef long long* links
+        cdef unsigned long long d
 
         while clibbvg.bvgraph_iterator_valid(&it):
             # get successors and degree
@@ -459,8 +459,8 @@ cdef class BVGraph:
         if rval != 0:
             raise MemoryError()
         
-        cdef int* links
-        cdef unsigned d
+        cdef long long* links
+        cdef unsigned long long d
 
         while clibbvg.bvgraph_iterator_valid(&it):
             # get successors and degree
@@ -500,8 +500,8 @@ cdef class BVGraph:
         if rval != 0:
             raise MemoryError()
         
-        cdef int* links
-        cdef unsigned d
+        cdef long long* links
+        cdef unsigned long long d
 
         while clibbvg.bvgraph_iterator_valid(&nit):
             # get successors and degree
@@ -583,8 +583,8 @@ cdef class BVGraph:
 
         ## iterate over node_list
         cdef clibbvg.bvgraph_random_iterator ri
-        cdef int* links
-        cdef unsigned d
+        cdef long long* links
+        cdef unsigned long long d
         rval = clibbvg.bvgraph_random_access_iterator(self.g, &ri)
         if rval != 0:
             raise MemoryError()
@@ -628,8 +628,8 @@ cdef class BVGraph:
         if rval != 0:
             raise MemoryError()
         
-        cdef int* links
-        cdef unsigned d
+        cdef long long* links
+        cdef unsigned long long d
 
         while clibbvg.bvgraph_iterator_valid(&it):
             # get successors and degree
@@ -677,14 +677,14 @@ cdef class BVGraph:
     ######
 
     ### for random access
-    cdef int _crandom_outdegree(self, int x):
-        cdef unsigned int d
+    cdef long long _crandom_outdegree(self, long long x):
+        cdef unsigned long long d
         if clibbvg.bvgraph_random_outdegree(&self.ri, x, &d) == 0:
             return d
         else:
             return -1
 
-    cdef int _crandom_successors(self, int x):
+    cdef int _crandom_successors(self, long long x):
         return clibbvg.bvgraph_random_successors(&self.ri, x, &self.links, &self.d)
 
     cdef int _crandom_free(self):
