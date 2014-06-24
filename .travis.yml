@@ -4,9 +4,6 @@ compiler:
   - clang
 # Change this to your needs
 #script: ./configure && make
-install: 
-#  - wget http://cython.org/release/Cython-0.20.2.tar.gz
-#  - tar -xzvf Cython-0.20.2.tar.gz
-#  - cd Cython-0.20.2 && sudo python setup.py install
-  - sudo easy_install cython
+#install: 
+#  - sudo easy_install cython
 script: make clean && make
