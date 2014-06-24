@@ -43,8 +43,7 @@ int main(int argc, char **argv)
     printf("Testing read 32-bit gamma integer ... \n");
 	for (i = 0; i < size; i ++) {
         res = bitfile_read_gamma(&bf);
-        printf("%d -- %" PRId64 "\t", 7*i+i,res);
-        printf("Is the int 64-bit: %d\n", bitfile_check_long(res));
+        printf("%d -- %" PRId64 "\n", 7*i+i,res);
     }
 	
     printf("Testing read 32-bit zeta integer ... \n");
@@ -60,8 +59,7 @@ int main(int argc, char **argv)
     printf("Testing read 64-bit gamma integer ...\n");	
     for (i = 0; i < 16; i ++) {
         res = bitfile_read_gamma(&bf);
-        printf("%ld -- %" PRId64 "\t", 4294967296l*(1L << i), res);
-        printf("Is the int 64-bit: %d\n", bitfile_check_long(res));
+        printf("%ld -- %" PRId64 "\n", 4294967296l*(1L << i), res);
     }
 	
     printf("Testing read 64-bit zeta integer ...\n");
