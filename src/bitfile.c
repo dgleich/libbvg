@@ -606,23 +606,6 @@ int64_t bitfile_read_int(bitfile* bf, unsigned int len)
 }
 
 /**
- * Test a 64-bit integer and see if the high 4 bytes are 0s.
- * @param x the 64-bit integer
- * @return 0 -- high 4 bytes are all 0s; 1 -- high 4 bytes are not all 0s
- *  (0 -- cannot be cast to int; 1 -- can be cast to int) 
- */
-int bitfile_check_long(uint64_t x)
-{
-    unsigned int high = 0;
-    high = (x & 0xffffffff00000000) >> 32;
-    if (high == 0) { 
-        return 0; 
-    } else { 
-        return 1; 
-    }
-}
-
-/**
  * Read a unary value, which is a series of 0s and then terminated by
  * a one.  The value is the number of 0 bits.
  * @param bf the bitfile
