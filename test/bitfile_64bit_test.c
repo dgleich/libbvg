@@ -1,7 +1,6 @@
 #include "bitfile.h"
 
 #include <stdlib.h>
-#include <inttypes.h>  
 // disable all of the unsafe operation warnings
 #ifdef _MSC_VER
 #define inline __inline
@@ -17,6 +16,7 @@ int main(int argc, char **argv)
     FILE *f = fopen("./correct-data-64", "rb");
     bitfile bf;
     int len32bit[5] = {10, 3, 3, 16, 30};
+    int val32bit[5] = {13, 4, 3, 45233, 232584213};
     int num32bit = 5;
     int i, size;
     int64_t res;
@@ -25,52 +25,66 @@ int main(int argc, char **argv)
         printf("Unable to open the file!\n");
         return (-1);
     }
-    printf("Testing read 32-bit integers ... \n");
     state = bitfile_open(f, &bf);
     if (state) {
         printf("Error: bitfile_open failed!\n");
     }
     for (i = 0; i < num32bit; i ++) {
         res = bitfile_read_int(&bf, len32bit[i]);
-        printf("%" PRId64 "\n", res);
+        if (res != val32bit[i]) {
+            printf("32 bit test failed on value %d\n", val32bit[i]);
+            return (-1);
+        }
     }
     size = 64;
-    printf("Testing read unary integers (0 - 63)) \n");
 	for (i = 0; i < size; i ++) {
         res = (int64_t)bitfile_read_unary(&bf);
-        printf("%" PRId64 "\n", res);
+        if (res != i) {
+            printf("32-bit unary test failed on value %d\n", i);
+            return (-1);
+        }
 	}
-    printf("Testing read 32-bit gamma integer ... \n");
 	for (i = 0; i < size; i ++) {
         res = bitfile_read_gamma(&bf);
-        printf("%d -- %" PRId64 "\n", 7*i+i,res);
+        if (res != 7*i + i) {
+            printf("32-bit gamma integer test failed on value %d\n", 7*i + i);
+            return (-1);
+        }
     }
 	
-    printf("Testing read 32-bit zeta integer ... \n");
     for (i = 0; i < size; i ++) {
         res = bitfile_read_zeta(&bf, 3);
-        printf("%d -- %" PRId64 "\n", 7*i+i, res);
+        if (res != 7*i + i) {
+            printf("32-bit zeta integer test failed on value %d\n", 7*i + i);
+            return (-1);
+        }
     }
 
-    printf("Testing read 64-bit long integer ...\n");
     res = bitfile_read_int(&bf, 35);
-    printf("%" PRId64 "\n", res);
-	
-    printf("Testing read 64-bit gamma integer ...\n");	
+    if (res != 4294967296l) {
+        printf("64-bit integer read test failed on value %ld\n", 4294967296L);
+        return (-1);
+    }
+		
     for (i = 0; i < 16; i ++) {
         res = bitfile_read_gamma(&bf);
-        printf("%ld -- %" PRId64 "\n", 4294967296l*(1L << i), res);
+        if (res != 4294967296l*(1L << i)) {
+            printf("64-bit gamma integer test failed on value %ld\n", 4294967296l*(1L << i));
+            return (-1);
+        }
     }
 	
-    printf("Testing read 64-bit zeta integer ...\n");
     for (i = 0; i < 16; i ++) {
         res = bitfile_read_zeta(&bf, 3);
-        printf("%ld -- %" PRId64 "\n", 4294967296l*(1L << i), res);
+        if (res != 4294967296l*(1L << i)) {
+            printf("64-bit zeta integer test failed on value %ld\n", 4294967296l*(1L << i));
+            return (-1);
+        }
     }
 	
     bitfile_close(&bf);
     fclose(f);
- 
+    printf("bitfile 64-bit test passed.\n");
     return (0);
 }
 
