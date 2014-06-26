@@ -84,7 +84,7 @@ int main(int argc, char **argv)
 	
     bitfile_close(&bf);
     fclose(f);
-    printf("bitfile 64-bit test passed.\n");
+    printf("bitfile 64-bit test ... passed!\n");
     return (0);
 }
 
