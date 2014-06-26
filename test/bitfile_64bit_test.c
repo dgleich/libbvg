@@ -37,14 +37,14 @@ int main(int argc, char **argv)
         }
     }
     size = 64;
-	for (i = 0; i < size; i ++) {
+    for (i = 0; i < size; i ++) {
         res = (int64_t)bitfile_read_unary(&bf);
         if (res != i) {
             printf("32-bit unary test failed on value %d\n", i);
             return (-1);
         }
-	}
-	for (i = 0; i < size; i ++) {
+    }
+    for (i = 0; i < size; i ++) {
         res = bitfile_read_gamma(&bf);
         if (res != 7*i + i) {
             printf("32-bit gamma integer test failed on value %d\n", 7*i + i);
