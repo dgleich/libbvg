@@ -18,10 +18,11 @@
  */
 
 #include <stdio.h>
+#include "pstdint.h"  
 
 #ifdef __cplusplus
 extern "C" {
-#endif
+#endif      
 
 struct bitfile_tag {
     FILE* f;
@@ -63,11 +64,11 @@ int bitfile_close(bitfile* bf);
 int bitfile_flush(bitfile* bf);
 
 int bitfile_read_bit(bitfile* bf);
-int bitfile_read_int(bitfile* bf, unsigned int len);
+int64_t bitfile_read_int(bitfile* bf, unsigned int len);
 int bitfile_read_unary(bitfile* bf);
-int bitfile_read_gamma(bitfile* bf);
-int bitfile_read_zeta(bitfile* bf, const int k);
-int bitfile_read_nibble(bitfile* bf);
+int64_t bitfile_read_gamma(bitfile* bf);
+int64_t bitfile_read_zeta(bitfile* bf, const int k);
+int64_t bitfile_read_nibble(bitfile* bf);
 
 long long bitfile_tell(bitfile* bf);
 int bitfile_position(bitfile* bf, const long long pos);

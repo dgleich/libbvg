@@ -18,6 +18,7 @@ check_bvgraph: check_bvgraph.o
 
 test: 
 	./bitfile_test
+	./bitfile_64bit_test
 	./refill_test
 	./bvgraph_test ../data/harvard500
 	./check_bvgraph ../data/harvard500 random 10000
