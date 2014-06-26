@@ -1,0 +1,10 @@
+language: c
+compiler:
+  - gcc
+  - clang
+# Change this to your needs
+#script: ./configure && make
+install:
+  - sudo easy_install --find-links=https://github.com/msabramo/cython/releases/tag/0.19.1 Cython
+  - python -c 'import Cython; print (Cython)'
+script: make clean && make
