@@ -18,7 +18,11 @@
  */
 
 #include <stdio.h>
+#ifdef __clang__
+#include <stdint.h>
+#else
 #include "pstdint.h"  
+#endif
 
 #ifdef __cplusplus
 extern "C" {
