@@ -71,7 +71,7 @@ int bvgraph_nonzero_iterator(bvgraph* g, bvgraph_iterator *i)
 
         rval = bitfile_open(f,&i->bf);
         if (rval) { return rval; }
-    } else if (g->offset_step == 0) {
+    } else if (g->offset_step == 0 || g->offset_step == 1) {
         rval = bitfile_map(g->memory, g->memory_size, &i->bf);
     } else {
         return bvgraph_call_unsupported;
@@ -130,8 +130,103 @@ int bvgraph_nonzero_iterator(bvgraph* g, bvgraph_iterator *i)
     } 
     else { rval = bvgraph_call_out_of_memory; }
     bitfile_close(&i->bf);
-    if (i->bf->f) { fclose(f); } 
+    if (i->bf.f) { fclose(i->bf.f); } 
   
+    return rval;
+}
+
+/**
+ * to be modified.
+ * Create a random access iterator for the bvgraph.  The random access iterator is 
+ * a new object, which is different from non-zero iterator and used to access the 
+ * outdegree or successors for any given node.  There can be many random access
+ * iterators and each random access iterator is independent.
+ *
+ * The random access iterator requires persistent memory to work and is useful
+ * for a single access over the file.  Each new access requires a new random access
+ * iterator at present.
+ */
+int bvgraph_random_access_iterator(bvgraph* g, bvgraph_random_iterator *i)
+{
+    int rval = 0;
+    int outd_alloc = 10;
+    int windcount = 0;
+
+    // use the default max degree because we won't persist
+    // the data in most cases.
+    // TODO check this for performance.
+    i->max_outd = 0; 
+
+    i->g = g;
+    i->curr = -1;
+    i->curr_outd = -1;
+    i->cyclic_buffer_size = i->g->window_size+1;
+
+    // for successors cache
+    i->successors_cache = NULL;
+
+    if (g->offset_step < 1) {
+        return bvgraph_call_unsupported;
+    }
+
+    rval = bitfile_map(g->memory, g->memory_size, &i->bf);
+    rval |= bitfile_map(g->memory, g->memory_size, &i->outd_bf);
+
+    // TODO deallocate these on failure
+
+    i->offset_step = 1;
+
+    // beyond this point, the bitfile was successfully allocated, so we must 
+    // deallocate it if we exit.
+    i->outd_cache = malloc(sizeof(int)*i->cyclic_buffer_size);
+    if (i->outd_cache) {
+        i->window = malloc(sizeof(bvgraph_int_vector)*i->cyclic_buffer_size);
+        if (i->window) {
+            rval = int_vector_create(&i->successors, outd_alloc);
+            if (rval == 0) {
+                for (windcount = 0; windcount < i->cyclic_buffer_size; windcount++) {
+                    rval = int_vector_create(&i->window[windcount], outd_alloc);
+                    if (rval != 0) { break; }
+                }
+                // 
+                // this statement here indicates we should return
+                // with success and a correctly allocated 
+                // interator
+                //
+                rval = int_vector_create(&i->block, outd_alloc);
+                rval |= int_vector_create(&i->left, outd_alloc);
+                rval |= int_vector_create(&i->len, outd_alloc);
+                rval |= int_vector_create(&i->buf1, outd_alloc);
+                rval |= int_vector_create(&i->buf2, outd_alloc);
+                
+                if (rval == 0) {
+                    // we successfully allocated everything
+                    return (0);
+                }
+
+                // TODO figure out how to release i->block, i->left, i->len
+                // i->buf1, i->buf2
+                //
+
+                // in this case, we have to free everything allocated
+                while (windcount >= 0) {
+                    int_vector_free(&i->window[windcount]);
+                    windcount--;
+                }
+                
+                int_vector_free(&i->successors);
+            }
+            free(i->window);
+        }
+        else { rval = bvgraph_call_out_of_memory; }
+
+        free(i->outd_cache);
+    } 
+    else { rval = bvgraph_call_out_of_memory; }
+    
+    bitfile_close(&i->bf);
+    if (i->bf.f) { fclose(i->bf.f); } 
+
     return rval;
 }
 
@@ -139,6 +234,10 @@ int bvgraph_nonzero_iterator(bvgraph* g, bvgraph_iterator *i)
  * This routine provides access to the successors array stored inside
  * the iterator, so the successor array will be invalidated after 
  * a call to iterator_next.
+ * ===
+ * 08/28/11
+ * start: starting point of links (array)
+ * len: outdegree
  */
 int bvgraph_iterator_outedges(bvgraph_iterator* i, int** start, unsigned int* len)
 {
@@ -158,7 +257,7 @@ int bvgraph_iterator_outedges(bvgraph_iterator* i, int** start, unsigned int* le
  * @param out the final array
  * @param outlen the length of the output array
  */
-static int merge_int_arrays(const int* a1, size_t a1len, const int* a2, 
+int merge_int_arrays(const int* a1, size_t a1len, const int* a2, 
                      size_t a2len, int *out, size_t outlen)
 {
     size_t a1i=0, a2i=0, oi=0;
@@ -269,6 +368,7 @@ int bvgraph_iterator_next(bvgraph_iterator* iter)
         }
         // TODO: error on copied > d
         extra_count = d - copied;
+
     }
     else {
         extra_count = d;
@@ -288,7 +388,7 @@ int bvgraph_iterator_next(bvgraph_iterator* iter)
             // now read the intervals
             iter->left.a[0] = prev = nat2int(bitfile_read_gamma(bf)) + x;
             iter->len.a[0] = bitfile_read_gamma(bf) + g->min_interval_length;
-            
+
             prev += iter->len.a[0];
             extra_count -= iter->len.a[0];
             
@@ -316,10 +416,7 @@ int bvgraph_iterator_next(bvgraph_iterator* iter)
             if (prev == -1) { iter->buf1.a[buf1_index++] = prev = x + nat2int(read_residual(g, bf)); }
             else { iter->buf1.a[buf1_index++] = prev = read_residual(g, bf) + prev + 1; }
         }
-        // std::cout << "residuals: buf1" << std::endl;
-        // std::copy(buffer1.begin(),buffer1.begin()+buf1_index,std::ostream_iterator<int>(std::cout, "\n"));
     }
-    // std::cout << "buf1_index = " << buf1_index << std::endl;
                 
     if (interval_count == 0)
     {
@@ -335,10 +432,7 @@ int bvgraph_iterator_next(bvgraph_iterator* iter)
                 iter->buf2.a[buf2_index++] = cur_left + j;
             }
         }
-        
-        // std::cout << "sequences: buf2" << std::endl;
-        // std::copy(buffer2.begin(),buffer2.begin()+buf2_index,std::ostream_iterator<int>(std::cout, "\n"));
-        
+
         if (extra_count > 0)
         {
             // merge buf1, buf2 into arcs
@@ -357,7 +451,7 @@ int bvgraph_iterator_next(bvgraph_iterator* iter)
             buf2_index = 0;
         }
     }
-            
+
     if (ref <= 0)
     {
         // don't do anything except copy
@@ -374,6 +468,7 @@ int bvgraph_iterator_next(bvgraph_iterator* iter)
         int mask_index = 0;
         // this variable is intended to shadow the vector len
         int len = 0;
+
         for (i=0; i < iter->outd_cache[ref_index]; )
         {
             if (len <= 0)
@@ -400,9 +495,6 @@ int bvgraph_iterator_next(bvgraph_iterator* iter)
             i++;
         }
         
-        // std::cout << "masked" << std::endl;
-        // std::copy(buffer2.begin(),buffer2.begin()+buf2_index,std::ostream_iterator<int>(std::cout, "\n"));
-     
         merge_int_arrays(iter->buf1.a, buf1_index, iter->buf2.a, buf2_index, 
             iter->successors.a, iter->successors.elements);
 
@@ -418,12 +510,6 @@ int bvgraph_iterator_next(bvgraph_iterator* iter)
         // unwrap the buffered output
         memcpy(iter->window[curr_index].a, iter->successors.a, sizeof(int)*d);
     }
-
-    /*int_vector_free(&block);
-    int_vector_free(&left);
-    int_vector_free(&len);
-    int_vector_free(&buf1);
-    int_vector_free(&buf2);*/
 
     return (0);
 }
@@ -445,7 +531,7 @@ int bvgraph_iterator_free(bvgraph_iterator *iter)
         iter->g->max_outd = iter->max_outd;
     }
     bitfile_close(&iter->bf);
-    if (i->bf->f) { fclose(f); } 
+    if (iter->bf.f) { fclose(iter->bf.f); } 
     free(iter->outd_cache);
     int_vector_free(&iter->successors);
     for (i=0; i < iter->cyclic_buffer_size; i++) {

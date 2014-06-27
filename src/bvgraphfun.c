@@ -34,7 +34,7 @@
 // y[0] = sum; y[1] = e 
 #define CSUM2(x,y1,y2,t,z) { t=y1; z=(x)+y2; y1=t+z; y2=(t-y1)+z; }
 #define CSUM(x,y,t,z) { t=y[0]; z=(x)+y[1]; y[0]=t+z; y[1]=(t-y[0])+z; }
-#define FCSUM2(y1,y2) (y1,y2)
+#define FCSUM2(y1,y2) (y1+y2)
 #define FCSUM(y) (y[0]+y[1])
 
 #include <string.h>

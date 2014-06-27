@@ -26,6 +26,8 @@
 #include "bitfile.h"
 
 #include <assert.h>
+#include "gamma.h"
+#include "zeta.h"
 
 /**
  * Allocate a few lookup tables to speed the computations
@@ -68,6 +70,9 @@ const int BYTEMSB[] = {
         7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7
 };
 
+// pre-computed table for gamma encoding
+//int GAMMA[256*256];
+
 /** Define a portable seek function that returns the number of bytes moved
  * 
  * This function is implemented slightly differently on each architecture,
@@ -106,7 +111,7 @@ long long skip_bytes(FILE *f, long long n)
 
 /** Position a stream at a particular byte
  */
-int position_stream(FILE *f, long long n) {
+int position_stream(FILE *f, unsigned long long n) {
 #if defined(_MSC_VER)
     return _fseeki64(f, n, SEEK_SET);
 #elif defined(__GNUC__)
@@ -237,8 +242,7 @@ static int bitfile_read(bitfile* bf)
 
         if (bf->avail <= 0) { 
             return -2; 
-        }
-        else {
+        } else {
             bf->position += bf->pos;
             bf->pos = 0;
         }
@@ -249,20 +253,74 @@ static int bitfile_read(bitfile* bf)
 }
 
 
-
-
-/** Fills {@link #current} to 16 bits.
+/** Fills the bit-buffer to at least 16-bits
+ *
+ * This method will ensure that bf->current has 16-bits of data,
+ * *if possible* given the current state of the file.  It will
+ * return the size of the fill
  * 
- * <p>This method must be called <em>only</em> when 8 &le; {@link #fill} &lt; 16. It
- * will try to put 8 more bits into {@link #current}, so that at least 16 bits will be valid.
- * It will not throw an {@link EOFException}&mdash;simply, {@link #current} will remain unchanged.
- * 
- * @return {@link #fill}.
+ * @param bf the bitfile
+ * @return the current value of fill.
  */
-/*static int refill16(bitfile* bf) 
+ 
+// TODO, check the logistics of this with the bvgraph codes
+static int refill16(bitfile *bf) {
+    if (bf->fill < 16) { // make sure there is work to do
+        if (bf->avail >= 2) {
+            bf->current = (bf->current << 8) | (bf->buffer[bf->pos++] & 0xFF);
+            bf->current = (bf->current << 8) | (bf->buffer[bf->pos++] & 0xFF);
+            bf->avail -= 2;
+            bf->fill += 16;
+        } else {
+            int byte = bitfile_read(bf);
+            if (byte >= 0) { // check for error in read
+                bf->current = (bf->current << 8) | byte;
+                bf->fill += 8;
+                byte = bitfile_read(bf);
+                if (byte >= 0) {
+                    bf->current = (bf->current << 8) | byte;
+                    bf->fill += 8;
+                }
+            } 
+        }
+    }
+        
+    return bf->fill;
+}
+
+/*
+static int refill16(bitfile* bf) 
 {
-    assert( bf->fill >= 8 );
+    //assert( bf->fill >= 8 );
     assert( bf->fill < 16 );
+
+    if (bf->avail > 1) {
+        // if there is a current byte in the buffer, use it directly.
+        bf->avail -= 2;
+        bf->current = (bf->current << 16) | (bf->buffer[bf->pos++] & 0xFF) << 8 | (bf->buffer[bf->pos++] & 0xFF);
+        return (int)(bf->fill += 16);
+    }
+
+    int read = bitfile_read(bf);
+    printf("read: %d\n", read);
+    bf->current = (bf->current << 8) | read; //bitfile_read(bf);
+    bf->fill += 8;
+    read = bitfile_read(bf);
+    printf("read: %d\n", read);
+    bf->current = (bf->current << 8) | read; //bitfile_read(bf);
+    bf->fill += 8;
+    return bf->fill;
+}
+*/
+
+/*
+static int refill16(bitfile* bf) 
+{
+    //printf("bf->fill: %d\n", bf->fill);
+    //assert( bf->fill >= 8 );
+    assert( bf->fill < 16 );
+
+    printf("bf->avail: %d\n", bf->avail);
 
     if (bf->avail > 0) {
         // if there is a current byte in the buffer, use it directly.
@@ -270,10 +328,19 @@ static int bitfile_read(bitfile* bf)
         bf->current = (bf->current << 8) | (bf->buffer[bf->pos++] & 0xFF);
     }
 
-    bf->current = (bf->current << 8) | bitfile_read(bf);
+    int read = bitfile_read(bf);
+    printf("[refill16] read: %d\n", read);
+    printf("bf->avail: %d\n", bf->avail);
+    if (read == -2) {
+        return bf->fill;
+    }
+
+    bf->current = (bf->current << 8) | read; //bitfile_read(bf);
     return (int)(bf->fill += 8);
 }
-           
+*/
+
+/*        
 static int refill(bitfile* bf)
 {
     if (bf->fill == 0) {
@@ -289,7 +356,9 @@ static int refill(bitfile* bf)
     
     bf->current = (bf->current << 8) | bitfile_read(bf);
     return (int)(bf->fill += 8);
-}*/
+}
+*/
+
 
 /** Positions the stream at a particular bit.
  *
@@ -306,7 +375,7 @@ static int refill(bitfile* bf)
 int bitfile_position(bitfile* bf, const long long position)
 {
     const long long bit_delta = ((bf->position + bf->pos) << 3) - position;
-    if (bit_delta >= 0 && bit_delta <= bf->fill) {
+    if (bit_delta >= 0 && bit_delta <= (long long)bf->fill) {
         // in this case, we have all the data loaded into the current byte
         // so we will just update our position in the byte.
         bf->fill = (int)bit_delta;
@@ -315,8 +384,9 @@ int bitfile_position(bitfile* bf, const long long position)
         // position the byte
         const long long delta = (position >> 3) - (bf->position + bf->pos);
         const int residual = (int)(position & 7);
-        // TODO check for optimizations on the long long/size_t conversions
-        if (delta <= bf->avail && delta >= -(long long)bf->pos) {
+        // TODO check for optimizations on the long long/size_t conversion
+
+        if (delta <= (long long)bf->avail && delta >= -(long long)bf->pos) {
             // in this case, everything is in the buffer
             bf->avail -= (size_t)delta;
             bf->pos += (size_t)delta;
@@ -325,7 +395,7 @@ int bitfile_position(bitfile* bf, const long long position)
             bitfile_flush(bf);
             bf->position = (size_t)(position>>3);
             //fseek(bf->f, bf->position, SEEK_SET);
-            position_stream(bf->f, bf->position);
+            position_stream(bf->f, bf->position);   //wrong!
         }
 
         if (residual != 0) {
@@ -337,6 +407,14 @@ int bitfile_position(bitfile* bf, const long long position)
     }
 }
 
+/** Return the current position
+ * @return the number of bits current into the bitfile
+ */
+long long bitfile_tell(bitfile *bf)
+{
+    return bf->total_bits_read;
+} 
+
 /** Skips the given number of bits. 
  *
  * @param n the number of bits to skip.
@@ -346,7 +424,8 @@ int bitfile_position(bitfile* bf, const long long position)
 long long bitfile_skip(bitfile* bf, long long n)
 {
     // handle the case when everything is in memory
-    if (n <= bf->fill) {
+    assert(n >= 0);
+    if ((unsigned long long)n <= bf->fill) {
         if (n < 0) { return (-1); } // TODO give a real error code
         bf->fill -= n;
         bf->total_bits_read += n;
@@ -355,13 +434,15 @@ long long bitfile_skip(bitfile* bf, long long n)
     else {
         const long long prev_read_bits = bf->total_bits_read;
         // number of bytes to read
-        long long nb; 
+        unsigned long long nb; 
         int residual;
         n -= bf->fill;
         bf->total_bits_read += bf->fill;
         bf->fill = 0;
+        
+        assert(n >= 0);
         nb = n >> 3;
-
+  
         if (bf->buffer != NULL && nb > bf->avail && nb < (bf->avail + bf->bufsize)) {
             // try loading the next byte, just in case it happens
             // to be the right one
@@ -425,15 +506,15 @@ long long bitfile_skip(bitfile* bf, long long n)
  */
 int bitfile_skip_gammas(bitfile* bf, int n)
 {
-    //int pre_comp;
+    int pre_comp;
     while (n-- != 0) {
         // don't use precomputed tables for now
-        //if ((bf->fill >= 16 || refill() >= 16) && 
-        //    (pre_comp=GAMMA[bf->current>>(bf->fill-16)&0xFFFF] >> 16) != 0) {
-        //    bf->total_bits_read += pre_comp;
-        //    bf->fill -= pre_comp;
-        //    continue;
-        //}
+        if ((bf->fill >= 16 || refill16(bf) >= 16) && 
+            (pre_comp=GAMMA[bf->current>>(bf->fill-16)&0xFFFF] >> 16) != 0) {
+            bf->total_bits_read += pre_comp;
+            bf->fill -= pre_comp;
+            continue;
+        }
         bitfile_skip(bf, (long long)bitfile_read_unary(bf));
         //bitfile_read_gamma(bf);
     }
@@ -454,7 +535,7 @@ int bitfile_skip_gammas(bitfile* bf, int n)
  */
 int bitfile_skip_deltas(bitfile* bf, int n)
 {
-    int pre_comp;
+    //int pre_comp;
     while (n-- != 0) {
         // don't use precomputed tables for now
         //if ((bf->fill >= 16 || refill(bf) >= 16) && 
@@ -465,6 +546,8 @@ int bitfile_skip_deltas(bitfile* bf, int n)
         //}
         bitfile_skip(bf, (long long)bitfile_read_gamma(bf));
     }
+
+	return 0;
 }
     
 
@@ -500,8 +583,10 @@ int bitfile_read_bit(bitfile* bf)
 int bitfile_read_int(bitfile* bf, unsigned int len)
 {
     int i, x = 0;
-    assert ( len >=  0 );
     assert ( len <= 32 );
+
+    if (bf->fill < 16) { refill16(bf); }
+    //printf("bf->fill: %d\n", bf->fill);
 
     if (len <= bf->fill) {
         return read_from_current(bf, len);
@@ -528,13 +613,22 @@ int bitfile_read_unary(bitfile* bf)
 {
     int x;
     unsigned int current_left_aligned;
-    assert ( bf->fill < 24 );
-    current_left_aligned = (unsigned int)(bf->current << (24 - bf->fill) & 0xFFFFFF);
+    assert ( bf->fill < 32 );
+    if (bf->fill < 16) {
+        //printf("refill [%d]\n", (int)bf->fill);
+        refill16(bf);
+        //printf("done [%d]\n", (int)bf->fill);
+    }
+
+    current_left_aligned = (unsigned int)(bf->current << (32 - bf->fill) & 0xFFFFFFFF);
+
+
     if (current_left_aligned != 0)
     {
-        if ((current_left_aligned & 0xFF0000) != 0) { x = 7 - BYTEMSB[current_left_aligned >> 16]; }
-        else if ((current_left_aligned & 0xFF00) != 0) { x = 15 - BYTEMSB[current_left_aligned >> 8]; }
-        else { x = 23 - BYTEMSB[current_left_aligned & 0xFF]; }
+        if ((current_left_aligned & 0xFF000000) != 0) { x = 7 - BYTEMSB[current_left_aligned >> 24]; }
+        else if ((current_left_aligned & 0xFF0000) != 0) { x = 15 - BYTEMSB[current_left_aligned >> 16]; }
+        else if ((current_left_aligned & 0xFF00) != 0) { x = 23 - BYTEMSB[current_left_aligned >> 8]; }
+        else { x = 31 - BYTEMSB[current_left_aligned & 0xFF]; }
         bf->total_bits_read += x + 1;
         bf->fill -= x + 1;
         return (x);
@@ -554,6 +648,13 @@ int bitfile_read_unary(bitfile* bf)
  */
 int bitfile_read_gamma(bitfile* bf)
 {
+    int precomp;
+    if ( ( bf->fill >= 16 || refill16(bf) >= 16 ) && ( (precomp = GAMMA[ bf->current >> ( bf->fill - 16 ) & 0xFFFF ]) != 0 ) ) {
+        bf->total_bits_read += precomp >> 16;
+        bf->fill -= precomp >> 16;
+        return precomp & 0xFFFF;
+    }
+    
     const int msb = bitfile_read_unary(bf);
     return ( ( 1 << msb ) | bitfile_read_int(bf,msb) ) - 1;
 }
@@ -565,6 +666,16 @@ int bitfile_read_gamma(bitfile* bf)
  */
 int bitfile_read_zeta(bitfile* bf, const int k)
 {
+    if ( k == 3 ) {
+        int precomp;
+        if ( ( bf->fill >= 16 || refill16(bf) >= 16 ) && ( precomp = ZETA[ bf->current >> ( bf->fill - 16 ) & 0xFFFF ] ) != 0 ) {
+            bf->total_bits_read += precomp >> 16;
+            bf->fill -= precomp >> 16;
+            return precomp & 0xFFFF;
+        }
+
+    }
+    
     const int h = bitfile_read_unary(bf);
     const int left = 1 << h * k;
     const int m = bitfile_read_int(bf,h*k + k - 1);

@@ -18,6 +18,8 @@
 #include "bvgraph_internal.h"
 #include "bvgraph_inline_io.h"
 
+struct successor *CACHE = NULL;
+
 /** Declare static methods for this iterator
  */
 
@@ -37,11 +39,14 @@
  * @param outd the outdegree of node x
  * @return 0 on success
  */
+
+/*
 static int skip_node(bvgraph_random_iterator *ri,
                      int x, unsigned int d)
 {
     return (bvgraph_call_unsupported);
 }
+*/
 
 /** Positions the given input bit stream exactly before the successor list of the
  * given node, just after the outdegree, which is returned.  
@@ -59,7 +64,7 @@ static int position_bvgraph(bvgraph_random_iterator *ri, int x, unsigned int *d)
     if (ri->offset_step <= 0) {
         return bvgraph_requires_offsets;
     } else if (ri->offset_step == 1) {
-        int rval = bitfile_position(&ri->bf, ri->offsets[x]);
+        int rval = bitfile_position(&ri->bf, ri->g->offsets[x]);
         if (rval == 0) {
             *d = read_outdegree(ri->g, &ri->bf);
         }
@@ -84,13 +89,12 @@ int bvgraph_random_outdegree(bvgraph_random_iterator *ri,
     if (i<0 || i >= ri->g->n) {
         return (bvgraph_vertex_out_of_range);
     }
-
+    
     // TODO: always add outd_cache search
-
     if (ri->offset_step <= 0) {
         return (bvgraph_requires_offsets);
     } else if (ri->offset_step == 1) {
-        bitfile_position(&ri->outd_bf, ri->offsets[i]);
+        bitfile_position(&ri->outd_bf, ri->g->offsets[i]);
         *d = read_outdegree(ri->g, &ri->outd_bf);
         return (0);
     } else {
@@ -122,39 +126,35 @@ int bvgraph_random_outdegree(bvgraph_random_iterator *ri,
  * @param[out] len the node degree.
  */
 int bvgraph_random_successors(bvgraph_random_iterator *ri, 
-                             int x, int** start, unsigned int *len)
+                             int x, int** start, unsigned int *length)
 {
-    if (i<0 || i >= ri->g->n) {
+    if (x<0 || x >= ri->g->n) {
         return (bvgraph_vertex_out_of_range);
+    }
     else if (ri->offset_step <= 0) {
         return (bvgraph_requires_offsets);
     } else {
-        const int ref, ref_index;
+        int ref, ref_index;
         int i, extra_count, block_count = 0;
-        bvgraph_int_vector *block = &ri->block, *left = &ri->block, 
-            *len = &ri->len;
+        bvgraph_int_vector *block = &ri->block, *left = &ri->left, 
+        *len = &ri->len;
 
-        bvgraph *g = iter->g;
-        bitfile *bf = &iter->bf;
+        bvgraph *g = ri->g;
+        bitfile *bf = &ri->bf;
+        
+        unsigned int d;     //degree
+        ri->curr = x;
+        int rval = position_bvgraph(ri, x, &d);
+        if (rval) {
+            return (rval);
+        }
 
-        int d, copied, total, interval_count;
-        int buf1_index, buf2_index;
-
-        const int d, cyclic_buffer_size = g->window_size + 1;
-        // in our case, window isn't set at all, so we need to use the position
-        // method to set the file pointer, this could modify ri itself.
-        // this step requires offsets
-        bvgraph_position(ri, x, &d);
+        *length = d;
 
         if (d == 0) { 
-            *len = 0; 
             *start = NULL;
             return (0);
         }
-
-        int_vector_ensure_size(&iter->successors, d);
-        int_vector_ensure_size(&iter->buf1, d);
-        int_vector_ensure_size(&iter->buf2, d);
 
         // read a reference only if the window is bigger than 0
         if (g->window_size > 0) {
@@ -162,6 +162,44 @@ int bvgraph_random_successors(bvgraph_random_iterator *ri,
         } else {
             ref = -1;
         }
+
+        int* temp = NULL;
+        int* ref_links = NULL;
+        unsigned int outd_ref = 0;
+        
+        // get successors of referred node
+        if (ref > 0) {
+            // get the reference links first
+            bvgraph_random_successors(ri, x-ref, &temp, &outd_ref);
+
+            // copy the reference successors cause ri->successors.a might be cleared
+            ref_links = malloc(sizeof(int)*outd_ref);
+            memcpy(ref_links, temp, sizeof(int)*outd_ref);
+            
+            // re-assigned the original node and position to ri since ri has been changed
+            ri->curr = x;
+            position_bvgraph(ri, x, &d);
+            if (g->window_size > 0) { ref = read_reference(g, bf); } else { ref = -1; }
+        }
+
+        int interval_count;
+        int buf1_index, buf2_index;
+
+        const int cyclic_buffer_size = g->window_size + 1;
+        // in our case, window isn't set at all, so we need to use the position
+        // method to set the file pointer, this could modify ri itself.
+        // this step requires offsets
+        //
+
+        ri->outd_cache[x%ri->cyclic_buffer_size] = d;
+        ri->curr_outd = d;
+
+        if (d > (unsigned)ri->max_outd) { ri->max_outd = d; }
+
+        int_vector_ensure_size(&ri->successors, d);
+        int_vector_ensure_size(&ri->buf1, d);
+        int_vector_ensure_size(&ri->buf2, d);
+
         ref_index = (x-ref + cyclic_buffer_size)%(cyclic_buffer_size);
 
         if (ref > 0) {
@@ -169,39 +207,38 @@ int bvgraph_random_successors(bvgraph_random_iterator *ri,
             int copied, total; 
             if ( (block_count = read_block_count(g, bf)) != 0 ) {
                 // TODO: test success
-                int_vector_ensure_size(&iter->block, block_count);
+                int_vector_ensure_size(&ri->block, block_count);
             }
 
             #ifdef MAX_DEBUG
                 fprintf(stderr, "block_count = %i\n", block_count);
             #endif 
-            for (i = 0; i < block_count; i++) {
-                copied = 0; 
-                total = 0;
 
-                for (i = 0; i < block_count; i++) {
-                    block.a[i] = read_block(g, bf) + (i == 0 ? 0 : 1);
-                    // TODO: test success
-                    total += block.a[i];
-                    if (i % 2 == 0) {
-                        copied += block.a[i];
-                    }
+            copied = 0; 
+            total = 0;
+
+            for (i = 0; i < block_count; i++) {
+                block->a[i] = read_block(g, bf) + (i == 0 ? 0 : 1);
+                // TODO: test success
+                total += block->a[i];
+                if (i % 2 == 0) {
+                    copied += block->a[i];
                 }
-                if (block_count%2 == 0) {
-                    // TODO: add check for window
-                    unsigned int outd_ref;
-                    bvgraph_random_outdegree(ri, x-ref, &outd_ref);
-                    // TODO: test success
-                    copied += (outd_ref - total);
-                }
-                // TODO: error on copied > d
-                extra_count = d - copied;
             }
+
+            if (block_count%2 == 0) {
+                // TODO: add check for window
+                // TODO: test success
+                copied += (outd_ref - total);
+                ri->outd_cache[ref_index] = outd_ref;
+            }
+            // TODO: error on copied > d
+            extra_count = d - copied;
         }
         else {
             extra_count = d;
         }
-            
+
         interval_count = 0;
         if (extra_count > 0)
         {
@@ -214,21 +251,21 @@ int bvgraph_random_successors(bvgraph_random_iterator *ri,
                 int_vector_ensure_size(len, interval_count);
                 
                 // now read the intervals
-                left.a[0] = prev = nat2int(bitfile_read_gamma(bf)) + x;
-                en.a[0] = bitfile_read_gamma(bf) + g->min_interval_length;
-                
-                prev += len.a[0];
-                extra_count -= len.a[0];
+                left->a[0] = prev = nat2int(bitfile_read_gamma(bf)) + x;
+                len->a[0] = bitfile_read_gamma(bf) + g->min_interval_length;
+
+                prev += len->a[0];
+                extra_count -= len->a[0];
                 
                 for (i=1; i < interval_count; i++) {
-                    left.a[i] = prev = bitfile_read_gamma(bf) + prev + 1;
-                    len.a[i] = bitfile_read_gamma(bf) + g->min_interval_length;
-                    prev += len.a[i];
-                    extra_count -= len.a[i];
+                    left->a[i] = prev = bitfile_read_gamma(bf) + prev + 1;
+                    len->a[i] = bitfile_read_gamma(bf) + g->min_interval_length;
+                    prev += len->a[i];
+                    extra_count -= len->a[i];
                 }
             }
         }
-            
+
         buf1_index = 0;
         buf2_index = 0;
 
@@ -244,10 +281,7 @@ int bvgraph_random_successors(bvgraph_random_iterator *ri,
                 if (prev == -1) { ri->buf1.a[buf1_index++] = prev = x + nat2int(read_residual(g, bf)); }
                 else { ri->buf1.a[buf1_index++] = prev = read_residual(g, bf) + prev + 1; }
             }
-            // std::cout << "residuals: buf1" << std::endl;
-            // std::copy(buffer1.begin(),buffer1.begin()+buf1_index,std::ostream_iterator<int>(std::cout, "\n"));
         }
-        // std::cout << "buf1_index = " << buf1_index << std::endl;
 
         if (interval_count == 0) {
             // don't do anything
@@ -263,15 +297,12 @@ int bvgraph_random_successors(bvgraph_random_iterator *ri,
                 }
             }
             
-            // std::cout << "sequences: buf2" << std::endl;
-            // std::copy(buffer2.begin(),buffer2.begin()+buf2_index,std::ostream_iterator<int>(std::cout, "\n"));
-            
             if (extra_count > 0)
             {
                 // merge buf1, buf2 into arcs
                 merge_int_arrays(ri->buf1.a, buf1_index, ri->buf2.a, buf2_index, 
                     ri->successors.a, ri->successors.elements);
-                
+
                 // now copy arcs back to buffer1, and free buffer2
                 buf1_index = buf1_index + buf2_index;
                 buf2_index = 0;           
@@ -285,42 +316,69 @@ int bvgraph_random_successors(bvgraph_random_iterator *ri,
             }
         }
 
-        /*
-		try {		
-			final int residualCount = extraCount; // Just to be able to use an anonymous class.
+        if (ref <= 0)
+        {
+            // don't do anything except copy
+            // the data to arcs
+            if (interval_count == 0 || extra_count == 0) {
+                memcpy(ri->successors.a, ri->buf1.a, sizeof(int)*buf1_index);
+            }
+        }
 
-			final LazyIntIterator residualIterator = residualCount == 0 ? null : new ResidualIntIterator( this, ibs, residualCount, x );
-			
-			// The extra part is made by the contribution of intervals, if any, and by the residuals iterator.
-			final LazyIntIterator extraIterator = intervalCount == 0 
-				? residualIterator 
-				: ( residualCount == 0 
-					? (LazyIntIterator)new IntIntervalSequenceIterator( left, len )
-					: (LazyIntIterator)new MergedIntIterator( new IntIntervalSequenceIterator( left, len ), residualIterator )
-					);
+        else
+        {          
+            // TODO clean this code up          
+            // copy the information from the masked iterator
 
-			final LazyIntIterator blockIterator = ref <= 0
-				? null 
-				: new MaskedIntIterator(
-										// ...block for masking copy and...
-										block, 
-										// ...the reference list (either computed recursively or stored in window)...
-										window != null 
-										? LazyIntIterators.wrap( window[ refIndex ], outd[ refIndex ] )
-										: 
-											// This is the recursive lazy part of the construction.
-											successors( x - ref, isMemory ? new InputBitStream( graphMemory ) : new InputBitStream( new FastMultiByteArrayInputStream( graphStream ) ), null, null, null )
-										);
-			
-			if ( ref <= 0 ) return extraIterator;
-			else return extraIterator == null
-					 ? blockIterator
-					 : (LazyIntIterator)new MergedIntIterator( blockIterator, extraIterator, d );
-			
-		}
-		catch( IOException cantHappen ) { LOGGER.fatal("Accessing node " + x, cantHappen ); throw new RuntimeException( cantHappen ); }
-		*/
+            int mask_index = 0;
+            // this variable is intended to shadow the vector len
+            int len = 0;
+
+            for (i=0; i < (signed)outd_ref; )
+            {
+                if (len <= 0)
+                {
+                    if (block_count == mask_index) 
+                    {
+                        if (block_count % 2 == 0) {
+                            len = ri->outd_cache[ref_index] - i;
+                        }
+                        else {
+                            break;
+                        }
+                    }
+                    else {
+                        if (mask_index % 2 == 0) { len = ri->block.a[mask_index++]; }
+                        else { i += ri->block.a[mask_index++]; continue; }
+                    }
+
+                    // in the case that length is 0, we continue.
+                    if (len == 0) { continue; }
+                }
+
+                ri->buf2.a[buf2_index++] = ref_links[i];
+                len--;
+                i++;
+            }
+
+            merge_int_arrays(ri->buf1.a, buf1_index, ri->buf2.a, buf2_index, 
+                    ri->successors.a, ri->successors.elements);
+
+            buf1_index = buf1_index + buf2_index;
+            buf2_index = 0;
+            
+            // free the successors of referred node
+            free(ref_links);
+        }
+    }
+
+
+    if (start){
+        *start = ri->successors.a;
+    }
     
+    return (0);
+
 }
 
 /** Release memory associated with the random iterator.
@@ -330,5 +388,27 @@ int bvgraph_random_successors(bvgraph_random_iterator *ri,
  */
 int bvgraph_random_free(bvgraph_random_iterator* ri)
 {
+    int i;
+    //if (ri->g && ri->curr == ri->g->n) {
+    //    ri->g->max_outd = ri->max_out;
+    //}
+
+    bitfile_close(&ri->bf);
+    bitfile_close(&ri->outd_bf);
+    if (ri->bf.f) { fclose(ri->bf.f); }
+    free(ri->outd_cache);
+    int_vector_free(&ri->successors);
+    for (i=0; i < ri->cyclic_buffer_size; i++) {
+        int_vector_free(&ri->window[i]);
+    }
+
+    free(ri->window);
+    int_vector_free(&ri->block);
+    int_vector_free(&ri->left);
+    int_vector_free(&ri->len);
+    int_vector_free(&ri->buf1);
+    int_vector_free(&ri->buf2);
+    ri->g = NULL;
+    return (0);
 }
 

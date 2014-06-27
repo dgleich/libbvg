@@ -40,9 +40,13 @@ mexopts = '';
 c = computer;
 if strcmp(c,'PCWIN64') || ...
         strcmp(c,'GLNXA64') || ...
-        strcmp(c,'MACI64')
+        strcmp(c,'MACI64') || ...
         strcmp(c,'SOL64')
-    mexopts = '-largeArrayDims';
+    mexopts = '-largeArrayDims';    
+end
+
+if isunix
+    mexopts = [mexopts ' CFLAGS="\$CFLAGS -std=gnu99"'];
 end
     
 if isunix
@@ -65,6 +69,7 @@ olddir = cd;
 cd(path);
 try
     mexcmd = sprintf('mex %s -O -I%s %s', mexopts, headerdir, [files{:}]);
+    mexcmd
     eval(mexcmd);
     cd(olddir);
 catch

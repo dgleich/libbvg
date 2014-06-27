@@ -1,0 +1,9 @@
+*.o
+test/refill_test
+libbvg.a
+test/bvgraph_test
+test/bitfile_test
+test/check_bvgraph
+bvgraph2smat
+bvpr
+*.mex*

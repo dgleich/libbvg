@@ -12,10 +12,10 @@
 /** History
  *
  *  2008-01-15: Added __APPLE_CC__ case to fsize to get correct size 
- *              in that case.
+ *			  in that case.
  *  2008-05-09: Added int_vector_create_copy
- *              Fixed int_vector_ensure_size to remove spurious alloc on
- *              >= n instead of > n
+ *			  Fixed int_vector_ensure_size to remove spurious alloc on
+ *			  >= n instead of > n
  */
 
 #ifdef __GNUC__
@@ -45,29 +45,30 @@
  */
 int atoin(const char* str, uint len)
 {
-    int value = 0;
-    int sign = 1;
-    int digit = 0;
-    uint i = 0;
+	int value = 0;
+	int sign = 1;
+	int digit = 0;
+	uint i = 0;
 
-    const char *p = str;
-    // skip to the end of the whitespace (incrementing the position and the index)
-    while (i < len && *p && (*p == ' ' || *p == '\t' || *p == '\f')) { p++; i++; }
+	const char *p = str;
+	// skip to the end of the whitespace (incrementing the position and the index)
+	while (i < len && *p && (*p == ' ' || *p == '\t' || *p == '\f')) { p++; i++; }
 
-    if (i < len && *p) {
-        if (*p == '-') { sign = -1; p++; i++; }
-    }
-    while (i < len && *p) {
-        digit = *p - '0';
-        if (digit >= 0 && digit <= 9) {
-            value = value*10 + digit;
-        } else {
-            break;
-        }
-        *p++; i++;
-    }
+	if (i < len && *p) {
+		if (*p == '-') { sign = -1; p++; i++; }
+	}
+	while (i < len && *p) {
+		digit = *p - '0';
+		if (digit >= 0 && digit <= 9) {
+			value = value*10 + digit;
+		} else {
+			break;
+		}
+		p++; 
+		i++;
+	}
 
-    return (value*sign);
+	return (value*sign);
 }
 
 /*
@@ -77,14 +78,14 @@ int atoin(const char* str, uint len)
  */
 char* strappend(const char* str, uint len, const char* str2, uint len2)
 {
-    char *rval = malloc(len+len2+1);
-    if (!rval) { return NULL; }
+	char *rval = malloc(len+len2+1);
+	if (!rval) { return NULL; }
 
-    strncpy(rval,str,len);
-    strncpy(rval+len,str2,len2);
-    rval[len+len2] = '\0';
+	strncpy(rval,str,len);
+	strncpy(rval+len,str2,len2);
+	rval[len+len2] = '\0';
 
-    return rval;
+	return rval;
 }
 
 /** Search for a character in a length limited string
@@ -100,12 +101,12 @@ char* strappend(const char* str, uint len, const char* str2, uint len2)
  */
 const char* strchrn(const char* str, uint len, int c)
 {
-    uint pos = 0;
-    while (pos < len) {
-        if (*str == c) { return str; }
-        *str++; pos++;
-    }
-    return (NULL);
+	uint pos = 0;
+	while (pos < len) {
+		if (*str == c) { return str; }
+		str++; pos++;
+	}
+	return (NULL);
 }
 
 /**
@@ -117,10 +118,10 @@ const char* strchrn(const char* str, uint len, int c)
  */
 void fnextline(FILE *f)
 {
-    while (!feof(f)) {
-        int c = getc(f);
-        if (c == '\n' || c == '\r') { break; }
-    }
+	while (!feof(f)) {
+		int c = getc(f);
+		if (c == '\n' || c == '\r') { break; }
+	}
 }
 
 /**
@@ -136,23 +137,23 @@ void fnextline(FILE *f)
  */
 void fskipchars(FILE *f, const char *schars, uint scharslen)
 {
-    uint i;
-    int c;
-    while (!feof(f)) {
-        c = getc(f);
-        for (i=0; i < scharslen; i++) {
-            if (c == schars[i]) { break; }
-        }
-        // i == whitelen when the loop exited without a break
-        if (i == scharslen) { ungetc(c, f); break; }
-    }
+	uint i;
+	int c;
+	while (!feof(f)) {
+		c = getc(f);
+		for (i=0; i < scharslen; i++) {
+			if (c == schars[i]) { break; }
+		}
+		// i == whitelen when the loop exited without a break
+		if (i == scharslen) { ungetc(c, f); break; }
+	}
 }
 
 int ftestnewline(FILE *f)
 {
-    int c = getc(f);
-    if (c == '\n' || c == '\r') { return 1; }
-    else { ungetc(c, f); return 0; }
+	int c = getc(f);
+	if (c == '\n' || c == '\r') { return 1; }
+	else { ungetc(c, f); return 0; }
 }
 
 /**
@@ -167,30 +168,30 @@ int ftestnewline(FILE *f)
 int fsize(const char *filename, unsigned long long *s)
 {
 #ifdef _MSC_VER
-    struct __stat64 file_stat; 
-    int err = _stat64( filename, &file_stat ); 
-    if (err) { return -1; }
-    *s = file_stat.st_size;
+	struct __stat64 file_stat; 
+	int err = _stat64( filename, &file_stat ); 
+	if (err) { return -1; }
+	*s = file_stat.st_size;
 #elif defined(__APPLE_CC__)
-    struct stat file_stat;
-    int err = stat(filename, &file_stat );
-    if (err) { return -1; }
-    *s = (unsigned long long)file_stat.st_size;
+	struct stat file_stat;
+	int err = stat(filename, &file_stat );
+	if (err) { return -1; }
+	*s = (unsigned long long)file_stat.st_size;
 #elif defined __GNUC__
-    struct stat64 file_stat;
-    int err = stat64(filename, &file_stat );
-    if (err) { return -1; }
-    *s = file_stat.st_size;
+	struct stat64 file_stat;
+	int err = stat64(filename, &file_stat );
+	if (err) { return -1; }
+	*s = file_stat.st_size;
 #endif
-    return 0;
+	return 0;
 }
 
 int int_vector_create(bvgraph_int_vector* v, uint n)
 {
-    v->elements = n;
-    v->a = malloc(sizeof(int)*n);
-    if (!v->a) { return bvgraph_call_out_of_memory; }
-    return (0);
+	v->elements = n;
+	v->a = malloc(sizeof(int)*n);
+	if (!v->a) { return bvgraph_call_out_of_memory; }
+	return (0);
 }
 
 /** Create a new int_vector from a deep copy of another int_vector.
@@ -200,30 +201,44 @@ int int_vector_create(bvgraph_int_vector* v, uint n)
  */
 int int_vector_create_copy(bvgraph_int_vector* u, bvgraph_int_vector *v)
 {
-    u->elements = v->elements;
-    u->a = malloc(sizeof(int)*u->elements);
-    if (!u->a) { return bvgraph_call_out_of_memory; }
-    memcpy(u->a, v->a, sizeof(int)*u->elements);
-    return (0);
+	u->elements = v->elements;
+	u->a = malloc(sizeof(int)*u->elements);
+	if (!u->a) { return bvgraph_call_out_of_memory; }
+	memcpy(u->a, v->a, sizeof(int)*u->elements);
+	return (0);
 }
 
 int int_vector_ensure_size(bvgraph_int_vector *v, uint n)
 {
-    if (n > v->elements) {
-        int* newa = malloc(sizeof(int)*n);
-        if (!newa) { return bvgraph_call_out_of_memory; }
+//	int i;
+//	for (i = 0; i < v->elements; i++){
+//		printf("%d\t", v->a[i]);
+//	}
+//	printf("\n");
 
-        memcpy(newa, v->a, sizeof(int)*v->elements);
-        free(v->a);
-        v->a = newa;
-        v->elements = n;
-    }
-    return (0);
+	if (n > v->elements) {
+		int* newa = malloc(sizeof(int)*n);
+		if (!newa) { return bvgraph_call_out_of_memory; }
+
+//		printf("copying memory... [%d]\n", v->elements);
+//		int i;
+//		for (i = 0; i < v->elements; i++){
+//			printf("%d\n", v->a[0]);
+//		}
+//		if (v->a != NULL){
+			memcpy(newa, v->a, sizeof(int)*v->elements);
+//		}
+//		printf("freeing memory...\n");
+		free(v->a);
+		v->a = newa;
+		v->elements = n;
+	}
+	return (0);
 }
 int int_vector_free(bvgraph_int_vector* v)
 {
-    if (v->a) { free(v->a); v->a = NULL; }
+	if (v->a) { free(v->a); v->a = NULL; }
 
-    return (0);
+	return (0);
 }
 

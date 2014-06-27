@@ -17,13 +17,13 @@
  * 2007-06-10: Added block,len,left,buf1,buf2 fields to the iterator types.
  *
  * 2008-03-10: Defined long long as bvg_long_int for a 64-bit type
- *             Added more comments.
- *             Fixed lines over 80 characters long.
- *             Added prototypes for random access iterator.
+ *           Added more comments.
+ *           Fixed lines over 80 characters long.
+ *           Added prototypes for random access iterator.
 
  * 2008-05-08: Added iterator_copy
  * 2008-05-09: Added parallel iterators
- *             Added BVGRAPH_VERBOSE macro
+ *           Added BVGRAPH_VERBOSE macro
  */
 
 #include "bitfile.h"
@@ -35,6 +35,11 @@
 #endif
 
 #define BVGRAPH_MAX_FILENAME_SIZE 1024
+#define MAX_CACHE_SIZE 10000
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /** Define a 64-bit type 
  */
@@ -131,6 +136,13 @@ struct bvgraph_iterator_tag {
     struct bvgraph_int_vector_tag block, left, len, buf1, buf2;
 };
 
+struct successor{
+    int node;   // key
+    int* a;     // successors
+    int d;      // number of degree
+    int loaded;   // number of usage
+};
+
 /** A random access iterator for the bvgraph.
  *
  * Use this type through its alias bvgraph_iterator.
@@ -162,12 +174,18 @@ struct bvgraph_random_iterator_tag {
     // the end of the offset cache
     int offset_cache_end;
     // the start of both caches
-    int cache_start;            
+    int cache_start;
+    // a cache for successors
+    struct successor *successors_cache;
+
+    // a table to maintain the top k loaded nodes
+    // int* top_loaded;
 
     int cyclic_buffer_size;
     struct bvgraph_int_vector_tag* window;
 
     struct bvgraph_int_vector_tag successors; 
+    struct bvgraph_int_vector_tag ref_successors;
     int curr_outd;
 
     // variables used inside the next function
@@ -205,6 +223,9 @@ extern const int bvgraph_vertex_out_of_range;
 extern const int bvgraph_requires_offsets;
 extern const int bvgraph_unsupported_coding;
 
+bvgraph *bvgraph_new(void);
+void bvgraph_free(bvgraph *g);
+
 int bvgraph_load(bvgraph* g, const char *filename, unsigned int filenamelen,
                  int offset_step);
 
@@ -219,7 +240,7 @@ int bvgraph_nonzero_iterator(bvgraph* g, bvgraph_iterator *i);
 int bvgraph_random_access_iterator(bvgraph* g, bvgraph_random_iterator *ri);
 
 int bvgraph_outdegree(bvgraph *g, int x, unsigned int *d);
-int bvgraph_successors(bvgraph *g, int x);
+int bvgraph_successors(bvgraph *g, int x, int** start, unsigned int *length);
 
 int bvgraph_iterator_outedges(bvgraph_iterator* i, 
                               int** start, unsigned int* len);
@@ -230,7 +251,7 @@ int bvgraph_iterator_free(bvgraph_iterator *i);
 int bvgraph_random_outdegree(bvgraph_random_iterator *ri, 
                              int x, unsigned int *d);
 int bvgraph_random_successors(bvgraph_random_iterator *ri, 
-                             int x, int** start, unsigned int *len);
+                             int x, int** start, unsigned int *length);
 int bvgraph_random_free(bvgraph_random_iterator *ri);
 
 int bvgraph_iterator_copy(bvgraph_iterator *i, bvgraph_iterator *j);
@@ -245,6 +266,17 @@ int bvgraph_parallel_iterators_free(bvgraph_parallel_iterators *pits);
 int bvgraph_required_memory(bvgraph *g, 
                             int offset_step, size_t *gbuf, size_t *offsetbuf);
 
+int merge_int_arrays(const int* a1, size_t a1len, const int* a2,
+                             size_t a2len, int *out, size_t outlen);
+
 const char* bvgraph_error_string(int error);
+
+int add_to_cache(int node, int *links, int d);
+int loaded_sort(struct successor *a, struct successor *b);
+struct successor *find_in_cache(int node);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // LIBBVG_BVGRAPH_H

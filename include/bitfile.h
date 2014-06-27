@@ -19,6 +19,10 @@
 
 #include <stdio.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct bitfile_tag {
     FILE* f;
     unsigned char *buffer;  // buffer points to the current buffer
@@ -26,15 +30,29 @@ struct bitfile_tag {
     int wrapping;    // true if wrapping a memory array
     int use_buffer; // false if we shouldn't use the buffer
     size_t bufsize; // the size of the buffer
-
-    unsigned long long total_bits_read; // total bits read
-
-    size_t current; // the size of the current bit buffer
-    size_t fill; // current number of bits in the bit bufer
+    
     size_t pos; // the position in the byte buffer;
     size_t avail; // number of bytes available in the byte buffer
     
     size_t position; // current position of the first byte of the buffer
+    
+    // so the current position in the data is  
+    // bf->position  (location in file for start of buffer) 
+    // + bf->pos     (location in buffer)
+
+    unsigned long long total_bits_read; // total bits read
+
+    size_t current; // the current bit buffer
+    size_t fill; // current number of bits in the bit buffer
+    
+    // the bits current & (2 << fill - 1) yield the next bits
+    // in the file
+    // where the subsequent bits are exactly:
+    //   ((current & (1 << fill - 1)) >> (fill - 1)) & 1
+    //   ((current & (1 << fill - 1)) >> (fill - 2)) & 1
+    //   ...
+    //   ((current & (1 << fill - 1)) >> (fill - fill)) & 1
+    // see read_from_current in bitfile.c
 };
 
 typedef struct bitfile_tag bitfile;
@@ -51,11 +69,16 @@ int bitfile_read_gamma(bitfile* bf);
 int bitfile_read_zeta(bitfile* bf, const int k);
 int bitfile_read_nibble(bitfile* bf);
 
+long long bitfile_tell(bitfile* bf);
 int bitfile_position(bitfile* bf, const long long pos);
 
 long long bitfile_skip(bitfile* bf, long long n);
 int bitfile_skip_gammas(bitfile* bf, int n);
 int bitfile_skip_deltas(bitfile* bf, int n);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* LIBBVG_BITFILE_H */
 

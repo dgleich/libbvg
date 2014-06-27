@@ -15,6 +15,7 @@
  */
 
 #include "bvgraph_internal.h"
+#include "bvgraph_inline_io.h"
 
 /**
  * Define all the error codes
@@ -28,6 +29,9 @@ const int bvgraph_load_error_buffer_too_small = 12;
 const int bvgraph_property_file_error = 21;
 const int bvgraph_unsupported_version = 22;
 const int bvgraph_property_file_compression_flag_error = 23;
+const int bvgraph_vertex_out_of_range = 31;
+const int bvgraph_requires_offsets = 32;
+const int bvgraph_unsupported_coding = 33;
 
 /**
  * This function sets the default options in a graph
@@ -39,6 +43,20 @@ static void set_defaults(bvgraph *g)
     g->window_size = 7;
     g->min_interval_length = 3;
     g->max_ref_count = 3;
+}
+
+bvgraph *bvgraph_new(void)
+{
+    bvgraph *g;
+    g = malloc(sizeof(bvgraph));
+
+    return (g);
+}
+
+void bvgraph_free(bvgraph *g)
+{
+    free(g);
+    g = NULL;
 }
 
 /**
@@ -103,10 +121,10 @@ int bvgraph_load_external(bvgraph *g,
 {
     int rval = 0;
 
-    assert(offset_step == 0 || offset_step == -1);
+    assert(offset_step == 0 || offset_step == -1 || offset_step == 1);
 
     if (filenamelen > BVGRAPH_MAX_FILENAME_SIZE-1) { 
-        return bvgraph_load_error_filename_too_long; 
+        return bvgraph_load_error_filename_too_long;
     }
     
     memset(g,0,sizeof(bvgraph));
@@ -115,22 +133,18 @@ int bvgraph_load_external(bvgraph *g,
     g->filename[filenamelen] = '\0';
     g->filenamelen = filenamelen;
 
-    //fprintf(stderr, "libbvg: filename = %s\n", filename);
-    //mexPrintf("libbvg: filename = %s\n", filename);
-
     g->offset_step = offset_step;
 
     set_defaults(g);
 
     rval = parse_properties(g);
-    //mexPrintf("libbvg: parse_prop rval = %i\n", rval);
     // check for any errors
     if (rval != 0) { return rval; }
 
     // continue processing
     if (offset_step >= 0) 
     {
-        if (offset_step == 0) {
+        if (offset_step == 0 || offset_step == 1) {    //modified 082911
             // in this case, we ust load the graph
             // file into memory
 
@@ -178,6 +192,46 @@ int bvgraph_load_external(bvgraph *g,
                 fclose(gfile);
             }
             // we now have the graph in memory!
+
+            if (offset_step == 1) {        //modified 082911
+                if (offsets != NULL) {
+                    g->offsets = offsets;
+                    g->offsets_external = 1;
+                } else {
+                    // we have to allocate the memory ourselves
+                    g->offsets = (unsigned long long*) malloc(sizeof(unsigned long long)*g->n);
+                    g->offsets_external = 0;
+                }
+                // now read the file
+                char *ofilename = strappend(g->filename, g->filenamelen, ".offsets", 8);
+                bitfile bf;
+                long long off = 0;
+                int i;
+                g->offsets = (unsigned long long*)malloc(g->n*sizeof(unsigned long long));
+                FILE *ofile = fopen(ofilename, "rb");
+                if (ofile) {
+                    rval = bitfile_open(ofile, &bf);
+                    if (rval) {
+                        return bvgraph_call_io_error;
+                    }
+                    for (i = 0; i < g->n; i++){
+                        off = read_offset(g, &bf) + off;
+                        g->offsets[i] = off;
+                    }
+                } else {
+                    // need to build the offsets
+                    bvgraph_iterator git;
+                    int rval = bvgraph_nonzero_iterator(g, &git);
+                    if (rval) { return rval; }
+                    g->offsets[0] = 0;
+                    for (; bvgraph_iterator_valid(&git); bvgraph_iterator_next(&git)) {
+                        if (git.curr+1 < g->n) {
+                            g->offsets[git.curr+1] = bitfile_tell(&git.bf);
+                        }
+                    }
+                    bvgraph_iterator_free(&git);
+                }
+            }
         }
     }
     else
@@ -270,18 +324,19 @@ int bvgraph_required_memory(bvgraph *g, int offset_step, size_t *gbuf, size_t *o
  * @param[out] d the outdegree
  * @return 0 on success
  */
+
 int bvgraph_outdegree(bvgraph *g, int x, unsigned int *d) 
 {
-    bvgraph_random_access_iterator ri;
+    bvgraph_random_iterator ri;
     int rval = bvgraph_random_access_iterator(g, &ri);
     if (rval == 0) {
         rval = bvgraph_random_outdegree(&ri, x, d);
-        bvgraph_random_free(&ri);
     }
+    bvgraph_random_free(&ri);
     return (rval);
 }
 
-/** Access the outdegree for a given node.
+/** Access the successors for a given node.
  *
  * For a random access graph, this method provides a thread-safe means of 
  * getting the outdegree for a given node.  If you are going to make
@@ -294,13 +349,13 @@ int bvgraph_outdegree(bvgraph *g, int x, unsigned int *d)
  *
  * @param g the bvgraph structure with offsets loaded
  * @param x the node
- * @param[out] s a pointer to newly allocated memory for the list of successors
- * @param[out] d a pointer to the out-degree.
+ * @param[out] start the starting point of successor list
+ * @param[out] length the length of successor list (degree)
  * @return 0 on success
  */
-int bvgraph_successors(bvgraph *g, int x, int **s, unsigned int *d) 
+int bvgraph_successors(bvgraph *g, int x, int** start, unsigned int *length) 
 {
-    bvgraph_random_access_iterator ri;
+    bvgraph_random_iterator ri;
     int rval = bvgraph_random_access_iterator(g, &ri);
     if (rval == 0) {
         rval = bvgraph_random_outdegree(&ri, x, d);
@@ -317,7 +372,7 @@ int bvgraph_successors(bvgraph *g, int x, int **s, unsigned int *d)
         bvgraph_random_free(&ri);
     } else { 
         return (rval); 
-    }   
+    }
 }
 
 
@@ -352,7 +407,16 @@ const char* bvgraph_error_string(int code)
     }
     else if (code == bvgraph_call_io_error) {
         return "the file version is not supported";
-    } 
+    }
+    else if (code == bvgraph_vertex_out_of_range){
+        return "vertex is out of range";
+    }
+    else if (code == bvgraph_requires_offsets){
+        return "offsets are required";
+    }
+    else if (code == bvgraph_unsupported_coding){
+        return "coding unsupported";
+    }
     else if (code == 0) {
         return "the call succeeded";
     }
