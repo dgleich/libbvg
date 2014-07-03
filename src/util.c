@@ -217,7 +217,7 @@ int int_vector_ensure_size(bvgraph_int_vector *v, uint64_t n)
 //	printf("\n");
 
 	if (n > v->elements) {
-		int* newa = malloc(sizeof(int64_t)*n);
+		int64_t* newa = malloc(sizeof(int64_t)*n);
 		if (!newa) { return bvgraph_call_out_of_memory; }
 
 //		printf("copying memory... [%d]\n", v->elements);
