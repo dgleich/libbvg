@@ -41,9 +41,6 @@
 extern "C" {
 #endif
 
-/** Define a 64-bit type 
- */
-typedef int64_t bvg_long_int;
 
 enum bvgraph_compression_flag_tag {
     BVGRAPH_FLAG_DELTA = 1,
@@ -69,9 +66,9 @@ struct bvgraph_tag {
     unsigned int filenamelen;
 
     // graph size information
-    bvg_long_int n; // both n and m shoud be 64-bit integers
-    bvg_long_int m;
-    bvg_long_int max_outd;   // max_outd = 0 if it is unknown
+    int64_t n; // both n and m shoud be 64-bit integers
+    int64_t m;
+    int64_t max_outd;   // max_outd = 0 if it is unknown
 
     // graph compression parameters
     int max_ref_count;
@@ -107,7 +104,7 @@ struct bvgraph_tag {
  */
 struct bvgraph_int_vector_tag {
     uint64_t elements;
-    bvg_long_int* a;
+    int64_t* a;
 };
 
 /** A sequential access iterator for the bvgraph.
@@ -119,27 +116,27 @@ struct bvgraph_int_vector_tag {
  */
 struct bvgraph_iterator_tag {
     // variables that will be maintained for a public interface
-    bvg_long_int curr;
+    int64_t curr;
     struct bvgraph_tag* g;
     bitfile bf;
 
     // implementation dependent variables
     int cyclic_buffer_size;
-    bvg_long_int* outd_cache;
+    int64_t* outd_cache;
     struct bvgraph_int_vector_tag* window;
 
     struct bvgraph_int_vector_tag successors; 
-    bvg_long_int curr_outd;
+    int64_t curr_outd;
 
     // variables used inside the next function
-    bvg_long_int max_outd;
+    int64_t max_outd;
     struct bvgraph_int_vector_tag block, left, len, buf1, buf2;
 };
 
 struct successor{
-    bvg_long_int node;   // key
-    bvg_long_int* a;     // successors
-    bvg_long_int d;      // number of degree
+    int64_t node;   // key
+    int64_t* a;     // successors
+    int64_t d;      // number of degree
     int loaded;   // number of usage
 };
 
@@ -152,7 +149,7 @@ struct successor{
  */
 struct bvgraph_random_iterator_tag {
     // variables that will be maintained for a public interface
-    bvg_long_int curr;
+    int64_t curr;
     struct bvgraph_tag* g;
     
 
@@ -163,18 +160,18 @@ struct bvgraph_random_iterator_tag {
     bitfile outd_bf;
 
     int offset_step;
-    bvg_long_int *offsets;
+    int64_t *offsets;
 
     // a cache for outdegrees
-    bvg_long_int* outd_cache;
+    int64_t* outd_cache;
     // the endpoint of the outdegree cache
-    bvg_long_int outd_cache_end;
+    int64_t outd_cache_end;
     // a cache for offests
-    bvg_long_int* offset_cache;
+    int64_t* offset_cache;
     // the end of the offset cache
-    bvg_long_int offset_cache_end;
+    int64_t offset_cache_end;
     // the start of both caches
-    bvg_long_int cache_start;
+    int64_t cache_start;
     // a cache for successors
     struct successor *successors_cache;
 
@@ -186,10 +183,10 @@ struct bvgraph_random_iterator_tag {
 
     struct bvgraph_int_vector_tag successors; 
     struct bvgraph_int_vector_tag ref_successors;
-    bvg_long_int curr_outd;
+    int64_t curr_outd;
 
     // variables used inside the next function
-    bvg_long_int max_outd;
+    int64_t max_outd;
     struct bvgraph_int_vector_tag block, left, len, buf1, buf2;
 };
 
