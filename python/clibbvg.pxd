@@ -1,13 +1,12 @@
 # file: clibbvg.pxd
 from libc.stdint cimport int64_t, uint64_t
 cdef extern from "../include/bvgraph.h":
-    ctypedef int64_t bvg_long_int
     ctypedef struct bvgraph:
-        bvg_long_int n
-        bvg_long_int m
+        int64_t n
+        int64_t m
         pass
     ctypedef struct bvgraph_iterator:
-        bvg_long_int curr
+        int64_t curr
         pass
     ctypedef struct bvgraph_random_iterator:
         pass
