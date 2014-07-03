@@ -69,7 +69,7 @@ struct bvgraph_tag {
     unsigned int filenamelen;
 
     // graph size information
-    bvg_long_ing n; // both n and m shoud be 64-bit integers
+    bvg_long_int n; // both n and m shoud be 64-bit integers
     bvg_long_int m;
     bvg_long_int max_outd;   // max_outd = 0 if it is unknown
 
