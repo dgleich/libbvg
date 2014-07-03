@@ -25,16 +25,16 @@ bool write_smat_format(bvgraph *g, bvgraph_iterator *git, const char *outname) {
         return false;
     }
     
-    fprintf(f, "%i %i %i\n", g->n, g->n, g->m);
+    fprintf(f, "%ld %ld %ld\n", g->n, g->n, g->m);
     
-    int *links; unsigned int i, d;
+    int64_t *links; uint64_t i, d;
     for (; 
          bvgraph_iterator_valid(git); 
          bvgraph_iterator_next(git))
     {
         bvgraph_iterator_outedges(git, &links, &d);
         for (i = 0; i < d; i++) {
-            fprintf(f, "%i %i 1\n", git->curr, links[i]);
+            fprintf(f, "%ld %ld 1\n", git->curr, links[i]);
         }
     }
     fclose(f);
@@ -53,15 +53,15 @@ bool write_bsmat_format(bvgraph *g, bvgraph_iterator *git, const char *outname) 
     fwrite(&g->m, sizeof(int), 1, f);
     
     double val=1.0;
-    int *links; unsigned int i, d;
+    int64_t *links; uint64_t i, d;
     for (; 
          bvgraph_iterator_valid(git); 
          bvgraph_iterator_next(git))
     {
         bvgraph_iterator_outedges(git, &links, &d);
         for (i = 0; i < d; i++) {
-            fwrite(&git->curr, sizeof(int), 1, f);
-            fwrite(&links[i], sizeof(int), 1, f);
+            fwrite(&git->curr, sizeof(int64_t), 1, f);
+            fwrite(&links[i], sizeof(int64_t), 1, f);
             fwrite(&val, sizeof(double), 1, f);
         }
     }
