@@ -534,8 +534,8 @@
  *  we don't need to worry about that until about 2040 at which point
  *  we'll have bigger things to worry about.
  */
-
-#ifdef stdint_int64_defined
+/*comment next block to make apple gcc compile*/
+/*#ifdef stdint_int64_defined
   typedef int64_t intmax_t;
   typedef uint64_t uintmax_t;
 # define  INTMAX_MAX   INT64_MAX
@@ -569,7 +569,7 @@
 #  define PRINTF_INTMAX_DEC_WIDTH PRINTF_INT32_DEC_WIDTH
 # endif
 #endif
-
+*/
 /*
  *  Because this file currently only supports platforms which have
  *  precise powers of 2 as bit sizes for the default integers, the
