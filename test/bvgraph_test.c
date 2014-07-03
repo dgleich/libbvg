@@ -12,6 +12,7 @@
 #include "bvgraph.h"
 #include <string.h>
 #include <stdlib.h>
+#include <inttypes.h>
 
 // disable all of the unsafe operation warnings
 #ifdef _MSC_VER
