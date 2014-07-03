@@ -17,6 +17,7 @@
 
 #include "bvgraph_internal.h"
 #include "bvgraph_inline_io.h"
+#include <inttypes.h>
 
 struct successor *CACHE = NULL;
 
@@ -211,7 +212,7 @@ int bvgraph_random_successors(bvgraph_random_iterator *ri,
             }
 
             #ifdef MAX_DEBUG
-                fprintf(stderr, "block_count = %ld\n", block_count);
+                fprintf(stderr, "block_count = %"PRId64"\n", block_count);
             #endif 
 
             copied = 0; 
@@ -270,7 +271,7 @@ int bvgraph_random_successors(bvgraph_random_iterator *ri,
         buf2_index = 0;
 
         #ifdef MAX_DEBUG
-        fprintf("extra_count = %ld\ninterval_count = %ld\nref = %ld\n", extra_count, interval_count, ref);
+        fprintf("extra_count = %"PRId64"\ninterval_count = %"PRId64"\nref = %"PRId64"\n", extra_count, interval_count, ref);
         #endif 
         // read the residuals into a buffer
         {
