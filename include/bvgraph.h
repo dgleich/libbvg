@@ -43,7 +43,7 @@ extern "C" {
 
 /** Define a 64-bit type 
  */
-typedef long long bvg_long_int;
+typedef int64_t bvg_long_int;
 
 enum bvgraph_compression_flag_tag {
     BVGRAPH_FLAG_DELTA = 1,
@@ -69,9 +69,9 @@ struct bvgraph_tag {
     unsigned int filenamelen;
 
     // graph size information
-    int n;
+    bvg_long_ing n; // both n and m shoud be 64-bit integers
     bvg_long_int m;
-    int max_outd;   // max_outd = 0 if it is unknown
+    bvg_long_int max_outd;   // max_outd = 0 if it is unknown
 
     // graph compression parameters
     int max_ref_count;
@@ -106,8 +106,8 @@ struct bvgraph_tag {
  * that I won't change the interface.)
  */
 struct bvgraph_int_vector_tag {
-    unsigned int elements;
-    int* a;
+    uint64_t elements;
+    bvg_long_int* a;
 };
 
 /** A sequential access iterator for the bvgraph.
@@ -119,27 +119,27 @@ struct bvgraph_int_vector_tag {
  */
 struct bvgraph_iterator_tag {
     // variables that will be maintained for a public interface
-    int curr;
+    bvg_long_int curr;
     struct bvgraph_tag* g;
     bitfile bf;
 
     // implementation dependent variables
     int cyclic_buffer_size;
-    int* outd_cache;
+    bvg_long_int* outd_cache;
     struct bvgraph_int_vector_tag* window;
 
     struct bvgraph_int_vector_tag successors; 
-    int curr_outd;
+    bvg_long_int curr_outd;
 
     // variables used inside the next function
-    int max_outd;
+    bvg_long_int max_outd;
     struct bvgraph_int_vector_tag block, left, len, buf1, buf2;
 };
 
 struct successor{
-    int node;   // key
-    int* a;     // successors
-    int d;      // number of degree
+    bvg_long_int node;   // key
+    bvg_long_int* a;     // successors
+    bvg_long_int d;      // number of degree
     int loaded;   // number of usage
 };
 
@@ -152,7 +152,7 @@ struct successor{
  */
 struct bvgraph_random_iterator_tag {
     // variables that will be maintained for a public interface
-    int curr;
+    bvg_long_int curr;
     struct bvgraph_tag* g;
     
 
@@ -166,15 +166,15 @@ struct bvgraph_random_iterator_tag {
     bvg_long_int *offsets;
 
     // a cache for outdegrees
-    int* outd_cache;
+    bvg_long_int* outd_cache;
     // the endpoint of the outdegree cache
-    int outd_cache_end;
+    bvg_long_int outd_cache_end;
     // a cache for offests
     bvg_long_int* offset_cache;
     // the end of the offset cache
-    int offset_cache_end;
+    bvg_long_int offset_cache_end;
     // the start of both caches
-    int cache_start;
+    bvg_long_int cache_start;
     // a cache for successors
     struct successor *successors_cache;
 
@@ -186,10 +186,10 @@ struct bvgraph_random_iterator_tag {
 
     struct bvgraph_int_vector_tag successors; 
     struct bvgraph_int_vector_tag ref_successors;
-    int curr_outd;
+    bvg_long_int curr_outd;
 
     // variables used inside the next function
-    int max_outd;
+    bvg_long_int max_outd;
     struct bvgraph_int_vector_tag block, left, len, buf1, buf2;
 };
 
@@ -239,19 +239,19 @@ int bvgraph_close(bvgraph* g);
 int bvgraph_nonzero_iterator(bvgraph* g, bvgraph_iterator *i);
 int bvgraph_random_access_iterator(bvgraph* g, bvgraph_random_iterator *ri);
 
-int bvgraph_outdegree(bvgraph *g, int x, unsigned int *d);
-int bvgraph_successors(bvgraph *g, int x, int** start, unsigned int *length);
+int bvgraph_outdegree(bvgraph *g, int64_t x, uint64_t *d);
+int bvgraph_successors(bvgraph *g, int64_t x, int64_t** start, uint64_t *length);
 
 int bvgraph_iterator_outedges(bvgraph_iterator* i, 
-                              int** start, unsigned int* len);
+                              int64_t** start, uint64_t* len);
 int bvgraph_iterator_next(bvgraph_iterator* i);
 int bvgraph_iterator_valid(bvgraph_iterator* i);
 int bvgraph_iterator_free(bvgraph_iterator *i);
 
 int bvgraph_random_outdegree(bvgraph_random_iterator *ri, 
-                             int x, unsigned int *d);
+                             int64_t x, uint64_t *d);
 int bvgraph_random_successors(bvgraph_random_iterator *ri, 
-                             int x, int** start, unsigned int *length);
+                             int64_t x, int64_t** start, uint64_t *length);
 int bvgraph_random_free(bvgraph_random_iterator *ri);
 
 int bvgraph_iterator_copy(bvgraph_iterator *i, bvgraph_iterator *j);
@@ -266,8 +266,8 @@ int bvgraph_parallel_iterators_free(bvgraph_parallel_iterators *pits);
 int bvgraph_required_memory(bvgraph *g, 
                             int offset_step, size_t *gbuf, size_t *offsetbuf);
 
-int merge_int_arrays(const int* a1, size_t a1len, const int* a2,
-                             size_t a2len, int *out, size_t outlen);
+int merge_int_arrays(const int64_t* a1, size_t a1len, const int64_t* a2,
+                             size_t a2len, int64_t *out, size_t outlen);
 
 const char* bvgraph_error_string(int error);
 
