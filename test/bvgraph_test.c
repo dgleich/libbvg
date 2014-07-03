@@ -33,7 +33,7 @@ int main(int argc, char **argv)
     int filenamelen;
 
     int rval;
-    int i;
+    int64_t i;
 
     if (argc < 2) { fprintf(stderr, "Usage: bvgraph_test bvgraph_basename\n"); return (-1); }
 
@@ -53,13 +53,13 @@ int main(int argc, char **argv)
     if (rval) { perror("error with full load!"); }
     {
         bvgraph_iterator iter;
-        int *links;
-        unsigned int d;
+        int64_t *links = NULL;
+        uint64_t d;
         // initialize a vector of column sums
-        int *colsum = malloc(sizeof(int)*g->n);
-        int *colsum2 = malloc(sizeof(int)*g->n);
+        int64_t *colsum = malloc(sizeof(int64_t)*g->n);
+        int64_t *colsum2 = malloc(sizeof(int64_t)*g->n);
         int rep;
-        memset(colsum, 0, sizeof(int)*g->n);
+        memset(colsum, 0, sizeof(int64_t)*g->n);
         for (bvgraph_nonzero_iterator(g, &iter); 
              bvgraph_iterator_valid(&iter); 
              bvgraph_iterator_next(&iter))
@@ -71,7 +71,7 @@ int main(int argc, char **argv)
         }
         bvgraph_iterator_free(&iter);
         for (rep = 0; rep < 10000; rep++) {
-            memset(colsum2, 0, sizeof(int)*g->n);
+            memset(colsum2, 0, sizeof(int64_t)*g->n);
             for (bvgraph_nonzero_iterator(g, &iter); 
                  bvgraph_iterator_valid(&iter); 
                  bvgraph_iterator_next(&iter))
@@ -84,7 +84,7 @@ int main(int argc, char **argv)
             bvgraph_iterator_free(&iter);
             for (i=0; i < g->n; i++) {
                 if (colsum2[i] != colsum[i]) {
-                    fprintf(stderr, "error, column sum of column %i is not correct (%i =? %i)", 
+                    fprintf(stderr, "error, column sum of column %ld is not correct (%ld =? %ld)", 
                         i, colsum[i], colsum2[i]);
                     perror("colsum error!");
                 }
