@@ -1,5 +1,5 @@
 # file: clibbvg.pxd
-from libc.stdint cimport int64_t
+from libc.stdint cimport int64_t, uint64_t
 cdef extern from "../include/bvgraph.h":
     ctypedef int64_t bvg_long_int
     ctypedef struct bvgraph:
