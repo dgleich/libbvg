@@ -474,6 +474,8 @@ int parse_properties(bvgraph* g)
                     // this is okay
                 } else if (strncmp(value,"it.unimi.dsi.webgraph.BVGraph",29)==0) {
                     // this is okay
+                } else if (strncmp(value,"it.unimi.dsi.big.webgraph.BVGraph",33) == 0) {
+                    // this is okay
                 } else {
                     // this is not okay
                     rval = bvgraph_unsupported_version;

@@ -38,9 +38,9 @@ extern char* parse_property_key(FILE *f, uint maxproplen);
 extern char* parse_property_value(FILE *f, uint maxvallen);
 extern int parse_properties(bvgraph* g);
 
-extern int int_vector_create(bvgraph_int_vector* v, uint n);
+extern int int_vector_create(bvgraph_int_vector* v, uint64_t n);
 extern int int_vector_create_copy(bvgraph_int_vector* u, bvgraph_int_vector *v);
-extern int int_vector_ensure_size(bvgraph_int_vector *v, uint n);
+extern int int_vector_ensure_size(bvgraph_int_vector *v, uint64_t n);
 extern int int_vector_free(bvgraph_int_vector* v);
 
 //

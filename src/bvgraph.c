@@ -206,7 +206,7 @@ int bvgraph_load_external(bvgraph *g,
                 char *ofilename = strappend(g->filename, g->filenamelen, ".offsets", 8);
                 bitfile bf;
                 long long off = 0;
-                int i;
+                int64_t i;
                 g->offsets = (unsigned long long*)malloc(g->n*sizeof(unsigned long long));
                 FILE *ofile = fopen(ofilename, "rb");
                 if (ofile) {
@@ -325,7 +325,7 @@ int bvgraph_required_memory(bvgraph *g, int offset_step, size_t *gbuf, size_t *o
  * @return 0 on success
  */
 
-int bvgraph_outdegree(bvgraph *g, int x, unsigned int *d) 
+int bvgraph_outdegree(bvgraph *g, int64_t x, uint64_t *d) 
 {
     bvgraph_random_iterator ri;
     int rval = bvgraph_random_access_iterator(g, &ri);
@@ -352,7 +352,7 @@ int bvgraph_outdegree(bvgraph *g, int x, unsigned int *d)
  * @return 0 on success
  */
 
-int bvgraph_successors(bvgraph *g, int x, int** start, unsigned int *length) 
+int bvgraph_successors(bvgraph *g, int64_t x, int64_t** start, uint64_t *length) 
 {
     bvgraph_random_iterator ri;
     int rval = bvgraph_random_access_iterator(g, &ri);
