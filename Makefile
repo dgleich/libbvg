@@ -48,7 +48,7 @@ ALLOBJS += $(BVPAGERANK_SRC_DIR)/bvpagerank.o
 ALLPROGS += $(BVPAGERANKNAME)
 	
 bvgraph2smat : lib tools/bvgraph2smat/bvgraph2smat.o
-	$(CXX) $(LDFLAGS) -o bvgraph2smat tools/bvgraph2smat/bvgraph2smat.o $(LOADLIBES) $(LDLIBS) -std=c++0x
+	$(CXX) $(LDFLAGS) -o bvgraph2smat tools/bvgraph2smat/bvgraph2smat.o $(LOADLIBES) $(LDLIBS)
 
 ALLOBJS += tools/bvgraph2smat/bvgraph2smat.o
 ALLPROGS += bvgraph2smat
