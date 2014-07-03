@@ -56,7 +56,7 @@ void load_all(const char* name)
     ALL_PAIR = malloc(sizeof(int)*2*(int)g.m);
 
     for (; bvgraph_iterator_valid(&git); bvgraph_iterator_next(&git)) {
-        int 64_t*links = NULL;
+        int64_t*links = NULL;
         uint64_t d = 0;
         
         bvgraph_iterator_outedges(&git, &links, &d);
