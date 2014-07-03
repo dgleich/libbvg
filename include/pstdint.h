@@ -665,8 +665,8 @@ typedef uint_least32_t uint_fast32_t;
 #if defined (_MSC_VER) && defined (_UINTPTR_T_DEFINED)
 # define STDINT_H_UINTPTR_T_DEFINED
 #endif
-
-#ifndef STDINT_H_UINTPTR_T_DEFINED
+/* It seems there is a bug next line, should it be ifdef? */ 
+#ifdef STDINT_H_UINTPTR_T_DEFINED
 # if defined (__alpha__) || defined (__ia64__) || defined (__x86_64__) || defined (_WIN64)
 #  define stdint_intptr_bits 64
 # elif defined (__WATCOMC__) || defined (__TURBOC__)
@@ -707,13 +707,9 @@ typedef uint_least32_t uint_fast32_t;
 #  endif
 #  ifndef UINTPTR_C
 #    define UINTPTR_C(x)                stdint_intptr_glue3(UINT,stdint_intptr_bits,_C)(x)
-#  endif
-# ifndef uintptr_t  
+#  endif  
   typedef stdint_intptr_glue3(uint,stdint_intptr_bits,_t) uintptr_t;
-# endif
-# ifndef intptr_t
   typedef stdint_intptr_glue3( int,stdint_intptr_bits,_t)  intptr_t;
-#endif
 # else
 /* TODO -- This following is likely wrong for some platforms, and does
    nothing for the definition of uintptr_t. */
