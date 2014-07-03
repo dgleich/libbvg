@@ -26,7 +26,7 @@ typedef unsigned int uint;
 extern char return_error_string[];
 
 extern int ftestnewline(FILE *f);
-extern int atoin(const char* str, uint len);
+extern int64_t atoin(const char* str, uint len);
 extern char* strappend(const char* str, uint len, const char* str2, uint len2);
 const char* strchrn(const char* str, uint len, int c);
 extern void fnextline(FILE *f);
