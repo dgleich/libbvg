@@ -1,5 +1,6 @@
 # file: libbvg.pyx
 
+from libc.stdint cimport int64_t, uint64_t
 cimport clibbvg
 
 class Vertex:
