@@ -15,6 +15,7 @@
 #include <string.h>
 
 #include "bvgraph.h"
+#include <inttypes.h>
 
 using namespace std;
 
@@ -25,7 +26,7 @@ bool write_smat_format(bvgraph *g, bvgraph_iterator *git, const char *outname) {
         return false;
     }
     
-    fprintf(f, "%ld %ld %ld\n", g->n, g->n, g->m);
+    fprintf(f, "%"PRId64" %"PRId64" %"PRId64"\n", g->n, g->n, g->m);
     
     int64_t *links; uint64_t i, d;
     for (; 
@@ -34,7 +35,7 @@ bool write_smat_format(bvgraph *g, bvgraph_iterator *git, const char *outname) {
     {
         bvgraph_iterator_outedges(git, &links, &d);
         for (i = 0; i < d; i++) {
-            fprintf(f, "%ld %ld 1\n", git->curr, links[i]);
+            fprintf(f, "%"PRId64" %"PRId64" 1\n", git->curr, links[i]);
         }
     }
     fclose(f);
