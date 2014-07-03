@@ -45,7 +45,7 @@ int main(int argc, char **argv)
     {
         size_t memrequired;
         bvgraph_required_memory(g, 0, &memrequired, NULL);
-        printf("the graph %s requires %i bytes to load into memory\n", filename, memrequired);
+        printf("the graph %s requires %zu bytes to load into memory\n", filename, memrequired);
     }
     bvgraph_close(g);
 
@@ -84,7 +84,7 @@ int main(int argc, char **argv)
             bvgraph_iterator_free(&iter);
             for (i=0; i < g->n; i++) {
                 if (colsum2[i] != colsum[i]) {
-                    fprintf(stderr, "error, column sum of column %ld is not correct (%ld =? %ld)", 
+                    fprintf(stderr, "error, column sum of column %"PRId64 "is not correct (%"PRId64" =? %"PRId64")", 
                         i, colsum[i], colsum2[i]);
                     perror("colsum error!");
                 }
