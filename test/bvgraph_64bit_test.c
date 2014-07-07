@@ -42,7 +42,7 @@ int main(int argc, char **argv)
     bvgraph_close(g);*/
     
     rval = bvgraph_load(g, filename, filenamelen, -1);
-    printf("#node = %" PRId64 ", #edges = %" PRId64 " rval = %d\n", g->n, g->m, rval);
+    printf("#node = %" PRId64 ", #edges = %" PRId64 "\n", g->n, g->m);
     if (rval) { perror("error with partial load!"); }
     {
         bvgraph_iterator iter;
@@ -55,6 +55,7 @@ int main(int argc, char **argv)
             bvgraph_iterator_outedges(&iter, &links, &d);
             if (d > 0) {
                 int64_t sum = 10000000001;
+                if (iter.curr > 1000) { break; }
                 if (sum - iter.curr != links[0]) {
                     printf("error when reading node = %" PRId64 "\n", iter.curr);
                     return (-1);
