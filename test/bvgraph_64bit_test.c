@@ -64,7 +64,7 @@ int main(int argc, char **argv)
        }
     }
     bvgraph_close(g);
-    printf("pass head-tail 1000 test!\n");
+    printf("Testing 64-bit bvgraph sequential read ... passed!\n");
     return 0;
 }
 
