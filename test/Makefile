@@ -23,6 +23,9 @@ test:
 	./bvgraph_test ../data/harvard500
 	./check_bvgraph ../data/harvard500 random 10000
 	./check_bvgraph ../data/wb-cs.stanford random 10000
+	bzip2 -d ../data/bvheadTail1000
+	echo "unzip dataset for 64 bit test done"
+	./bvgraph_64bit_test ../data/bvheadTail1000
 	
 	
 
