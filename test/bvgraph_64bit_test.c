@@ -41,7 +41,7 @@ int main(int argc, char **argv)
     }
     bvgraph_close(g);*/
     
-    rval = bvgraph_load(g, filename, filenamelen, 1);
+    rval = bvgraph_load(g, filename, filenamelen, -1);
     printf("#node = %" PRId64 ", #edges = %" PRId64 " rval = %d\n", g->n, g->m, rval);
     if (rval) { perror("error with partial load!"); }
     {
