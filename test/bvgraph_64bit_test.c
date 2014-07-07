@@ -32,17 +32,17 @@ int main(int argc, char **argv)
     filenamelen = (int)strlen(filename);
     
     int rval;
-    rval = bvgraph_load(g, filename, filenamelen, -1);
+    /*rval = bvgraph_load(g, filename, filenamelen, -1);
     if (rval) { perror("error with initial load!"); }
     {
         size_t memrequired, offset_buff;
         bvgraph_required_memory(g, 1, &memrequired, &offset_buff);
         printf("the graph %s requires %llu bytes to load into memory, offset_buff=%llu\n", filename, (long long)memrequired, (long long)offset_buff);
     }
-    bvgraph_close(g);
+    bvgraph_close(g);*/
     
     rval = bvgraph_load(g, filename, filenamelen, 1);
-    printf("#node = %" PRId64 ", #edges = %" PRId64 "\n", g->n, g->m);
+    printf("#node = %" PRId64 ", #edges = %" PRId64 " rval = %d\n", g->n, g->m, rval);
     if (rval) { perror("error with partial load!"); }
     {
         bvgraph_iterator iter;
