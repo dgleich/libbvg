@@ -56,7 +56,7 @@ ALLPROGS += bvgraph2smat
 everything: lib $(BVPAGERANKNAME) bvgraph2smat test python
 
 test: lib
-	cd test && $(MAKE) all
+	cd test && $(MAKE) small clean
 
 python: lib
 	cd python && $(MAKE) all
