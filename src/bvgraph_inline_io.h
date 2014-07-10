@@ -16,9 +16,9 @@
 
 #include "bvgraph_internal.h"
 
-static inline int nat2int(const int x) { return x % 2 == 0 ? x >> 1 : -( ( x + 1 ) >> 1 ); }
+static inline int64_t nat2int(const int64_t x) { return x % 2 == 0 ? x >> 1 : -( ( x + 1 ) >> 1 ); }
 
-static inline int read_coded(bitfile *bf, enum bvgraph_compression_flag_tag c) 
+static inline int64_t read_coded(bitfile *bf, enum bvgraph_compression_flag_tag c) 
 {
     switch (c) {
         case BVGRAPH_FLAG_DELTA: 
@@ -44,9 +44,9 @@ static inline int read_coded(bitfile *bf, enum bvgraph_compression_flag_tag c)
 
     return (bvgraph_call_unsupported);
 }
-static inline int read_offset(bvgraph *g, bitfile *bf) { return read_coded(bf, g->offset_coding); }
-static inline int read_outdegree(bvgraph *g, bitfile *bf) { return read_coded(bf, g->outdegree_coding); }
-static inline int read_residual(bvgraph *g, bitfile *bf) 
+static inline int64_t read_offset(bvgraph *g, bitfile *bf) { return read_coded(bf, g->offset_coding); }
+static inline int64_t read_outdegree(bvgraph *g, bitfile *bf) { return read_coded(bf, g->outdegree_coding); }
+static inline int64_t read_residual(bvgraph *g, bitfile *bf) 
 { 
     if (g->residual_coding == BVGRAPH_FLAG_ZETA) {
         return bitfile_read_zeta(bf,g->zeta_k);
@@ -54,9 +54,9 @@ static inline int read_residual(bvgraph *g, bitfile *bf)
         return read_coded(bf, g->residual_coding); 
     }
 }
-static inline int read_reference(bvgraph *g, bitfile *bf) { return read_coded(bf, g->reference_coding); }
-static inline int read_block(bvgraph *g, bitfile *bf) { return read_coded(bf, g->block_coding); }
-static inline int read_block_count(bvgraph *g, bitfile *bf) { return read_coded(bf, g->block_count_coding); }
+static inline int64_t read_reference(bvgraph *g, bitfile *bf) { return read_coded(bf, g->reference_coding); }
+static inline int64_t read_block(bvgraph *g, bitfile *bf) { return read_coded(bf, g->block_coding); }
+static inline int64_t read_block_count(bvgraph *g, bitfile *bf) { return read_coded(bf, g->block_count_coding); }
 
 /** Skips outdegrees from the given stream. 
  *

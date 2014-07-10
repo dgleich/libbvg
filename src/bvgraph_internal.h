@@ -26,7 +26,7 @@ typedef unsigned int uint;
 extern char return_error_string[];
 
 extern int ftestnewline(FILE *f);
-extern int atoin(const char* str, uint len);
+extern int64_t atoin(const char* str, uint len);
 extern char* strappend(const char* str, uint len, const char* str2, uint len2);
 const char* strchrn(const char* str, uint len, int c);
 extern void fnextline(FILE *f);
@@ -38,9 +38,9 @@ extern char* parse_property_key(FILE *f, uint maxproplen);
 extern char* parse_property_value(FILE *f, uint maxvallen);
 extern int parse_properties(bvgraph* g);
 
-extern int int_vector_create(bvgraph_int_vector* v, uint n);
+extern int int_vector_create(bvgraph_int_vector* v, uint64_t n);
 extern int int_vector_create_copy(bvgraph_int_vector* u, bvgraph_int_vector *v);
-extern int int_vector_ensure_size(bvgraph_int_vector *v, uint n);
+extern int int_vector_ensure_size(bvgraph_int_vector *v, uint64_t n);
 extern int int_vector_free(bvgraph_int_vector* v);
 
 //

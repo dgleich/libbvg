@@ -534,8 +534,8 @@
  *  we don't need to worry about that until about 2040 at which point
  *  we'll have bigger things to worry about.
  */
-
-#ifdef stdint_int64_defined
+/*comment next block to make apple gcc compile*/
+/*#ifdef stdint_int64_defined
   typedef int64_t intmax_t;
   typedef uint64_t uintmax_t;
 # define  INTMAX_MAX   INT64_MAX
@@ -569,7 +569,7 @@
 #  define PRINTF_INTMAX_DEC_WIDTH PRINTF_INT32_DEC_WIDTH
 # endif
 #endif
-
+*/
 /*
  *  Because this file currently only supports platforms which have
  *  precise powers of 2 as bit sizes for the default integers, the
@@ -665,8 +665,8 @@ typedef uint_least32_t uint_fast32_t;
 #if defined (_MSC_VER) && defined (_UINTPTR_T_DEFINED)
 # define STDINT_H_UINTPTR_T_DEFINED
 #endif
-
-#ifndef STDINT_H_UINTPTR_T_DEFINED
+/* It seems there is a bug next line, should it be ifdef? */ 
+#ifdef STDINT_H_UINTPTR_T_DEFINED
 # if defined (__alpha__) || defined (__ia64__) || defined (__x86_64__) || defined (_WIN64)
 #  define stdint_intptr_bits 64
 # elif defined (__WATCOMC__) || defined (__TURBOC__)
@@ -707,7 +707,7 @@ typedef uint_least32_t uint_fast32_t;
 #  endif
 #  ifndef UINTPTR_C
 #    define UINTPTR_C(x)                stdint_intptr_glue3(UINT,stdint_intptr_bits,_C)(x)
-#  endif
+#  endif  
   typedef stdint_intptr_glue3(uint,stdint_intptr_bits,_t) uintptr_t;
   typedef stdint_intptr_glue3( int,stdint_intptr_bits,_t)  intptr_t;
 # else

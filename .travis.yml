@@ -1,3 +1,6 @@
+os:
+  - linux
+  - osx
 language: c
 compiler:
   - gcc
@@ -6,5 +9,8 @@ compiler:
 #script: ./configure && make
 install:
   - sudo easy_install --find-links=https://github.com/msabramo/cython/releases/tag/0.19.1 Cython
+  #- sudo easy_install Cython
   - python -c 'import Cython; print (Cython)'
-script: make clean && make
+script:
+  - export ARCHFLAGS='-Wno-error=unused-command-line-argument-hard-error-in-future'     
+  - make clean && make

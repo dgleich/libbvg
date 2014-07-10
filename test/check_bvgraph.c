@@ -5,6 +5,7 @@
 #include "../include/bitfile.h"
 #include <string.h>
 #include <time.h>
+#include <inttypes.h>
 
 struct pair{
     int from;
@@ -26,16 +27,16 @@ void iteration(const char* name){
     }
 
     for (; bvgraph_iterator_valid(&git); bvgraph_iterator_next(&git)) {
-        int *links = NULL;
-        unsigned int d = 0;
+        int64_t *links = NULL;
+        uint64_t d = 0;
         
         bvgraph_iterator_outedges(&git, &links, &d);
 
-        printf("node %i has degree %d\n", git.curr, d);
+        printf("node %"PRId64" has degree %"PRId64"\n", git.curr, d);
         
-        int i = 0;
+        int64_t i = 0;
         for (i; i<d; ++i) {
-            printf("node %i links to node %i\n", git.curr, links[i]);
+            printf("node %"PRId64" links to node %"PRId64"\n", git.curr, links[i]);
         }
     }
     bvgraph_iterator_free(&git);
@@ -56,12 +57,12 @@ void load_all(const char* name)
     ALL_PAIR = malloc(sizeof(int)*2*(int)g.m);
 
     for (; bvgraph_iterator_valid(&git); bvgraph_iterator_next(&git)) {
-        int *links = NULL;
-        unsigned int d = 0;
+        int64_t*links = NULL;
+        uint64_t d = 0;
         
         bvgraph_iterator_outedges(&git, &links, &d);
         
-        int i = 0;
+        int64_t i = 0;
         for (i; i<d; ++i) {
             ALL_PAIR[PAIR_SIZE].from = git.curr;
             ALL_PAIR[PAIR_SIZE].to = links[i];
@@ -112,8 +113,8 @@ int exist_pair(int from, int to)
 void head_tail_first_test(bvgraph g)
 {
     //test random access from 0, n-1, 1, n-2, 2, n-3, ...
-    int i = 0;
-    unsigned int d = 0;
+    int64_t i = 0;
+    uint64_t d = 0;
     bvgraph_random_iterator ri;
     int rval = bvgraph_random_access_iterator(&g, &ri);
 
@@ -123,7 +124,7 @@ void head_tail_first_test(bvgraph g)
     } 
 
     for (i; i <= g.n; i++){
-        int node;
+        int64_t node;
         if ( i % 2 == 0){
             node = i / 2;
         }
@@ -131,13 +132,13 @@ void head_tail_first_test(bvgraph g)
             node = g.n - 1 - i / 2;
         }
         //get successors example
-        int *links;
+        int64_t *links;
         bvgraph_random_successors(&ri, node, &links, &d);
 
-        int j = 0;
+        int64_t j = 0;
         for (j; j< d; j++){
             if (!exist_pair(node, links[j])){
-                printf("Wrong links from node %d to node %d. Stop.\n", node, links[j]);
+                printf("Wrong links from node %"PRId64" to node %"PRId64". Stop.\n", node, links[j]);
                 //return;
             }
         }
@@ -151,7 +152,7 @@ void random_test(bvgraph g, int test_num)
 {
     //randomly generate test case
     int i = 0;
-    unsigned int d;
+    uint64_t d;
     srand(time(NULL));
     bvgraph_random_iterator ri;
     int rval = bvgraph_random_access_iterator(&g, &ri);
@@ -162,19 +163,19 @@ void random_test(bvgraph g, int test_num)
     }
  
     for (i; i < test_num; i++){
-        int node = rand() % g.n;
-        int *links = NULL;
+        int64_t node = rand() % g.n;
+        int64_t *links = NULL;
 
         //printf("node: %d\n", node);
         bvgraph_random_successors(&ri, node, &links, &d);
         //bvgraph_successors(&g, node, &links, &d);
 
-        int j = 0;
+        int64_t j = 0;
         //printf("degree: %d\n", d);
         for (j; j< d; j++){
             //printf("links: %d\n", links[j]);
             if (!exist_pair(node, links[j])){
-                printf("Wrong links from node %d to node %d. Stop.\n", node, links[j]);
+                printf("Wrong links from node %"PRId64" to node %"PRId64". Stop.\n", node, links[j]);
                 return;
             }
         }
@@ -186,8 +187,8 @@ void random_test(bvgraph g, int test_num)
 
 void print_all(bvgraph g)
 {
-    int i = 0;
-    unsigned int d = 0;
+    int64_t i = 0;
+    uint64_t d = 0;
 
     bvgraph_random_iterator ri;
     int rval = bvgraph_random_access_iterator(&g, &ri);
@@ -199,19 +200,19 @@ void print_all(bvgraph g)
     
     for (i; i < g.n; i++){
         //get successors example
-        int *links;
+        int64_t *links;
         //printf("Process node %d...\n", i);
         //bvgraph_random_outdegree(&ri, i, &d);
         bvgraph_random_successors(&ri, i, &links, &d);
         //bvgraph_successors(&g, i, &links, &d);
 
-        printf ("node %d has degree %d\n", i, d);
+        printf ("node %"PRId64" has degree %"PRIu64"\n", i, d);
         
-        int j = 0;
+        int64_t j = 0;
         for (j; j< d; j++){
             //printf("node %i links to node %i\n", i, links[j]);
             if (!exist_pair(i, links[j])){
-                printf("Wrong links from node %d to node %d. Stop.\n", i, links[j]);
+                printf("Wrong links from node %"PRId64" to node %"PRId64". Stop.\n", i, links[j]);
                 return;
             }
         }
@@ -226,8 +227,8 @@ void print_all(bvgraph g)
 void test_performance(bvgraph g, int test_num)
 {
     //randomly generate test case
-    int i = 0;
-    unsigned int d;
+    int64_t i = 0;
+    uint64_t d;
     srand(time(NULL));
     clock_t start, end;
     bvgraph_random_iterator ri;
@@ -238,17 +239,17 @@ void test_performance(bvgraph g, int test_num)
         return;
     }
 
-    int node = 0;
-    int *links = NULL;
-    int edge_count = 0;
+    int64_t node = 0;
+    int64_t *links = NULL;
+    int64_t edge_count = 0;
  
     start = clock();
     for (i = 0; i < test_num; i++) {
         node = rand() % g.n;
         bvgraph_random_outdegree(&ri, node, &d);
         bvgraph_random_successors(&ri, node, &links, &d);
-        int j = 0;
-        int link;
+        int64_t j = 0;
+        int64_t link;
         for (j; j<d; j++){
             link = links[j];
         }
@@ -260,7 +261,7 @@ void test_performance(bvgraph g, int test_num)
     double dif = ((double)end - (double)start) / CLOCKS_PER_SEC;
     double edge_per_sec = edge_count / dif;
 
-    printf("Used %.2lf secs. Edges = %d. Edges per second = %.2lf\n", dif, edge_count, edge_per_sec);
+    printf("Used %.2lf secs. Edges = %"PRId64". Edges per second = %.2lf\n", dif, edge_count, edge_per_sec);
 
     bvgraph_random_free(&ri);
 
@@ -295,8 +296,8 @@ int main(int argc, char** argv)
     bvgraph_load(&g, name, strlen(name), 1);
 
     printf("Input file: %s\n", name);
-    printf("nodes = %d\n", g.n);
-    printf("edges = %lli\n", g.m);
+    printf("nodes = %"PRId64"\n", g.n);
+    printf("edges = %"PRId64"\n", g.m);
 
     if (strcmp(method, "random") == 0){
         load_all(name);

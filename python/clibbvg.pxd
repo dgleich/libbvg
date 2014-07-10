@@ -1,13 +1,12 @@
 # file: clibbvg.pxd
-
+from libc.stdint cimport int64_t, uint64_t
 cdef extern from "../include/bvgraph.h":
-    ctypedef long long bvg_long_int
     ctypedef struct bvgraph:
-        int n
-        bvg_long_int m
+        int64_t n
+        int64_t m
         pass
     ctypedef struct bvgraph_iterator:
-        int curr
+        int64_t curr
         pass
     ctypedef struct bvgraph_random_iterator:
         pass
@@ -26,14 +25,14 @@ cdef extern from "../include/bvgraph.h":
     # for sequential access
     int bvgraph_iterator_valid(bvgraph_iterator* i)
     int bvgraph_iterator_next(bvgraph_iterator* i)
-    int bvgraph_iterator_outedges(bvgraph_iterator* i, int** start, unsigned int* length)
+    int bvgraph_iterator_outedges(bvgraph_iterator* i, int64_t** start, uint64_t* length)
     int bvgraph_iterator_free(bvgraph_iterator *i)
 
-    int bvgraph_outdegree(bvgraph *g, int x, unsigned int *d)
-    int bvgraph_successors(bvgraph *g, int x, int** start, unsigned int *length)
+    int bvgraph_outdegree(bvgraph *g, int64_t x, uint64_t *d)
+    int bvgraph_successors(bvgraph *g, int64_t x, int64_t** start, uint64_t *length)
 
     # for random access
-    int bvgraph_random_outdegree(bvgraph_random_iterator *ri, int x, unsigned int *d)
-    int bvgraph_random_successors(bvgraph_random_iterator *ri, int x, int** start, unsigned int *length)
+    int bvgraph_random_outdegree(bvgraph_random_iterator *ri, int64_t x, uint64_t *d)
+    int bvgraph_random_successors(bvgraph_random_iterator *ri, int64_t x, int64_t** start, uint64_t *length)
     int bvgraph_random_free(bvgraph_random_iterator *ri)
 

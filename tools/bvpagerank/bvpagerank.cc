@@ -213,7 +213,7 @@ int mult(bvgraph *g, double *x, double *y, double alpha)
         return (-1);
     }
 
-    int *links; unsigned int i, d;
+    int64_t *links; uint64_t i, d;
     double id=0.0;
 
     for (; 
@@ -280,7 +280,7 @@ int dangling_mult(bvgraph *g, double *x, double *y, size_t n)
         return (-1);
     }
 
-    int *links; unsigned int i, d;
+    int64_t *links; uint64_t i, d;
     double id=0.0;
 
     for (; 
@@ -406,7 +406,7 @@ int updated_richardson_iter(bvgraph *g, double *x, double *y, double alpha, size
         return (-1);
     }
 
-    int *links; unsigned int i, d;
+    int64_t *links; uint64_t i, d;
     double id=0.0;
 
     for (; 
