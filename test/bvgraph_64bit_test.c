@@ -56,7 +56,7 @@ int main(int argc, char **argv)
            bvgraph_iterator_next(&iter))
        {
             bvgraph_iterator_outedges(&iter, &links, &d);
-            if (d > 0 && iter.curr < 1000) {
+            if (d > 0 && iter.curr <= 1000) {
                 int64_t sum = 10000000001;
                 if (sum - iter.curr != links[0]) {
                     printf("error when reading node = %" PRId64 "\n", iter.curr);
@@ -71,7 +71,7 @@ int main(int argc, char **argv)
     bvgraph_close(g);
     end = clock();
     time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
-    printf("64-bit sequential test took %f secs\n", time_spent);
+    printf("64-bit sequential test took %f secs, %ju clock cycles\n", time_spent, (uintmax_t)(end - begin));
     printf("Testing 64-bit bvgraph sequential read ... passed!\n");
     return 0;
 }
