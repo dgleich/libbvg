@@ -56,13 +56,15 @@ int main(int argc, char **argv)
            bvgraph_iterator_next(&iter))
        {
             bvgraph_iterator_outedges(&iter, &links, &d);
-            if (d > 0) {
+            if (d > 0 and iter.curr < 1000) {
                 int64_t sum = 10000000001;
-                if (iter.curr > 1000) { break; }
                 if (sum - iter.curr != links[0]) {
                     printf("error when reading node = %" PRId64 "\n", iter.curr);
                     return (-1);
                 }
+            }
+            else if (iter.curr > 1000) {
+                break;
             }       
        }
     }
