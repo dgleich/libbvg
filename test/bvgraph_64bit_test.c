@@ -43,6 +43,7 @@ int main(int argc, char **argv)
     bvgraph_close(g);*/
     clock_t begin, end;
     double time_spent;
+    int count = 0;
     begin = clock();
     rval = bvgraph_load(g, filename, filenamelen, -1);
     printf("#node = %" PRId64 ", #edges = %" PRId64 "\n", g->n, g->m);
@@ -51,7 +52,6 @@ int main(int argc, char **argv)
         bvgraph_iterator iter;
         int64_t *links = NULL;
         uint64_t d;
-        int count = 0;
         for (bvgraph_nonzero_iterator(g, &iter);
            bvgraph_iterator_valid(&iter);
            bvgraph_iterator_next(&iter))
