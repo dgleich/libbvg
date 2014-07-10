@@ -29,7 +29,7 @@
 
 #include "bvgraph_internal.h"
 #include "bvgraph_inline_io.h"
-#include <inttype.h>
+#include <inttypes.h>
 
 /**
  * Create a non-zero iterator for the bvgraph.  The non-zero iterator is 
