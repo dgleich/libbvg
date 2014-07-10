@@ -29,6 +29,7 @@
 
 #include "bvgraph_internal.h"
 #include "bvgraph_inline_io.h"
+#include <inttype.h>
 
 /**
  * Create a non-zero iterator for the bvgraph.  The non-zero iterator is 
@@ -328,7 +329,7 @@ int bvgraph_iterator_next(bvgraph_iterator* iter)
     int_vector_ensure_size(&iter->buf2, d);
 
 #ifdef MAX_DEBUG
-    fprintf(stderr, "** begin successors\ncurr = %ld\n", iter->curr);
+    fprintf(stderr, "** begin successors\ncurr = %"PRId64"\n", iter->curr);
 #endif 
             
     // we read the reference only if the actual window size is larger than one 
@@ -348,7 +349,7 @@ int bvgraph_iterator_next(bvgraph_iterator* iter)
         }
 
 #ifdef MAX_DEBUG
-    fprintf(stderr, "block_count = %ld\n", block_count);
+    fprintf(stderr, "block_count = %"PRId64"\n", block_count);
 #endif 
         // the number of successors copied, and the total number of successors specified
         // in some copy
@@ -405,7 +406,7 @@ int bvgraph_iterator_next(bvgraph_iterator* iter)
     buf2_index = 0;
 
 #ifdef MAX_DEBUG
-    fprintf("extra_count = %ld\ninterval_count = %ld\nref = %ld\n", extra_count, interval_count, ref);
+    fprintf("extra_count = %"PRId64"\ninterval_count = %"PRId64"\nref = %"PRId64"\n", extra_count, interval_count, ref);
 #endif 
     // read the residuals into a buffer
     {
