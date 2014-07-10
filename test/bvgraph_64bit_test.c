@@ -8,6 +8,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <inttypes.h>
+#include <time.h>
 
 // disable all of the unsafe operation warnings
 #ifdef _MSC_VER
@@ -40,7 +41,9 @@ int main(int argc, char **argv)
         printf("the graph %s requires %llu bytes to load into memory, offset_buff=%llu\n", filename, (long long)memrequired, (long long)offset_buff);
     }
     bvgraph_close(g);*/
-    
+    clock_t begin, end;
+    double time_spent;
+    begin = clock();
     rval = bvgraph_load(g, filename, filenamelen, -1);
     printf("#node = %" PRId64 ", #edges = %" PRId64 "\n", g->n, g->m);
     if (rval) { perror("error with partial load!"); }
@@ -64,6 +67,9 @@ int main(int argc, char **argv)
        }
     }
     bvgraph_close(g);
+    end = clock();
+    time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+    printf("64-bit sequential test took %f secs\n", time_spent);
     printf("Testing 64-bit bvgraph sequential read ... passed!\n");
     return 0;
 }
