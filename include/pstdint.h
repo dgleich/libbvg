@@ -547,7 +547,7 @@
  */
 
 #ifdef stdint_int64_defined
-#if !defined(_STDINT_H_) 
+#if !defined(__APPLE__) 
   typedef int64_t intmax_t;
   typedef uint64_t uintmax_t;
 #endif
@@ -723,7 +723,7 @@ typedef uint_least32_t uint_fast32_t;
 #  ifndef UINTPTR_C
 #    define UINTPTR_C(x)                stdint_intptr_glue3(UINT,stdint_intptr_bits,_C)(x)
 #  endif
-#if !defined(_STDINT_H_)
+#if !defined(__APPLE__)  
   typedef stdint_intptr_glue3(uint,stdint_intptr_bits,_t) uintptr_t;
   typedef stdint_intptr_glue3( int,stdint_intptr_bits,_t)  intptr_t;
 #endif 
