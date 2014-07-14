@@ -8,7 +8,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <inttypes.h>
-#include <time.h>
 
 // disable all of the unsafe operation warnings
 #ifdef _MSC_VER
@@ -41,10 +40,7 @@ int main(int argc, char **argv)
         printf("the graph %s requires %llu bytes to load into memory, offset_buff=%llu\n", filename, (long long)memrequired, (long long)offset_buff);
     }
     bvgraph_close(g);*/
-    clock_t begin, end;
-    double time_spent;
-    int count = 0;
-    begin = clock();
+    
     rval = bvgraph_load(g, filename, filenamelen, -1);
     printf("#node = %" PRId64 ", #edges = %" PRId64 "\n", g->n, g->m);
     if (rval) { perror("error with partial load!"); }
@@ -57,24 +53,16 @@ int main(int argc, char **argv)
            bvgraph_iterator_next(&iter))
        {
             bvgraph_iterator_outedges(&iter, &links, &d);
-            if (d > 0 && iter.curr <= 1000) {
+            if (d > 0) {
                 int64_t sum = 10000000001;
-                count ++;
-                if (sum - iter.curr != links[0]) {
+                if (sum - iter.curr != links[0] || d != 1)  {
                     printf("error when reading node = %" PRId64 "\n", iter.curr);
                     return (-1);
                 }
-            }
-            else if (iter.curr > 1000) {
-                break;
             }       
        }
     }
     bvgraph_close(g);
-    end = clock();
-    time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
-    printf("64-bit sequential test took %f secs, %ju clock cycles, %d nodes scanned\n", time_spent, (uintmax_t)(end - begin), count);
     printf("Testing 64-bit bvgraph sequential read ... passed!\n");
     return 0;
 }
-
