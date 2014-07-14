@@ -48,6 +48,7 @@ int main(int argc, char **argv)
         bvgraph_iterator iter;
         int64_t *links = NULL;
         uint64_t d;
+        int count = 0;
         for (bvgraph_nonzero_iterator(g, &iter);
            bvgraph_iterator_valid(&iter);
            bvgraph_iterator_next(&iter))
@@ -59,6 +60,12 @@ int main(int argc, char **argv)
                     printf("error when reading node = %" PRId64 "\n", iter.curr);
                     return (-1);
                 }
+                else {
+                    count ++;
+                }
+            }
+            if (count == 1000) {
+                break;
             }       
        }
     }
