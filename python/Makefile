@@ -10,7 +10,7 @@ clean:
 	../bvgraph2smat ../data/harvard500 -f smat
 
 test: ext ../data/harvard500.smat
-	python testunittest.py
 	python test_64bit_bvg.py ../test/bv_head_tail_1000
+	python testunittest.py
 	
 .PHONY: all clean test ext
