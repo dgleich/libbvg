@@ -11,5 +11,6 @@ clean:
 
 test: ext ../data/harvard500.smat
 	python testunittest.py
+	python test_64bit_bvg.py ../test/bv_head_tail_1000
 	
 .PHONY: all clean test ext
