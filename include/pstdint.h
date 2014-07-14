@@ -547,8 +547,10 @@
  */
 
 #ifdef stdint_int64_defined
+#if !defined(_STDINT_H_) 
   typedef int64_t intmax_t;
   typedef uint64_t uintmax_t;
+#endif
 # define  INTMAX_MAX   INT64_MAX
 # define  INTMAX_MIN   INT64_MIN
 # define UINTMAX_MAX  UINT64_MAX
@@ -721,8 +723,10 @@ typedef uint_least32_t uint_fast32_t;
 #  ifndef UINTPTR_C
 #    define UINTPTR_C(x)                stdint_intptr_glue3(UINT,stdint_intptr_bits,_C)(x)
 #  endif
+#if !defined(_STDINT_H_)
   typedef stdint_intptr_glue3(uint,stdint_intptr_bits,_t) uintptr_t;
   typedef stdint_intptr_glue3( int,stdint_intptr_bits,_t)  intptr_t;
+#endif 
 # else
 /* TODO -- This following is likely wrong for some platforms, and does
    nothing for the definition of uintptr_t. */
