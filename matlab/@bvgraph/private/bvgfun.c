@@ -35,11 +35,11 @@ int get_string_arg(const mxArray* arg, const char **str, mwSize *len)
     mwSize buflen;
     
     /* input must be a string */
-    if ( mxIsChar(arg) != 1)
+    if (mxIsChar(arg) != 1)
         return -1;
 
     /* input must be a row vector */
-    if (mxGetM(arg)!=1) 
+    if (mxGetM(arg) != 1) 
         return -1;
     
     /* get the length of the input string */
@@ -192,6 +192,11 @@ void sparse_bvgraph(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
     get_bvgraph_args(prhs[1], prhs[2], prhs[3], &g);
 
     plhs[0] = mxCreateSparseLogicalMatrix(g.n, g.n, g.m);
+    
+    if ((sizeof(mwIndex) < 8) && (g.n > (1 << 31))) {
+        mexErrMsgIdAndTxt("bvgfun:error",
+            "graph size too large for mwIndex");
+    }
     
     #if MX_API_VER >= 0x07030000 && !defined(MX_COMPAT_32)
     rval = bvgraph_csr_large(&g, mxGetJc(plhs[0]), mxGetIr(plhs[0]));
