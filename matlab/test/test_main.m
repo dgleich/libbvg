@@ -10,6 +10,7 @@ function test_main
 msgid = 'bvgraph:test';
 
 %% Make sure the library is compiled
+
 try
     G = bvgraph('../../data/wb-cs.stanford');
     fprintf('The library was already compiled!\n');
@@ -21,7 +22,6 @@ catch
         error('bvgraph:compileError','the library could not automatically compile!');
     end
 end
-
 
 %% Test the code documentation
 
@@ -37,7 +37,7 @@ end
 
 
 G = bvgraph('../../data/wb-cs.stanford');
-y = pagerank(G);
+y = bvpagerank(G);
 d = diag(G);
 
 n = size(G,1);
@@ -163,6 +163,5 @@ y_Gt = substochastic_mult(G',x);
 if norm(y_Pt-y_Gt,inf) > 100*eps(1)
     error(msgid,'stochastic_mult(tranpose) results are not correct to 100*eps');
 end
-
 
     
