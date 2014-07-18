@@ -9,7 +9,9 @@
 
 /**
  * @file bitfile.h
- * The main declarations for the bitfile interface.
+ * @author David Gleich
+ * @date 17 May 2007
+ * @brief The main declarations for the bitfile class.
  */
 
 /** History
@@ -24,38 +26,50 @@
 extern "C" {
 #endif      
 
+/**
+ * @struct bitfile_tag    
+ * @brief underly implementation of bitfile class       
+ */
 struct bitfile_tag {
     FILE* f;
-    unsigned char *buffer;  // buffer points to the current buffer
-    const unsigned char *memory;  // memory points to a preloaded file
-    int wrapping;    // true if wrapping a memory array
-    int use_buffer; // false if we shouldn't use the buffer
-    size_t bufsize; // the size of the buffer
+    unsigned char *buffer;  ///< buffer points to the current buffer
+    const unsigned char *memory;  ///< memory points to a preloaded file
+    int wrapping;    ///< true if wrapping a memory array
+    int use_buffer; ///< false if we shouldn't use the buffer
+    size_t bufsize; ///< the size of the buffer
     
-    size_t pos; // the position in the byte buffer;
-    size_t avail; // number of bytes available in the byte buffer
+    size_t pos; ///< the position in the byte buffer;
+    size_t avail; ///< number of bytes available in the byte buffer
     
-    size_t position; // current position of the first byte of the buffer
-    
-    // so the current position in the data is  
-    // bf->position  (location in file for start of buffer) 
-    // + bf->pos     (location in buffer)
+   /** @remarks
+    * so the current position in the data is  
+    * - bf -> position  (location in file for start of buffer) 
+    * - bf -> pos       (location in buffer)
+    */
+    size_t position; ///< current position of the first byte of the buffer
 
-    unsigned long long total_bits_read; // total bits read
+    unsigned long long total_bits_read; ///< total bits read
 
-    size_t current; // the current bit buffer
-    size_t fill; // current number of bits in the bit buffer
-    
-    // the bits current & (2 << fill - 1) yield the next bits
-    // in the file
-    // where the subsequent bits are exactly:
-    //   ((current & (1 << fill - 1)) >> (fill - 1)) & 1
-    //   ((current & (1 << fill - 1)) >> (fill - 2)) & 1
-    //   ...
-    //   ((current & (1 << fill - 1)) >> (fill - fill)) & 1
-    // see read_from_current in bitfile.c
+    size_t current; ///< the current bit buffer
+    /** @remarks
+     * the bits current & (2 << fill - 1) yield the next bits
+     * in the file, where the subsequent bits are exactly:
+     * \code
+     *   ((current & (1 << fill - 1)) >> (fill - 1)) & 1
+     *   ((current & (1 << fill - 1)) >> (fill - 2)) & 1
+     *   ...
+     *   ((current & (1 << fill - 1)) >> (fill - fill)) & 1
+     * \endcode
+     * see read_from_current in bitfile.c
+    */
+    size_t fill; ///< current number of bits in the bit buffer
 };
 
+/**
+ * @file bitfile.h
+ * @brief bitfile class
+ * @typedef bitfile
+ */
 typedef struct bitfile_tag bitfile;
 
 int bitfile_open(FILE* f, bitfile* bf);

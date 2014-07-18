@@ -10,6 +10,9 @@
 /**
  * @file bvgraph.h
  * This file is the main public header for LIBBVG
+ * @author David Gleich
+ * @date 17 May 2007
+ * @brief This file is the main public header for LIBBVG
  */
 
 /** History
@@ -26,6 +29,7 @@
  *           Added BVGRAPH_VERBOSE macro
  */
 
+
 #include "bitfile.h"
 
 //#define MAX_DEBUG
@@ -41,24 +45,34 @@
 extern "C" {
 #endif
 
+/**
+ * @brief compression flags for bvgraph
+ * The enum records all the possible compression options for bvgraph.
+ */
 
 enum bvgraph_compression_flag_tag {
-    BVGRAPH_FLAG_DELTA = 1,
-    BVGRAPH_FLAG_GAMMA = 2,
-    BVGRAPH_FLAG_GOLOMB = 3,
-    BVGRAPH_FLAG_SKEWED_GOLOMB = 4,
-    BVGRAPH_FLAG_ARITH = 5,
-    BVGRAPH_FLAG_INTERP = 6,
-    BVGRAPH_FLAG_UNARY = 7,
-    BVGRAPH_FLAG_ZETA = 8,
-    BVGRAPH_FLAG_NIBBLE = 9,
+    BVGRAPH_FLAG_DELTA = 1,  ///< \delta coding
+    BVGRAPH_FLAG_GAMMA = 2,  ///< \gamma coding
+    BVGRAPH_FLAG_GOLOMB = 3, ///< Golomb coding 
+    BVGRAPH_FLAG_SKEWED_GOLOMB = 4,  ///< skewed Golomb coding
+    BVGRAPH_FLAG_ARITH = 5,  ///< arith coding
+    BVGRAPH_FLAG_INTERP = 6, ///< interp coding
+    BVGRAPH_FLAG_UNARY = 7,  ///< unary coding
+    BVGRAPH_FLAG_ZETA = 8,   ///< \zeta coding
+    BVGRAPH_FLAG_NIBBLE = 9, ///< variable-length nibble coding
 };
 
+/**
+ * \typedef bvgraph_compression_flag
+ */
 typedef enum bvgraph_compression_flag_tag bvgraph_compression_flag;
 
-/** The main bvgraph structure represents a Boldi-Vigna graph file in memory.
+/**
+ * @brief bvgraph structure class
  * 
+ * The main bvgraph structure represents a Boldi-Vigna graph file in memory. 
  * You should use this structure through its alias bvgraph instead.
+ * @struct bvgraph_tag
  */
 struct bvgraph_tag {
     // graph name information
@@ -66,9 +80,9 @@ struct bvgraph_tag {
     unsigned int filenamelen;
 
     // graph size information
-    int64_t n; // both n and m shoud be 64-bit integers
-    int64_t m;
-    int64_t max_outd;   // max_outd = 0 if it is unknown
+    int64_t n; ///< number of nodes
+    int64_t m; ///< number of edges
+    int64_t max_outd;   /// max out degree, max_outd = 0 if it is unknown
 
     // graph compression parameters
     int max_ref_count;
@@ -84,7 +98,7 @@ struct bvgraph_tag {
     enum bvgraph_compression_flag_tag offset_coding;
 
     // graph load information
-    int offset_step;
+    int offset_step; ///< -1: not store graph in memory; 0: store graph; 1: store offset
 
     unsigned char* memory;
     size_t memory_size;
@@ -94,7 +108,10 @@ struct bvgraph_tag {
     int offsets_external;
 };
 
-/** A simple integer vector type used in the iterator.
+/** 
+ * @struct bvgraph_int_vector_tag
+ * @brief iternal struct for bvgraph_int_vector
+ * A simple integer vector type used in the iterator.
  * 
  * This type is internal, you should not use it.  I could have made the type
  * opaque and hidden it through internal linking and other such techniques.
@@ -107,7 +124,10 @@ struct bvgraph_int_vector_tag {
     int64_t* a;
 };
 
-/** A sequential access iterator for the bvgraph.
+/**
+ * @struct bvgraph_iterator_tag
+ * @brief implementation of bvgraph_iterator
+ * A sequential access iterator for the bvgraph.
  *
  * Use this type through its alias bvgraph_iterator.
  *
@@ -116,7 +136,7 @@ struct bvgraph_int_vector_tag {
  */
 struct bvgraph_iterator_tag {
     // variables that will be maintained for a public interface
-    int64_t curr;
+    int64_t curr;   ///< current node id
     struct bvgraph_tag* g;
     bitfile bf;
 
@@ -133,14 +153,22 @@ struct bvgraph_iterator_tag {
     struct bvgraph_int_vector_tag block, left, len, buf1, buf2;
 };
 
+/**
+ * @struct successor
+ * @brief successor struct
+ */
+
 struct successor{
-    int64_t node;   // key
-    int64_t* a;     // successors
-    int64_t d;      // number of degree
-    int loaded;   // number of usage
+    int64_t node;   ///< key
+    int64_t* a;     ///< a list of successors
+    int64_t d;      ///< number of degree
+    int loaded;   ///< number of usage
 };
 
-/** A random access iterator for the bvgraph.
+/** 
+ * @struct bvgraph_random_iterator_tag
+ * @brief implementation of bvgraph_random_iterator
+ * A random access iterator for the bvgraph.
  *
  * Use this type through its alias bvgraph_iterator.
  *
@@ -149,31 +177,30 @@ struct successor{
  */
 struct bvgraph_random_iterator_tag {
     // variables that will be maintained for a public interface
-    int64_t curr;
+    int64_t curr;   ///< current node id
     struct bvgraph_tag* g;
     
 
     // implementation dependent variables
 
     // maintain two bitfiles, one for the the outdegrees, one for successors
-    bitfile bf;
-    bitfile outd_bf;
+    bitfile bf;        ///< bitfile for successors
+    bitfile outd_bf;   ///< bitfile for outdegrees
 
     int offset_step;
     int64_t *offsets;
 
-    // a cache for outdegrees
-    int64_t* outd_cache;
-    // the endpoint of the outdegree cache
-    int64_t outd_cache_end;
-    // a cache for offests
-    int64_t* offset_cache;
-    // the end of the offset cache
-    int64_t offset_cache_end;
-    // the start of both caches
-    int64_t cache_start;
-    // a cache for successors
-    struct successor *successors_cache;
+    int64_t* outd_cache; ///< a cache for outdegrees
+    
+    int64_t outd_cache_end; ///< the endpoint of the outdegree cache
+    
+    int64_t* offset_cache; ///< a cache for offests
+    
+    int64_t offset_cache_end; ///< the end of the offset cache
+    
+    int64_t cache_start;  ///< the start of both caches
+    
+    struct successor *successors_cache; ///< a cache for successors
 
     // a table to maintain the top k loaded nodes
     // int* top_loaded;
@@ -190,6 +217,10 @@ struct bvgraph_random_iterator_tag {
     struct bvgraph_int_vector_tag block, left, len, buf1, buf2;
 };
 
+/**
+ * @struct bvgraph_parallel_iterators_tag
+ * @brief implementation of bvgraph_parallel_iterators
+ */
 
 struct bvgraph_parallel_iterators_tag {
     int niters;
