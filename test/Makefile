@@ -7,7 +7,7 @@ LDFLAGS += -L../
 allcfiles := $(wildcard *.c)
 allprogs := $(allcfiles:.c=)
 
-all: $(allprogs) test #test_big_mem
+all: $(allprogs) test test_big_mem
 small: $(allprogs) test 
 clean: 
 	rm -rf $(allprogs) $(allcfiles:.c=.o)
