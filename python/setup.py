@@ -35,8 +35,24 @@ ext_modules = [
 
 setup (
     name = 'python interface for libbvg',
-    version = '2.0.0',
-    author = 'David F. Gleich and Wei-Yen Day',
+    version = '2.0.1',
+    author = 'David F. Gleich, Wei-Yen Day and Yongyang Yu',
+    url = 'https://github.com/dgleich/libbvg',
+    long_description = open('README.md').read(),
+    keywords = 'python interface for decompressing bvgraph',
     cmdclass = {'build_ext': build_ext, 'clean': clean},
+    classifiers=[
+            'Development Status :: 4 - Beta',
+            'Intended Audience :: Developers',
+            'Programming Language :: Python',
+            'Programming Language :: Python :: 2',
+            'Programming Language :: Python :: 2.6',
+            'Programming Language :: Python :: 2.7',
+            'Programming Language :: Python :: 3',
+            'Programming Language :: Python :: 3.1',
+            'Programming Language :: Python :: 3.2',
+            'Programming Language :: Python :: 3.3',
+            'Programming Language :: Cython',
+        ],
     ext_modules = ext_modules
 )
