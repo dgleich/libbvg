@@ -19,8 +19,8 @@ clean:
 refill_test: refill_test.o
 check_bvgraph: check_bvgraph.o
 
-#test_big_mem: bv_line.graph
-#	./bvgraph_64bit_random_test ../data/bv_line
+test_big_mem: bv_line.graph
+	./bvgraph_64bit_random_test ../data/bv_line
 
 test: bv_head_tail_1000.graph
 	./bitfile_test
@@ -31,8 +31,8 @@ test: bv_head_tail_1000.graph
 	./check_bvgraph ../data/wb-cs.stanford random 10000
 	./bvgraph_64bit_test bv_head_tail_1000
 
-#bv_line.graph: bv_line.graph.bz2
-#	bzip2 -d -k bv_line.graph.bz2
+bv_line.graph: bv_line.graph.bz2
+	bzip2 -d -k bv_line.graph.bz2
 
 bv_head_tail_1000.graph: bv_head_tail_1000.graph.bz2
 	bzip2 -d -k bv_head_tail_1000.graph.bz2	
