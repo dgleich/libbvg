@@ -10,8 +10,9 @@
 /**
  * @file bvgraph_internal.h
  * Prototype a series of internal routines for the bvgraph library
- */
-/** History 
+ *
+ * @version
+ * 
  *  2008-05-08: Added int_vector_create_copy
  */ 
 
