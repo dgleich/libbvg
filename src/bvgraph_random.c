@@ -8,9 +8,11 @@
  * @file bvgraph_random.c
  * Implement the set of routines to work with the bvgraph 
  * with random access, but only when offset_step = 1
- */
-
-/** History
+ * @author David Gleich
+ * @date 10 March 2008
+ * @brief implementation of routines for bvgraph with random access
+ *
+ * @version
  *
  * 2008-03-10: Coding started
  */
@@ -80,9 +82,10 @@ static int position_bvgraph(bvgraph_random_iterator *ri, int64_t x, uint64_t *d)
  * This operation just modifies the special outdegree specific bitfile
  * and not the successor bitfile.  
  * 
- * @param ri a random access iterator for the graph
- * @param i the index of the node (i in [0,g->n-1])
+ * @param[in] ri a random access iterator for the graph
+ * @param[in] i the index of the node (i in [0,g->n-1])
  * @param[out] d the node degree.
+ * @return 0 on success
  */
 int bvgraph_random_outdegree(bvgraph_random_iterator *ri, 
                              int64_t i, uint64_t *d)
@@ -120,11 +123,12 @@ int bvgraph_random_outdegree(bvgraph_random_iterator *ri,
  * iterator.  (Don't worry though, it doesn't touch the underlying graph, so 
  * please do use one random iterator for each thread in your code.)
  * 
- * @param ri a random access iterator for the graph
- * @param x the index of the node (i in [0,g->n-1])
+ * @param[in] ri a random access iterator for the graph
+ * @param[in] x the index of the node (i in [0,g->n-1])
  * @param[out] start a pointer to internal memory for an array of length
  *                   len for the successors.  DO NOT MODIFY THIS ARRAY.
  * @param[out] len the node degree.
+ * @return 0 on success
  */
 int bvgraph_random_successors(bvgraph_random_iterator *ri, 
                              int64_t x, int64_t** start, uint64_t *length)
@@ -384,7 +388,7 @@ int bvgraph_random_successors(bvgraph_random_iterator *ri,
 
 /** Release memory associated with the random iterator.
  *
- * @param ri the random iterator
+ * @param[in] ri the random iterator
  * @return 0 on success
  */
 int bvgraph_random_free(bvgraph_random_iterator* ri)

@@ -8,9 +8,11 @@
  * @file bitfile.c
  * The implementations behind the bitfile wrapper around 
  * a file pointer and an in-memory array.
- */
- 
- /** History
+ * @author David Gleich
+ * @date 17 May 2007
+ * @brief implementions of interfaces in bitfile.h
+ *
+ * @version
  *
  * 2007-07-02: Commented out the refill codes to prevent gcc warning
  * 2008-03-10: Added skip_bytes section for portable byte skips
@@ -49,7 +51,7 @@ const int BYTELSB[] = {
         4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
         5, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
         4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0
-};
+}; ///< the position of the least significant bit of 1
     
 const int BYTEMSB[] = {
         -1, 0, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 
@@ -68,7 +70,7 @@ const int BYTEMSB[] = {
         7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 
         7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 
         7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7
-};
+}; ///< the position of the most significant bit of 1
 
 // pre-computed table for gamma encoding
 //int GAMMA[256*256];
@@ -81,8 +83,8 @@ const int BYTEMSB[] = {
  * If the size of the file is less than the number of bytes, this returns
  * less than n. 
  * 
- * @param f the file stream to skip n bytes
- * @param n the number of bytes to skip.
+ * @param[in] f the file stream to skip n bytes
+ * @param[in] n the number of bytes to skip.
  * @return the number of bytes skipped, or 
  *         negative values to indicator an error
  */
@@ -110,6 +112,11 @@ long long skip_bytes(FILE *f, long long n)
 }
 
 /** Position a stream at a particular byte
+ * @param[in] f the file stream to seek
+ * @param[in] n number of bytes
+ * @return On successful completion, position_stream()
+ * returns 0. Otherwise, -1 is returned and `errno` is set 
+ * to indicate the error.
  */
 int position_stream(FILE *f, unsigned long long n) {
 #if defined(_MSC_VER)
@@ -131,17 +138,18 @@ const int bitfile_default_buffer_size = 16*1024;
  * Wrap a file pointer as a bitstream.  The wrapping provides
  * access to the sequential bits of the file.
  *
- * @param f the open and valid file pointer.  
- * @param bf the newly created bitfile structure.
- * @rval 0 if everything succeeded
+ * @param[in] f the open and valid file pointer.  
+ * @param[in] bf the newly created bitfile structure.
+ * @return 0 if everything succeeded
  * 
- * @example
+ * @code
  * FILE *f;
  * bitfile bf;
  * int state
  * f = fopen("myfile","rb");
  * state = bitfile_open(f,&bf);
  * if (state) { // error! }
+ * @endcode
  */
 int bitfile_open(FILE* f, bitfile* bf)
 {
@@ -164,11 +172,11 @@ int bitfile_open(FILE* f, bitfile* bf)
  * Wrap an exisiting array as a bitfile.  The result is something that acts
  * just like a bitfile, but never actually touches the underlying disk.
  *
- * @param mem the in memory array
- * @param len the length of the in memory array
- * @param bf the newly created bitfile structure
+ * @param[in] mem the in memory array
+ * @param[in] len the length of the in memory array
+ * @param[in] bf the newly created bitfile structure
  * @return 0 if everything succeeded
- * @example
+ * @code
  * int mem = ; // encode the first 5 digits of pi in unary
  * bitfile bf;
  * bitfile_map((void *)&mem, 4, &bf);
@@ -178,6 +186,7 @@ int bitfile_open(FILE* f, bitfile* bf)
  *   bitfile_read_unary(bf), 
  *   bitfile_read_unary(bf), 
  *   bitfile_read_unary(bf));
+ * @endcode
  */
 int bitfile_map(unsigned char* mem, size_t len, bitfile *bf)
 {
@@ -197,7 +206,7 @@ int bitfile_map(unsigned char* mem, size_t len, bitfile *bf)
  * Close a bitfile structure which will free any memory allocated for the
  * structure.
  * 
- * @param bf the bitfile
+ * @param[in] bf the bitfile
  * @return 0 on success 
  */
 int bitfile_close(bitfile* bf)
@@ -208,7 +217,7 @@ int bitfile_close(bitfile* bf)
 
 /**
  * Flush a bitfile, which allows the underlying stream to be repositioned.
- * @param bf the bitfile
+ * @param[in] bf the bitfile
  * @return 0 on success
  */
 int bitfile_flush(bitfile* bf)
@@ -226,8 +235,8 @@ int bitfile_flush(bitfile* bf)
 /**
  * Read the next byte from the underlying stream but don't update total_bits_read.
  *
- * @param bf the bitfile
- * @rval the byte
+ * @param[in] bf the bitfile
+ * @return the next byte of the underlying stream
  */
 static int bitfile_read(bitfile* bf)
 {
@@ -258,7 +267,7 @@ static int bitfile_read(bitfile* bf)
  * *if possible* given the current state of the file.  It will
  * return the size of the fill
  * 
- * @param bf the bitfile
+ * @param[in] bf the bitfile
  * @return the current value of fill.
  */
  
@@ -361,15 +370,22 @@ static int refill(bitfile* bf)
 
 /** Positions the stream at a particular bit.
  *
- * <P>Given an underlying stream that implements {@link
- * RepositionableStream} or that can provide a {@link
- * java.nio.channels.FileChannel} via the <code>getChannel()</code> method,
- * a call to this method has the same semantics of a {@link #flush()},
- * followed by a call to {@link
- * java.nio.channels.FileChannel#position(long) position(position / 8)} on
- * the byte stream, followed by a {@link #skip(long) skip(position % 8)}.
+ * <P>Given an underlying stream that implements [RepositionableStream][1]
+ * or that can provide a [java.nio.channels.FileChannel][2]
+ * via the <code>getChannel()</code> method,
+ * a call to this method has the same semantics of a [flush()][3],
+ * followed by a call to [position(position / 8)][4] on
+ * the byte stream, followed by a [skip(position % 8)][5].
  *
- * @param position the new position expressed as a bit offset.
+ * @param[in] bf the bitfile
+ * @param[in] position the new position expressed as a bit offset.
+ * @return 0 if everything succeeded
+ *
+ * [1]: http://fastutil.di.unimi.it/docs/it/unimi/dsi/fastutil/io/RepositionableStream.html
+ * [2]: http://docs.oracle.com/javase/7/docs/api/java/nio/channels/FileChannel.html
+ * [3]: http://dsiutils.di.unimi.it/docs/it/unimi/dsi/io/InputBitStream.html#flush()
+ * [4]: http://docs.oracle.com/javase/7/docs/api/java/nio/channels/FileChannel.html#position(long)
+ * [5]: http://dsiutils.di.unimi.it/docs/it/unimi/dsi/io/InputBitStream.html#skip(long) 
  */
 int bitfile_position(bitfile* bf, const long long position)
 {
@@ -407,6 +423,7 @@ int bitfile_position(bitfile* bf, const long long position)
 }
 
 /** Return the current position
+ * @param[in] bf the bitfile
  * @return the number of bits current into the bitfile
  */
 long long bitfile_tell(bitfile *bf)
@@ -416,7 +433,8 @@ long long bitfile_tell(bitfile *bf)
 
 /** Skips the given number of bits. 
  *
- * @param n the number of bits to skip.
+ * @param[in] bf the bitfile
+ * @param[in] n the number of bits to skip.
  * @return @c on success, the number of bits skipped, 
  *         @c on failure, a negative number
  */
@@ -496,12 +514,21 @@ long long bitfile_skip(bitfile* bf, long long n)
 /** Skips a given number of &gamma;-coded integers.
  *
  * <p>This method should be significantly quicker than iterating <code>n</code> times on
- * {@link #readGamma()} or {@link #readLongGamma()}, as precomputed tables are used directly,
+ * [readGamma()][1]
+ * or [readLongGamma()][2], 
+ * as precomputed tables are used directly,
  * so the number of method calls is greatly reduced, and the result is discarded, so
- * {@link #skip(long)} can be invoked instead of more specific decoding methods.
+ * [skip(long)][3]
+ * can be invoked instead of more specific decoding methods.
  * 
- * @param n the number of &gamma;-coded integers to be skipped.
- * @see #readGamma()
+ * @param[in] bf the bitfile
+ * @param[in] n the number of &gamma;-coded integers to be skipped.
+ * @see [readGamma()][4]
+ *
+ * [1]: http://dsiutils.di.unimi.it/docs/it/unimi/dsi/io/InputBitStream.html#readGamma()
+ * [2]: http://dsiutils.di.unimi.it/docs/it/unimi/dsi/io/InputBitStream.html#readLongGamma()
+ * [3]: http://dsiutils.di.unimi.it/docs/it/unimi/dsi/io/InputBitStream.html#skip(long)
+ * [4]: http://dsiutils.di.unimi.it/docs/it/unimi/dsi/io/InputBitStream.html#readGamma()
  */
 int bitfile_skip_gammas(bitfile* bf, int n)
 {
@@ -523,14 +550,18 @@ int bitfile_skip_gammas(bitfile* bf, int n)
 /** Skips a given number of &delta;-coded integers.
  * 
  * <p>This method should be significantly quicker than iterating <code>n</code> times on
- * {@link #readDelta()} or {@link #readLongDelta()}, as precomputed tables are used directly,
+ * [readDelta()][1] or [readLongDelta()][2], as precomputed tables are used directly,
  * so the number of method calls is greatly reduced, and the result is discarded, so
- * {@link #skip(long)} can be invoked instead of more specific decoding methods.
+ * [skip(long)][3] can be invoked instead of more specific decoding methods.
  *
- * @param bf the bitfile 
- * @param n the number of &delta;-coded integers to be skipped.
+ * @param[in] bf the bitfile 
+ * @param[in] n the number of &delta;-coded integers to be skipped.
  * @return 0 on success
- * @see #readDelta()
+ * @see [readDelta()][1]
+ *
+ * [1]: http://dsiutils.di.unimi.it/docs/it/unimi/dsi/io/InputBitStream.html#readDelta()
+ * [2]: http://dsiutils.di.unimi.it/docs/it/unimi/dsi/io/InputBitStream.html#readLongDelta()
+ * [3]: http://dsiutils.di.unimi.it/docs/it/unimi/dsi/io/InputBitStream.html#skip(long)
  */
 int bitfile_skip_deltas(bitfile* bf, int n)
 {
@@ -568,7 +599,7 @@ static int read_from_current(bitfile *bf, const size_t len)
             
 /**
  * Read a single bit.
- * @param bf the bitfile
+ * @param[in] bf the bitfile
  * @return the bit
  */
 int bitfile_read_bit(bitfile* bf)
@@ -578,8 +609,8 @@ int bitfile_read_bit(bitfile* bf)
 
 /**
  * Read a set of bits and interpret them as a non-negative integer value.
- * @param bf the bitfile
- * @param len the number of bits
+ * @param[in] bf the bitfile
+ * @param[in] len the number of bits
  * @return the non-negative integer represented by the bits
  */
 int64_t bitfile_read_int(bitfile* bf, unsigned int len)
@@ -608,7 +639,7 @@ int64_t bitfile_read_int(bitfile* bf, unsigned int len)
 /**
  * Read a unary value, which is a series of 0s and then terminated by
  * a one.  The value is the number of 0 bits.
- * @param bf the bitfile
+ * @param[in] bf the bitfile
  * @return the value in unary
  */
 int bitfile_read_unary(bitfile* bf)
@@ -649,7 +680,7 @@ int bitfile_read_unary(bitfile* bf)
 
 /**
  * Read a gamma coded integer.
- * @param bf the bitfile
+ * @param[in] bf the bitfile
  * @return the value of the gamma coded integer
  */
 int64_t bitfile_read_gamma(bitfile* bf)
@@ -666,8 +697,8 @@ int64_t bitfile_read_gamma(bitfile* bf)
 }
 /**
  * Read a zeta coded integer.
- * @param bf the bitfile
- * @param k the parameter k in the gamma code.
+ * @param[in] bf the bitfile
+ * @param[in] k the parameter k in the gamma code.
  * @return the value of the zeta(k) coded integer.
  */
 int64_t bitfile_read_zeta(bitfile* bf, const int k)
@@ -695,7 +726,7 @@ int64_t bitfile_read_zeta(bitfile* bf, const int k)
 
 /**
  * Read a nibbled coded integer.
- * @param bf the bitfile
+ * @param[in] bf the bitfile
  * @return the nibble coded integer.
  */
 int64_t bitfile_read_nibble(bitfile* bf)

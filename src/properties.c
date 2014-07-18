@@ -8,10 +8,12 @@
  * @file properties.c
  * This is a set of routines to manage the properties file 
  * and parse a java property file in c.
- */
-
-/** History
+ * @author David Gleich
+ * @date 17 May 2007
+ * @brief parse java property file
  *
+ * @version
+ * 
  * 2007-05-30
  * Implemented parse_compression_flags
  * Updated parse_properties to use correct length of 
@@ -38,6 +40,12 @@
 #include <stddef.h>
 
 #if defined(_MSC_VER) && (_MSC_VER < 1400) || defined(__APPLE_CC__)
+/**
+ * Define strnlen for MSVC and APPLE_CC
+ * @param[in] s the C string
+ * @param[in] l length
+ * @return the number of character scanned
+ */
 size_t strnlen(const char *s, size_t l)
 {
     size_t r=0;
@@ -56,8 +64,8 @@ char return_error_string[] = "error string";
 /**
  * A property key is any set of characters 
  *
- * @param f the property file
- * @param maxproplen the maximum length of a property
+ * @param[in] f the property file
+ * @param[in] maxproplen the maximum length of a property
  * @return a string for the property 
  * (the CALLER is responsible for freeing the memory)
  */
@@ -145,7 +153,9 @@ char* parse_property_key(FILE *f, uint maxproplen)
  * For a value of length larger than maxvallen, only the first
  * maxvallen characters are returned.  The output is always 
  * null-terminated.
- *
+ * 
+ * @param[in] f the property file
+ * @param[in] maxvallen the maximum length of a value
  * @return NULL indicates that an allocation error occurred,
  * return_error_string indicates that the file is not a valid
  * java property file, and any other return value is a valid
@@ -258,10 +268,11 @@ char* parse_property_value(FILE *f, uint maxvallen)
  * Searches through the string str with length len starting
  * from the internal pointer pos.  
  *
- * @param str the string
- * @param len the length of str
- * @param pos a valid pointer into str 
- * @param c the character
+ * @param[in] str the string
+ * @param[in] len the length of str
+ * @param[in] pos a valid pointer into str 
+ * @param[in] c the character
+ * @return NULL if not found
  */
 const char* strchrnp(const char* str, uint len, const char* pos, int c)
 {
@@ -271,6 +282,9 @@ const char* strchrnp(const char* str, uint len, const char* pos, int c)
 }
 
 /** Implement a small min helper function to aid cross-platform compiles
+ * @param[in] a
+ * @param[in] b
+ * @return the smaller of a and b
  */
 size_t minf(ptrdiff_t a, size_t b) { return a<(ptrdiff_t)b?(size_t)a:b; }
 
@@ -287,9 +301,9 @@ size_t minf(ptrdiff_t a, size_t b) { return a<(ptrdiff_t)b?(size_t)a:b; }
  * To parse the compression flags, we split the string based on 
  * the "|" characters and then match the internal strings.
  *
- * @param g the graph structure for the flag
- * @param flagstr the string encoding the flags
- * @param len the length of the string
+ * @param[in] g the graph structure for the flag
+ * @param[in] flagstr the string encoding the flags
+ * @param[in] len the length of the string
  * @return 0 on success
  */
 int parse_compression_flags(bvgraph* g, const char* flagstr, uint len)
@@ -367,6 +381,8 @@ int parse_compression_flags(bvgraph* g, const char* flagstr, uint len)
  * operation will fill in the various fields of the bvgraph structure.
  *
  * This code implements a full parsing of a JAVA property file.
+ * @param[in] g the graph
+ * @return 0 on success
  */
 int parse_properties(bvgraph* g)
 {

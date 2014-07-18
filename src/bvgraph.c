@@ -7,9 +7,12 @@
 /**
  * @file bvgraph.c
  * Implement all the routines to work with bvgraph files in the bvg library.
- */
- 
-/** History
+ * @author David Gleich
+ * @date 17 May 2007
+ * @brief implementation the routines in bvgraph.h
+ *
+ * @version
+ *
  *  01-24-2008: Added function to initialize structure memory to fix a 
  *              segfault on the 32-bit version.
  */
@@ -21,17 +24,17 @@
  * Define all the error codes
  */
 
-const int bvgraph_call_out_of_memory = -1;
-const int bvgraph_call_io_error = -2;
-const int bvgraph_call_unsupported = -3;
-const int bvgraph_load_error_filename_too_long = 11;
-const int bvgraph_load_error_buffer_too_small = 12;
-const int bvgraph_property_file_error = 21;
-const int bvgraph_unsupported_version = 22;
-const int bvgraph_property_file_compression_flag_error = 23;
-const int bvgraph_vertex_out_of_range = 31;
-const int bvgraph_requires_offsets = 32;
-const int bvgraph_unsupported_coding = 33;
+const int bvgraph_call_out_of_memory = -1;          ///< error code for call out of memory
+const int bvgraph_call_io_error = -2;               ///< error code for io error
+const int bvgraph_call_unsupported = -3;            ///< error code for unsupported call
+const int bvgraph_load_error_filename_too_long = 11;///< error code for file name too long
+const int bvgraph_load_error_buffer_too_small = 12; ///< error code for buffer too small
+const int bvgraph_property_file_error = 21;         ///< error code for property file 
+const int bvgraph_unsupported_version = 22;         ///< error code for unsupported version
+const int bvgraph_property_file_compression_flag_error = 23;  ///< error code for property file compression flag
+const int bvgraph_vertex_out_of_range = 31;         ///< error code for vertex out of range
+const int bvgraph_requires_offsets = 32;            ///< error code for missing offsets
+const int bvgraph_unsupported_coding = 33;          ///< error code for unsupported coding method
 
 /**
  * This function sets the default options in a graph
@@ -45,6 +48,11 @@ static void set_defaults(bvgraph *g)
     g->max_ref_count = 3;
 }
 
+/**
+ * Create a new bvgraph in the memory.
+ * @return A pointer to the newly created bvgraph in the memory.
+ */
+
 bvgraph *bvgraph_new(void)
 {
     bvgraph *g;
@@ -52,6 +60,11 @@ bvgraph *bvgraph_new(void)
 
     return (g);
 }
+
+/**
+ * Free a bvgraph in the memory.
+ * @param[in] g a pointer to the bvgraph in the memory
+ */
 
 void bvgraph_free(bvgraph *g)
 {
@@ -63,18 +76,19 @@ void bvgraph_free(bvgraph *g)
  * Load the metadata associated with a bvgraph.  Largely, this involves
  * just parsing the properties files.
  *
- * @param g a newly created bvgraph structure
- * @param filename the base filename for a set of bvgraph files, 
+ * @param[in] g a newly created bvgraph structure
+ * @param[in] filename the base filename for a set of bvgraph files, 
  * so filename.graph and filename.properties must exist.
- * @param offset_step controls how many offsets are loaded, 
+ * @param[in] offset_step controls how many offsets are loaded, 
  * if offset_step = -1, then the graph file isn't loaded into memory
  * if offset_step = 0, then the graph file is loaded, but no offsets
  * no other values are supported at the moment.
- * @return 0 if successful
+ * @return 0 if successful;
  * bvgraph_load_error_filename_too_long - indicates the filename was too long
  *
- * @example
+ * @code
  * bvgraph g; bvgraph_load(&b, "cnr-2000", 0);
+ * @endcode
  */
 int bvgraph_load(bvgraph* g, const char *filename, unsigned int filenamelen, int offset_step)
 {
@@ -97,21 +111,20 @@ int bvgraph_load(bvgraph* g, const char *filename, unsigned int filenamelen, int
  * and then call bvgraph_required_memory with an alternative
  * offset step.
  *
- * @param g the bvgraph structure
- * @param g a newly created bvgraph structure
- * @param filename the base filename for a set of bvgraph files, 
+ * @param[in] g a newly created bvgraph structure
+ * @param[in] filename the base filename for a set of bvgraph files, 
  * so filename.graph and filename.properties must exist.
- * @param offset_step controls how many offsets are loaded, 
+ * @param[in] offset_step controls how many offsets are loaded, 
  * if offset_step = -1, then the graph file isn't loaded into memory
  * if offset_step = 0, then the graph file is loaded, but no offsets
  * no other values are supported at the moment.
- * @param gmemory an arry of size gmemsize for the graph 
+ * @param[in] gmemory an arry of size gmemsize for the graph 
  * (if NULL, then this parameter is treated as internal memory)
- * @param gmemsize the size of the gmemory block
- * @param offsets an array of offsets
+ * @param[in] gmemsize the size of the gmemory block
+ * @param[in] offsets an array of offsets
  * (if NULL, then this parameter is treated as internal memory)
- * @param offsetssize the number of offsets
- * @return 0 if successful
+ * @param[in] offsetssize the number of offsets
+ * @return 0 if successful;
  * bvgraph_load_error_filename_too_long - indicates the filename was too long
  */
 int bvgraph_load_external(bvgraph *g,
@@ -251,9 +264,9 @@ int bvgraph_load_external(bvgraph *g,
  * iterators should be closed before closing the graph, but this is only
  * recommended to avoid bugs.
  *
- * TODO Implement a "valid" function that all the iterators would check?
+ * @todo Implement a "valid" function that all the iterators would check?
  *
- * @param g the graph
+ * @param[in] g the graph
  * @return 0 on success
  */
 int bvgraph_close(bvgraph* g)
@@ -273,10 +286,10 @@ int bvgraph_close(bvgraph* g)
  * with offset_step = -1, and then call this function to determine
  * how much additional memory is required.  
  *
- * @param g the graph
- * @param offset_step the new offset_step value
- * @param gbuf the size of the graph buffer
- * @param offsetbuf the size of the offset buffer
+ * @param[in] g the graph
+ * @param[in] offset_step the new offset_step value
+ * @param[out] gbuf the size of the graph buffer
+ * @param[out] offsetbuf the size of the offset buffer
  * @return 0 on success
  */
 int bvgraph_required_memory(bvgraph *g, int offset_step, size_t *gbuf, size_t *offsetbuf)
@@ -319,8 +332,8 @@ int bvgraph_required_memory(bvgraph *g, int offset_step, size_t *gbuf, size_t *o
  *
  * To use this method, the graph must be loaded with offsets.
  *
- * @param g the bvgraph structure with offsets loaded
- * @param x the node
+ * @param[in] g the bvgraph structure with offsets loaded
+ * @param[in] x the node
  * @param[out] d the outdegree
  * @return 0 on success
  */
@@ -345,8 +358,8 @@ int bvgraph_outdegree(bvgraph *g, int64_t x, uint64_t *d)
  *
  * To use this method, the graph must be loaded with offsets.
  *
- * @param g the bvgraph structure with offsets loaded
- * @param x the node
+ * @param[in] g the bvgraph structure with offsets loaded
+ * @param[in] x the node
  * @param[out] start the starting point of successor list
  * @param[out] length the length of successor list (degree)
  * @return 0 on success
@@ -369,7 +382,7 @@ int bvgraph_successors(bvgraph *g, int64_t x, int64_t** start, uint64_t *length)
 /**
  * Return an error string associated with an error code.
  * 
- * @param code the error code
+ * @param[in] code the error code
  * @return the pointer to a string associated with an error code.
  */
 const char* bvgraph_error_string(int code)

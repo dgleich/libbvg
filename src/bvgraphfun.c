@@ -7,10 +7,15 @@
 /**
  * @file bvgraphfun.c
  * Routines to manipulate a bvgraph like a matrix.
- */
-
-/** History
+ * @author David Gleich
+ * @date 20 May 2007
+ * @brief routines to matrix interface
+ *
+ *
+ * @version
+ *
  * 3 September 2007
+ *
  * Added bvgraph_csr and bvgraph_csr_large to convert to a CSR representation.
  * Added bvgraph_substochastic_mult and bvgraph_substochastic_transmult
  *    to compute the stochastic products.
@@ -42,9 +47,9 @@
 /**
  * Computes a matrix vector product y = A*x 
  *
- * @param g the bvgraph structure
- * @param x the vector x
- * @param y the output vector y
+ * @param[in] g the bvgraph structure
+ * @param[in] x the vector x
+ * @param[in] y the output vector y
  * @return 0 if successful
  */
 int bvgraph_mult(bvgraph *g, double *x, double *y)
@@ -70,9 +75,9 @@ int bvgraph_mult(bvgraph *g, double *x, double *y)
 /**
  * Computes a matrix vector product y = A'*x 
  *
- * @param g the bvgraph structure
- * @param x the vector x
- * @param y the output vector y
+ * @param[in] g the bvgraph structure
+ * @param[in] x the vector x
+ * @param[in] y the output vector y
  * @return 0 if successful
  */
 int bvgraph_transmult(bvgraph *g, double *x, double *y)
@@ -97,8 +102,8 @@ int bvgraph_transmult(bvgraph *g, double *x, double *y)
 /**
  * Extract the entries along the diagonal of the matrix. 
  *
- * @param g the bvgraph structure
- * @param x the vector of diagonal elements (size g.n)
+ * @param[in] g the bvgraph structure
+ * @param[in] x the vector of diagonal elements (size g.n)
  * @return 0 if successful
  */
 int bvgraph_diag(bvgraph *g, double *x)
@@ -132,8 +137,8 @@ int bvgraph_relax_sor(bvgraph *g, double *x, double w)
  * Compute the sum along rows of the matrix, i.e. x = A*ones(g.n,1), 
  * but efficiently.
  *
- * @param g the bvgraph structure
- * @param x the vector of row sums
+ * @param[in] g the bvgraph structure
+ * @param[in] x the vector of row sums
  * @return 0 if successful 
  */
 int bvgraph_sum_row(bvgraph *g, double *x)
@@ -156,8 +161,8 @@ int bvgraph_sum_row(bvgraph *g, double *x)
  * Compute the sum along columns of the matrix, i.e. x = ones(g.n,1)'*A, 
  * but efficiently.
  *
- * @param g the bvgraph structure
- * @param x the vector of column sums
+ * @param[in] g the bvgraph structure
+ * @param[in] x the vector of column sums
  * @return 0 if successful
  */
 int bvgraph_sum_col(bvgraph *g, double *x)
@@ -177,6 +182,14 @@ int bvgraph_sum_col(bvgraph *g, double *x)
     bvgraph_iterator_free(&iter);
     return (0);
 }
+
+/**
+ * Generate the matlab csr representation of the graph g
+ * @param[in] g the graph
+ * @param[out] ai row index
+ * @param[out] aj col index
+ * @return 0 if successful
+ */
 
 int bvgraph_csr(bvgraph *g, int* ai, int* aj)
 {
@@ -201,6 +214,13 @@ int bvgraph_csr(bvgraph *g, int* ai, int* aj)
     return (0);
 }
 
+/**
+ * Generate the matlab csr representation of the graph g
+ * @param[in] g the graph
+ * @param[out] ai the row index
+ * @param[out] aj the col index
+ * @return 0 if successful
+ */
 
 int bvgraph_csr_large(bvgraph *g, size_t* ai, size_t* aj)
 {
@@ -230,9 +250,9 @@ int bvgraph_csr_large(bvgraph *g, size_t* ai, size_t* aj)
  * y = (D^+ A) x 
  * efficiently without storing a vector of out-degrees.
  *
- * @param g the bvgraph structure
- * @param x the vector x
- * @param y the output vector y
+ * @param[in] g the bvgraph structure
+ * @param[in] x the vector x
+ * @param[in] y the output vector y
  * @return 0 if successful
  */
 int bvgraph_substochastic_mult(bvgraph *g, double *x, double *y)
@@ -260,9 +280,9 @@ int bvgraph_substochastic_mult(bvgraph *g, double *x, double *y)
  * y = (D^+ A)^T x 
  * efficiently without storing a vector of out-degrees.
  *
- * @param g the bvgraph structure
- * @param x the vector x
- * @param y the output vector y
+ * @param[in] g the bvgraph structure
+ * @param[in] x the vector x
+ * @param[in] y the output vector y
  * @return 0 if successful
  */
 int bvgraph_substochastic_transmult(bvgraph *g, double *x, double *y)
@@ -288,8 +308,8 @@ int bvgraph_substochastic_transmult(bvgraph *g, double *x, double *y)
  * Compute the sum along rows of the matrix, i.e. x = P*ones(g.n,1), 
  * but efficiently
  *
- * @param g the bvgraph structure
- * @param x the vector of row sums
+ * @param[in] g the bvgraph structure
+ * @param[in] x the vector of row sums
  * @return 0 if successful 
  */
 int bvgraph_substochastic_sum_row(bvgraph *g, double *x)
@@ -316,8 +336,8 @@ int bvgraph_substochastic_sum_row(bvgraph *g, double *x)
  * Compute the sum along columns of the matrix, i.e. x = ones(g.n,1)'*A, 
  * but efficiently.
  *
- * @param g the bvgraph structure
- * @param x the vector of column sums
+ * @param[in] g the bvgraph structure
+ * @param[in] x the vector of column sums
  * @return 0 if successful
  */
 int bvgraph_substochastic_sum_col(bvgraph *g, double *x)
