@@ -1,0 +1,95 @@
+\hypertarget{structbitfile__tag}{\section{bitfile\+\_\+tag Struct Reference}
+\label{structbitfile__tag}\index{bitfile\+\_\+tag@{bitfile\+\_\+tag}}
+}
+
+
+underly implementation of bitfile class  
+
+
+
+
+{\ttfamily \#include $<$bitfile.\+h$>$}
+
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{structbitfile__tag_ab797357514551ac241e79fe020cd31c7}{F\+I\+L\+E $\ast$ {\bfseries f}}\label{structbitfile__tag_ab797357514551ac241e79fe020cd31c7}
+
+\item 
+\hypertarget{structbitfile__tag_a809adc303e41e20ad5c7a9a1dc607ac1}{unsigned char $\ast$ \hyperlink{structbitfile__tag_a809adc303e41e20ad5c7a9a1dc607ac1}{buffer}}\label{structbitfile__tag_a809adc303e41e20ad5c7a9a1dc607ac1}
+
+\begin{DoxyCompactList}\small\item\em buffer points to the current buffer \end{DoxyCompactList}\item 
+\hypertarget{structbitfile__tag_a0e3d8c81ed8b1884ac07b349bd763cb9}{const unsigned char $\ast$ \hyperlink{structbitfile__tag_a0e3d8c81ed8b1884ac07b349bd763cb9}{memory}}\label{structbitfile__tag_a0e3d8c81ed8b1884ac07b349bd763cb9}
+
+\begin{DoxyCompactList}\small\item\em memory points to a preloaded file \end{DoxyCompactList}\item 
+\hypertarget{structbitfile__tag_a7a3e13549e0c5851d6623aab82b38ad4}{int \hyperlink{structbitfile__tag_a7a3e13549e0c5851d6623aab82b38ad4}{wrapping}}\label{structbitfile__tag_a7a3e13549e0c5851d6623aab82b38ad4}
+
+\begin{DoxyCompactList}\small\item\em true if wrapping a memory array \end{DoxyCompactList}\item 
+\hypertarget{structbitfile__tag_aeb0611be10e73b42a87cf744e5eeec40}{int \hyperlink{structbitfile__tag_aeb0611be10e73b42a87cf744e5eeec40}{use\+\_\+buffer}}\label{structbitfile__tag_aeb0611be10e73b42a87cf744e5eeec40}
+
+\begin{DoxyCompactList}\small\item\em false if we shouldn't use the buffer \end{DoxyCompactList}\item 
+\hypertarget{structbitfile__tag_a9c58837ca594d48ee58759d21c7427d2}{size\+\_\+t \hyperlink{structbitfile__tag_a9c58837ca594d48ee58759d21c7427d2}{bufsize}}\label{structbitfile__tag_a9c58837ca594d48ee58759d21c7427d2}
+
+\begin{DoxyCompactList}\small\item\em the size of the buffer \end{DoxyCompactList}\item 
+\hypertarget{structbitfile__tag_a7c8a8d917f2587b8566466c6fd2ba968}{size\+\_\+t \hyperlink{structbitfile__tag_a7c8a8d917f2587b8566466c6fd2ba968}{pos}}\label{structbitfile__tag_a7c8a8d917f2587b8566466c6fd2ba968}
+
+\begin{DoxyCompactList}\small\item\em the position in the byte buffer; \end{DoxyCompactList}\item 
+\hypertarget{structbitfile__tag_a3f00016550e1ab6220d346496f9e9182}{size\+\_\+t \hyperlink{structbitfile__tag_a3f00016550e1ab6220d346496f9e9182}{avail}}\label{structbitfile__tag_a3f00016550e1ab6220d346496f9e9182}
+
+\begin{DoxyCompactList}\small\item\em number of bytes available in the byte buffer \end{DoxyCompactList}\item 
+size\+\_\+t \hyperlink{structbitfile__tag_a8c2eb7c5b5312471f74c68ba93231f7c}{position}
+\begin{DoxyCompactList}\small\item\em current position of the first byte of the buffer \end{DoxyCompactList}\item 
+\hypertarget{structbitfile__tag_a39d1b38801c21529894f15a362741bb4}{unsigned long long \hyperlink{structbitfile__tag_a39d1b38801c21529894f15a362741bb4}{total\+\_\+bits\+\_\+read}}\label{structbitfile__tag_a39d1b38801c21529894f15a362741bb4}
+
+\begin{DoxyCompactList}\small\item\em total bits read \end{DoxyCompactList}\item 
+\hypertarget{structbitfile__tag_a97ba7a275396a5960058f45eac93f04f}{size\+\_\+t \hyperlink{structbitfile__tag_a97ba7a275396a5960058f45eac93f04f}{current}}\label{structbitfile__tag_a97ba7a275396a5960058f45eac93f04f}
+
+\begin{DoxyCompactList}\small\item\em the current bit buffer \end{DoxyCompactList}\item 
+size\+\_\+t \hyperlink{structbitfile__tag_a7c0f772984d9115919e4db0241c2e4b1}{fill}
+\begin{DoxyCompactList}\small\item\em current number of bits in the bit buffer \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+underly implementation of bitfile class 
+
+History
+
+2008-\/03-\/10\+: Added bitfile position header, skip\+\_\+$\ast$ functions 
+
+\subsection{Member Data Documentation}
+\hypertarget{structbitfile__tag_a7c0f772984d9115919e4db0241c2e4b1}{\index{bitfile\+\_\+tag@{bitfile\+\_\+tag}!fill@{fill}}
+\index{fill@{fill}!bitfile\+\_\+tag@{bitfile\+\_\+tag}}
+\subsubsection[{fill}]{\setlength{\rightskip}{0pt plus 5cm}size\+\_\+t bitfile\+\_\+tag\+::fill}}\label{structbitfile__tag_a7c0f772984d9115919e4db0241c2e4b1}
+
+
+current number of bits in the bit buffer 
+
+\begin{DoxyRemark}{Remarks}
+the bits current \& (2 $<$$<$ fill -\/ 1) yield the next bits in the file, where the subsequent bits are exactly\+: 
+\begin{DoxyCode}
+((\hyperlink{structbitfile__tag_a97ba7a275396a5960058f45eac93f04f}{current} & (1 << \hyperlink{structbitfile__tag_a7c0f772984d9115919e4db0241c2e4b1}{fill} - 1)) >> (\hyperlink{structbitfile__tag_a7c0f772984d9115919e4db0241c2e4b1}{fill} - 1)) & 1
+((\hyperlink{structbitfile__tag_a97ba7a275396a5960058f45eac93f04f}{current} & (1 << \hyperlink{structbitfile__tag_a7c0f772984d9115919e4db0241c2e4b1}{fill} - 1)) >> (\hyperlink{structbitfile__tag_a7c0f772984d9115919e4db0241c2e4b1}{fill} - 2)) & 1
+...
+((current & (1 << \hyperlink{structbitfile__tag_a7c0f772984d9115919e4db0241c2e4b1}{fill} - 1)) >> (\hyperlink{structbitfile__tag_a7c0f772984d9115919e4db0241c2e4b1}{fill} - \hyperlink{structbitfile__tag_a7c0f772984d9115919e4db0241c2e4b1}{fill})) & 1
+\end{DoxyCode}
+ see read\+\_\+from\+\_\+current in \hyperlink{bitfile_8c}{bitfile.\+c} 
+\end{DoxyRemark}
+\hypertarget{structbitfile__tag_a8c2eb7c5b5312471f74c68ba93231f7c}{\index{bitfile\+\_\+tag@{bitfile\+\_\+tag}!position@{position}}
+\index{position@{position}!bitfile\+\_\+tag@{bitfile\+\_\+tag}}
+\subsubsection[{position}]{\setlength{\rightskip}{0pt plus 5cm}size\+\_\+t bitfile\+\_\+tag\+::position}}\label{structbitfile__tag_a8c2eb7c5b5312471f74c68ba93231f7c}
+
+
+current position of the first byte of the buffer 
+
+\begin{DoxyRemark}{Remarks}
+so the current position in the data is
+\begin{DoxyItemize}
+\item bf -\/$>$ position (location in file for start of buffer)
+\item bf -\/$>$ pos (location in buffer) 
+\end{DoxyItemize}
+\end{DoxyRemark}
+
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+include/\hyperlink{bitfile_8h}{bitfile.\+h}\end{DoxyCompactItemize}

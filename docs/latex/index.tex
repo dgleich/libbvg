@@ -1,0 +1,65 @@
+\subsection*{libbvg}
+
+{\ttfamily libbvg} library implements a decoder for Boldi-\/\+Vigna graph structure, a highly compressed means of storing web-\/graphs. The library is written in pure C. It includes a Python and Matlab interface, and a means to implemtn multi-\/threaded graph alogrithms.
+
+\begin{TabularC}{4}
+\hline
+&{\bfseries License}&\+: &\href{http://www.gnu.org/copyleft/gpl.html}{\tt G\+P\+L 2.\+0} \\\cline{1-4}
+&{\bfseries Version}&\+:&2.\+0.\+10 \\\cline{1-4}
+&{\bfseries Author}&\+: &\href{mailto:dgleich@purdue.edu}{\tt David Gleich} \\\cline{1-4}
+\end{TabularC}
+
+
+\subsection*{Features}
+
+
+\begin{DoxyItemize}
+\item In-\/memory and on-\/disk graph storage
+\item In-\/memory and on-\/disk graph storage
+\item random access to graph edges
+\item Parallel iteration over graph edges
+\end{DoxyItemize}
+
+\subsection*{Synopsis}
+
+For C interface\+: 
+\begin{DoxyCode}
+\hyperlink{structbvgraph__tag}{bvgraph} g = \{0\};
+\hyperlink{bvgraph_8c_ae1dfa094776c463224625630ca654b7c}{bvgraph\_load}(&g, \textcolor{stringliteral}{"wb-cs.stanford"}, 14, 0);
+printf(\textcolor{stringliteral}{"nodes = %i\(\backslash\)n"}, g.\hyperlink{structbvgraph__tag_a38d272f00663a3d95e634186dea01bdc}{n});
+printf(\textcolor{stringliteral}{"edges = %i\(\backslash\)n"}, g.\hyperlink{structbvgraph__tag_aaaf5560b092ad319ba1ddfd7d085d941}{m});
+
+\hyperlink{structbvgraph__iterator__tag}{bvgraph\_iterator} git;
+\hyperlink{bvgraph__iterator_8c_abb9e6af465a17ca110ca4194ff37b9dd}{bvgraph\_nonzero\_iterator}(&g, &git);
+
+\textcolor{keywordflow}{for} (; \hyperlink{bvgraph__iterator_8c_abd717166f7e27a393ac60d97353fe897}{bvgraph\_iterator\_valid}(&git); \hyperlink{bvgraph__iterator_8c_a9fb3d24d9bc7fcd045b64b0d38c0d0fb}{bvgraph\_iterator\_next}(&git)
+      ) \{
+    \textcolor{keywordtype}{int} *links; \textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{int} d;
+    \hyperlink{bvgraph__iterator_8c_afd71af7bdaf925a00cfdf3b19c9cb506}{bvgraph\_iterator\_outedges}(&git, &links, &d);
+    printf(\textcolor{stringliteral}{"node %i has degree %d\(\backslash\)n"}, git.\hyperlink{structbvgraph__iterator__tag_af7df321c239b483e83f01fe53e94c35d}{curr});
+    \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} i; i<d; ++i) \{
+        printf(\textcolor{stringliteral}{"node %i links to node %i\(\backslash\)n"}, links[i]);
+    \}
+\}
+\hyperlink{bvgraph__iterator_8c_a819d47b7ab5af2bca60f1ccebcd8c0bf}{bvgraph\_iterator\_free}(&git);
+
+\hyperlink{bvgraph_8c_a31308c861752f08792a4482bca9cc9ef}{bvgraph\_close}(&g);
+\end{DoxyCode}
+ For Python interface\+: 
+\begin{DoxyCode}
+1 \textcolor{keyword}{import} bvg
+2 G = bvg.BVGraph(\textcolor{stringliteral}{'wb-cs.stanford'}, 0) \textcolor{comment}{# sequential scan}
+3 \textcolor{keywordflow}{print} \textcolor{stringliteral}{'nodes = '} + str(G.nverts)
+4 \textcolor{keywordflow}{print} \textcolor{stringliteral}{'edges = '} + str(G.nedges)
+5 edges\_and\_degrees = G.edges\_and\_degrees()
+6 \textcolor{keywordflow}{for} (src, dst, degree) \textcolor{keywordflow}{in} edges\_and\_degrees:
+7     \textcolor{keywordflow}{print} \textcolor{stringliteral}{'node '} + str(src) + \textcolor{stringliteral}{' has degree '} + str(degree)
+8     \textcolor{keywordflow}{print} \textcolor{stringliteral}{'edge: '} + str(src) + \textcolor{stringliteral}{' -> '} + str(dst)
+\end{DoxyCode}
+
+
+\subsection*{Download}
+
+Download from Github\+: ~\newline
+ \href{https://github.com/dgleich/libbvg}{\tt Sources} ~\newline
+ 

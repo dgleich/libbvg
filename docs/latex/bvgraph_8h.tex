@@ -1,0 +1,780 @@
+\hypertarget{bvgraph_8h}{\section{include/bvgraph.h File Reference}
+\label{bvgraph_8h}\index{include/bvgraph.\+h@{include/bvgraph.\+h}}
+}
+
+
+This file is the main public header for L\+I\+B\+B\+V\+G.  
+
+
+{\ttfamily \#include \char`\"{}bitfile.\+h\char`\"{}}\\*
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \hyperlink{structbvgraph__tag}{bvgraph\+\_\+tag}
+\begin{DoxyCompactList}\small\item\em bvgraph structure class \end{DoxyCompactList}\item 
+struct \hyperlink{structbvgraph__int__vector__tag}{bvgraph\+\_\+int\+\_\+vector\+\_\+tag}
+\begin{DoxyCompactList}\small\item\em iternal struct for bvgraph\+\_\+int\+\_\+vector A simple integer vector type used in the iterator. \end{DoxyCompactList}\item 
+struct \hyperlink{structbvgraph__iterator__tag}{bvgraph\+\_\+iterator\+\_\+tag}
+\begin{DoxyCompactList}\small\item\em implementation of bvgraph\+\_\+iterator A sequential access iterator for the bvgraph. \end{DoxyCompactList}\item 
+struct \hyperlink{structsuccessor}{successor}
+\begin{DoxyCompactList}\small\item\em successor struct \end{DoxyCompactList}\item 
+struct \hyperlink{structbvgraph__random__iterator__tag}{bvgraph\+\_\+random\+\_\+iterator\+\_\+tag}
+\begin{DoxyCompactList}\small\item\em implementation of bvgraph\+\_\+random\+\_\+iterator A random access iterator for the bvgraph. \end{DoxyCompactList}\item 
+struct \hyperlink{structbvgraph__parallel__iterators__tag}{bvgraph\+\_\+parallel\+\_\+iterators\+\_\+tag}
+\begin{DoxyCompactList}\small\item\em implementation of bvgraph\+\_\+parallel\+\_\+iterators \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \hyperlink{bvgraph_8h_a8e17e1b8ff112a50d64738ccc0c1c0dc}{B\+V\+G\+R\+A\+P\+H\+\_\+\+V\+E\+R\+B\+O\+S\+E}~0
+\item 
+\hypertarget{bvgraph_8h_a0e23cc7238ec5b60eb9bb99fad1d7e7c}{\#define {\bfseries B\+V\+G\+R\+A\+P\+H\+\_\+\+M\+A\+X\+\_\+\+F\+I\+L\+E\+N\+A\+M\+E\+\_\+\+S\+I\+Z\+E}~1024}\label{bvgraph_8h_a0e23cc7238ec5b60eb9bb99fad1d7e7c}
+
+\item 
+\hypertarget{bvgraph_8h_a6c8469dfe973ac952cf40394bd2c160b}{\#define {\bfseries M\+A\+X\+\_\+\+C\+A\+C\+H\+E\+\_\+\+S\+I\+Z\+E}~10000}\label{bvgraph_8h_a6c8469dfe973ac952cf40394bd2c160b}
+
+\end{DoxyCompactItemize}
+\subsection*{Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{bvgraph_8h_a2527f37fc94109a6fddea4e1e9ec5dc6}{typedef enum \\*
+\hyperlink{bvgraph_8h_a4ea6daab9cc8f1f480167ac67a2bf2c5}{bvgraph\+\_\+compression\+\_\+flag\+\_\+tag} {\bfseries bvgraph\+\_\+compression\+\_\+flag}}\label{bvgraph_8h_a2527f37fc94109a6fddea4e1e9ec5dc6}
+
+\item 
+\hypertarget{bvgraph_8h_ac638887105744f93f70ca3a8999926b6}{typedef struct \hyperlink{structbvgraph__tag}{bvgraph\+\_\+tag} {\bfseries bvgraph}}\label{bvgraph_8h_ac638887105744f93f70ca3a8999926b6}
+
+\item 
+\hypertarget{bvgraph_8h_a97202128424afffa14488f2138baa17e}{typedef struct \hyperlink{structbvgraph__iterator__tag}{bvgraph\+\_\+iterator\+\_\+tag} {\bfseries bvgraph\+\_\+iterator}}\label{bvgraph_8h_a97202128424afffa14488f2138baa17e}
+
+\item 
+\hypertarget{bvgraph_8h_a6a8574da21efd7acaf1144201da004e8}{typedef struct \\*
+\hyperlink{structbvgraph__random__iterator__tag}{bvgraph\+\_\+random\+\_\+iterator\+\_\+tag} {\bfseries bvgraph\+\_\+random\+\_\+iterator}}\label{bvgraph_8h_a6a8574da21efd7acaf1144201da004e8}
+
+\item 
+\hypertarget{bvgraph_8h_a9a31c63b6f8305cf0bac011b3975f889}{typedef struct \\*
+\hyperlink{structbvgraph__int__vector__tag}{bvgraph\+\_\+int\+\_\+vector\+\_\+tag} {\bfseries bvgraph\+\_\+int\+\_\+vector}}\label{bvgraph_8h_a9a31c63b6f8305cf0bac011b3975f889}
+
+\item 
+\hypertarget{bvgraph_8h_a93baedba6525d1ea6d41a89ec8e920d8}{typedef struct \\*
+\hyperlink{structbvgraph__parallel__iterators__tag}{bvgraph\+\_\+parallel\+\_\+iterators\+\_\+tag} {\bfseries bvgraph\+\_\+parallel\+\_\+iterators}}\label{bvgraph_8h_a93baedba6525d1ea6d41a89ec8e920d8}
+
+\end{DoxyCompactItemize}
+\subsection*{Enumerations}
+\begin{DoxyCompactItemize}
+\item 
+enum \hyperlink{bvgraph_8h_a4ea6daab9cc8f1f480167ac67a2bf2c5}{bvgraph\+\_\+compression\+\_\+flag\+\_\+tag} \{ \\*
+\hyperlink{bvgraph_8h_a4ea6daab9cc8f1f480167ac67a2bf2c5ad614996190f1fad6472322bbb8173bb9}{B\+V\+G\+R\+A\+P\+H\+\_\+\+F\+L\+A\+G\+\_\+\+D\+E\+L\+T\+A} = 1, 
+\hyperlink{bvgraph_8h_a4ea6daab9cc8f1f480167ac67a2bf2c5a82ee52e418cc495ef9489143d760a237}{B\+V\+G\+R\+A\+P\+H\+\_\+\+F\+L\+A\+G\+\_\+\+G\+A\+M\+M\+A} = 2, 
+\hyperlink{bvgraph_8h_a4ea6daab9cc8f1f480167ac67a2bf2c5a19df4fa7d9fd10087d825a130c401f3d}{B\+V\+G\+R\+A\+P\+H\+\_\+\+F\+L\+A\+G\+\_\+\+G\+O\+L\+O\+M\+B} = 3, 
+\hyperlink{bvgraph_8h_a4ea6daab9cc8f1f480167ac67a2bf2c5a0090c0f69d408259488ce764c02bc2af}{B\+V\+G\+R\+A\+P\+H\+\_\+\+F\+L\+A\+G\+\_\+\+S\+K\+E\+W\+E\+D\+\_\+\+G\+O\+L\+O\+M\+B} = 4, 
+\\*
+\hyperlink{bvgraph_8h_a4ea6daab9cc8f1f480167ac67a2bf2c5a1cae2d49a571f3c208b4e7e0368d2b4e}{B\+V\+G\+R\+A\+P\+H\+\_\+\+F\+L\+A\+G\+\_\+\+A\+R\+I\+T\+H} = 5, 
+\hyperlink{bvgraph_8h_a4ea6daab9cc8f1f480167ac67a2bf2c5a8a446bee8987a910b60f25fddb8741fc}{B\+V\+G\+R\+A\+P\+H\+\_\+\+F\+L\+A\+G\+\_\+\+I\+N\+T\+E\+R\+P} = 6, 
+\hyperlink{bvgraph_8h_a4ea6daab9cc8f1f480167ac67a2bf2c5a978f9e6c87c9120ee149e416ecc6c1cf}{B\+V\+G\+R\+A\+P\+H\+\_\+\+F\+L\+A\+G\+\_\+\+U\+N\+A\+R\+Y} = 7, 
+\hyperlink{bvgraph_8h_a4ea6daab9cc8f1f480167ac67a2bf2c5a3c802069c5e0d4eafff529eb3a0dc203}{B\+V\+G\+R\+A\+P\+H\+\_\+\+F\+L\+A\+G\+\_\+\+Z\+E\+T\+A} = 8, 
+\\*
+\hyperlink{bvgraph_8h_a4ea6daab9cc8f1f480167ac67a2bf2c5a6037e23fe10cfea67c85def880418ba6}{B\+V\+G\+R\+A\+P\+H\+\_\+\+F\+L\+A\+G\+\_\+\+N\+I\+B\+B\+L\+E} = 9
+ \}
+\begin{DoxyCompactList}\small\item\em compression flags for bvgraph The enum records all the possible compression options for bvgraph. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{structbvgraph__tag}{bvgraph} $\ast$ \hyperlink{bvgraph_8h_a3d83d353195292c1ac1b5122f0f160d1}{bvgraph\+\_\+new} (void)
+\item 
+void \hyperlink{bvgraph_8h_a2e646e59c5bf70818e7495b4e192f65e}{bvgraph\+\_\+free} (\hyperlink{structbvgraph__tag}{bvgraph} $\ast$g)
+\item 
+int \hyperlink{bvgraph_8h_ae1dfa094776c463224625630ca654b7c}{bvgraph\+\_\+load} (\hyperlink{structbvgraph__tag}{bvgraph} $\ast$g, const char $\ast$filename, unsigned int filenamelen, int offset\+\_\+step)
+\item 
+int \hyperlink{bvgraph_8h_aa815fcc22af8cd3e1e5fc2dfc2a19ac9}{bvgraph\+\_\+load\+\_\+external} (\hyperlink{structbvgraph__tag}{bvgraph} $\ast$g, const char $\ast$filename, unsigned int filenamelen, int offset\+\_\+step, unsigned char $\ast$gmemory, size\+\_\+t gmemsize, unsigned long long $\ast$offsets, int offsetssize)
+\item 
+int \hyperlink{bvgraph_8h_a31308c861752f08792a4482bca9cc9ef}{bvgraph\+\_\+close} (\hyperlink{structbvgraph__tag}{bvgraph} $\ast$g)
+\item 
+int \hyperlink{bvgraph_8h_abb9e6af465a17ca110ca4194ff37b9dd}{bvgraph\+\_\+nonzero\+\_\+iterator} (\hyperlink{structbvgraph__tag}{bvgraph} $\ast$g, \hyperlink{structbvgraph__iterator__tag}{bvgraph\+\_\+iterator} $\ast$i)
+\item 
+int \hyperlink{bvgraph_8h_aa0dad2df1bff5c9b2448a636771c26a1}{bvgraph\+\_\+random\+\_\+access\+\_\+iterator} (\hyperlink{structbvgraph__tag}{bvgraph} $\ast$g, \hyperlink{structbvgraph__random__iterator__tag}{bvgraph\+\_\+random\+\_\+iterator} $\ast$ri)
+\item 
+int \hyperlink{bvgraph_8h_a264d0ff560674482dceede5f4d3ad44f}{bvgraph\+\_\+outdegree} (\hyperlink{structbvgraph__tag}{bvgraph} $\ast$g, int64\+\_\+t x, uint64\+\_\+t $\ast$d)
+\item 
+int \hyperlink{bvgraph_8h_ae6077e3021b42d4a488b2bda116df72a}{bvgraph\+\_\+successors} (\hyperlink{structbvgraph__tag}{bvgraph} $\ast$g, int64\+\_\+t x, int64\+\_\+t $\ast$$\ast$start, uint64\+\_\+t $\ast$length)
+\item 
+int \hyperlink{bvgraph_8h_afd71af7bdaf925a00cfdf3b19c9cb506}{bvgraph\+\_\+iterator\+\_\+outedges} (\hyperlink{structbvgraph__iterator__tag}{bvgraph\+\_\+iterator} $\ast$i, int64\+\_\+t $\ast$$\ast$start, uint64\+\_\+t $\ast$len)
+\item 
+int \hyperlink{bvgraph_8h_a62724670eda6a39a910e04c83a6fc6bc}{bvgraph\+\_\+iterator\+\_\+next} (\hyperlink{structbvgraph__iterator__tag}{bvgraph\+\_\+iterator} $\ast$i)
+\item 
+int \hyperlink{bvgraph_8h_abd717166f7e27a393ac60d97353fe897}{bvgraph\+\_\+iterator\+\_\+valid} (\hyperlink{structbvgraph__iterator__tag}{bvgraph\+\_\+iterator} $\ast$i)
+\item 
+int \hyperlink{bvgraph_8h_a05cd25a2d7cd0d30b299ef3677e1184f}{bvgraph\+\_\+iterator\+\_\+free} (\hyperlink{structbvgraph__iterator__tag}{bvgraph\+\_\+iterator} $\ast$i)
+\item 
+int \hyperlink{bvgraph_8h_ace5dcd4e40138bb3d2e0dd87119fddda}{bvgraph\+\_\+random\+\_\+outdegree} (\hyperlink{structbvgraph__random__iterator__tag}{bvgraph\+\_\+random\+\_\+iterator} $\ast$ri, int64\+\_\+t x, uint64\+\_\+t $\ast$d)
+\item 
+int \hyperlink{bvgraph_8h_ac846ed51b9e0e84df430c7d82371c3ab}{bvgraph\+\_\+random\+\_\+successors} (\hyperlink{structbvgraph__random__iterator__tag}{bvgraph\+\_\+random\+\_\+iterator} $\ast$ri, int64\+\_\+t x, int64\+\_\+t $\ast$$\ast$start, uint64\+\_\+t $\ast$length)
+\item 
+int \hyperlink{bvgraph_8h_a30dd8c44769a7d1347bf63b58304f8f4}{bvgraph\+\_\+random\+\_\+free} (\hyperlink{structbvgraph__random__iterator__tag}{bvgraph\+\_\+random\+\_\+iterator} $\ast$ri)
+\item 
+int \hyperlink{bvgraph_8h_a4fd9f1e94af583bfdccb276d697e47d2}{bvgraph\+\_\+iterator\+\_\+copy} (\hyperlink{structbvgraph__iterator__tag}{bvgraph\+\_\+iterator} $\ast$i, \hyperlink{structbvgraph__iterator__tag}{bvgraph\+\_\+iterator} $\ast$j)
+\item 
+int \hyperlink{bvgraph_8h_a7470188de4911d5a38306132f209af03}{bvgraph\+\_\+parallel\+\_\+iterators\+\_\+create} (\hyperlink{structbvgraph__tag}{bvgraph} $\ast$g, \hyperlink{structbvgraph__parallel__iterators__tag}{bvgraph\+\_\+parallel\+\_\+iterators} $\ast$pits, int niters, int wnode, int wedge)
+\item 
+int \hyperlink{bvgraph_8h_a4b78ead237cf15ee282760fd71b1c68a}{bvgraph\+\_\+parallel\+\_\+iterator} (\hyperlink{structbvgraph__parallel__iterators__tag}{bvgraph\+\_\+parallel\+\_\+iterators} $\ast$pits, int i, \hyperlink{structbvgraph__iterator__tag}{bvgraph\+\_\+iterator} $\ast$iter, int $\ast$nsteps)
+\item 
+int \hyperlink{bvgraph_8h_ac33ffd562616f5470442c311985ff9b1}{bvgraph\+\_\+parallel\+\_\+iterators\+\_\+free} (\hyperlink{structbvgraph__parallel__iterators__tag}{bvgraph\+\_\+parallel\+\_\+iterators} $\ast$pits)
+\item 
+int \hyperlink{bvgraph_8h_ae07da12e465b2b8264ce43ac8ebaab11}{bvgraph\+\_\+required\+\_\+memory} (\hyperlink{structbvgraph__tag}{bvgraph} $\ast$g, int offset\+\_\+step, size\+\_\+t $\ast$gbuf, size\+\_\+t $\ast$offsetbuf)
+\item 
+int \hyperlink{bvgraph_8h_a3b4634a6785d2da0b492f052e7f1cd3d}{merge\+\_\+int\+\_\+arrays} (const int64\+\_\+t $\ast$a1, size\+\_\+t a1len, const int64\+\_\+t $\ast$a2, size\+\_\+t a2len, int64\+\_\+t $\ast$out, size\+\_\+t outlen)
+\item 
+const char $\ast$ \hyperlink{bvgraph_8h_a513f85e6113a55cf753cd9bc808614c0}{bvgraph\+\_\+error\+\_\+string} (int error)
+\item 
+\hypertarget{bvgraph_8h_a9f87a77a30a771841691616a7fcea38d}{int {\bfseries add\+\_\+to\+\_\+cache} (int node, int $\ast$links, int d)}\label{bvgraph_8h_a9f87a77a30a771841691616a7fcea38d}
+
+\item 
+\hypertarget{bvgraph_8h_a60c1eaf3068abf658df410b6d7b31fc5}{int {\bfseries loaded\+\_\+sort} (struct \hyperlink{structsuccessor}{successor} $\ast$a, struct \hyperlink{structsuccessor}{successor} $\ast$b)}\label{bvgraph_8h_a60c1eaf3068abf658df410b6d7b31fc5}
+
+\item 
+\hypertarget{bvgraph_8h_a9462d33437f59d49041b283bd4faed15}{struct \hyperlink{structsuccessor}{successor} $\ast$ {\bfseries find\+\_\+in\+\_\+cache} (int node)}\label{bvgraph_8h_a9462d33437f59d49041b283bd4faed15}
+
+\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+const int \hyperlink{bvgraph_8h_acf8e5a019558a8623a2355214e99d34b}{bvgraph\+\_\+call\+\_\+out\+\_\+of\+\_\+memory}
+\begin{DoxyCompactList}\small\item\em error code for call out of memory \end{DoxyCompactList}\item 
+\hypertarget{bvgraph_8h_a92c51757cff8f0b08a8301ce70c4aad6}{const int \hyperlink{bvgraph_8h_a92c51757cff8f0b08a8301ce70c4aad6}{bvgraph\+\_\+call\+\_\+io\+\_\+error}}\label{bvgraph_8h_a92c51757cff8f0b08a8301ce70c4aad6}
+
+\begin{DoxyCompactList}\small\item\em error code for io error \end{DoxyCompactList}\item 
+\hypertarget{bvgraph_8h_a2dea3056474a6410da55fe53aadde9ad}{const int \hyperlink{bvgraph_8h_a2dea3056474a6410da55fe53aadde9ad}{bvgraph\+\_\+call\+\_\+unsupported}}\label{bvgraph_8h_a2dea3056474a6410da55fe53aadde9ad}
+
+\begin{DoxyCompactList}\small\item\em error code for unsupported call \end{DoxyCompactList}\item 
+\hypertarget{bvgraph_8h_a53cb7f7c14e9e210072161341e85b059}{const int \hyperlink{bvgraph_8h_a53cb7f7c14e9e210072161341e85b059}{bvgraph\+\_\+load\+\_\+error\+\_\+filename\+\_\+too\+\_\+long}}\label{bvgraph_8h_a53cb7f7c14e9e210072161341e85b059}
+
+\begin{DoxyCompactList}\small\item\em error code for file name too long \end{DoxyCompactList}\item 
+\hypertarget{bvgraph_8h_aee13c4ca45e5bb4bd7241711b5dc907f}{const int \hyperlink{bvgraph_8h_aee13c4ca45e5bb4bd7241711b5dc907f}{bvgraph\+\_\+load\+\_\+error\+\_\+buffer\+\_\+too\+\_\+small}}\label{bvgraph_8h_aee13c4ca45e5bb4bd7241711b5dc907f}
+
+\begin{DoxyCompactList}\small\item\em error code for buffer too small \end{DoxyCompactList}\item 
+\hypertarget{bvgraph_8h_ad5282955d219e20f9a45ed7e7e003601}{const int \hyperlink{bvgraph_8h_ad5282955d219e20f9a45ed7e7e003601}{bvgraph\+\_\+property\+\_\+file\+\_\+error}}\label{bvgraph_8h_ad5282955d219e20f9a45ed7e7e003601}
+
+\begin{DoxyCompactList}\small\item\em error code for property file \end{DoxyCompactList}\item 
+\hypertarget{bvgraph_8h_a969ef9247587a940a26065a7f78c9560}{const int \hyperlink{bvgraph_8h_a969ef9247587a940a26065a7f78c9560}{bvgraph\+\_\+property\+\_\+file\+\_\+compression\+\_\+flag\+\_\+error}}\label{bvgraph_8h_a969ef9247587a940a26065a7f78c9560}
+
+\begin{DoxyCompactList}\small\item\em error code for property file compression flag \end{DoxyCompactList}\item 
+\hypertarget{bvgraph_8h_a11a35d14f88de676205609855254ae65}{const int \hyperlink{bvgraph_8h_a11a35d14f88de676205609855254ae65}{bvgraph\+\_\+unsupported\+\_\+version}}\label{bvgraph_8h_a11a35d14f88de676205609855254ae65}
+
+\begin{DoxyCompactList}\small\item\em error code for unsupported version \end{DoxyCompactList}\item 
+\hypertarget{bvgraph_8h_abb6b624c0dd9d9e3765dc73ea221084f}{const int \hyperlink{bvgraph_8h_abb6b624c0dd9d9e3765dc73ea221084f}{bvgraph\+\_\+vertex\+\_\+out\+\_\+of\+\_\+range}}\label{bvgraph_8h_abb6b624c0dd9d9e3765dc73ea221084f}
+
+\begin{DoxyCompactList}\small\item\em error code for vertex out of range \end{DoxyCompactList}\item 
+\hypertarget{bvgraph_8h_ab55859a22117460011e63f33682924d6}{const int \hyperlink{bvgraph_8h_ab55859a22117460011e63f33682924d6}{bvgraph\+\_\+requires\+\_\+offsets}}\label{bvgraph_8h_ab55859a22117460011e63f33682924d6}
+
+\begin{DoxyCompactList}\small\item\em error code for missing offsets \end{DoxyCompactList}\item 
+\hypertarget{bvgraph_8h_a3cfb93041a4819f67ea60c54106838e9}{const int \hyperlink{bvgraph_8h_a3cfb93041a4819f67ea60c54106838e9}{bvgraph\+\_\+unsupported\+\_\+coding}}\label{bvgraph_8h_a3cfb93041a4819f67ea60c54106838e9}
+
+\begin{DoxyCompactList}\small\item\em error code for unsupported coding method \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+This file is the main public header for L\+I\+B\+B\+V\+G. 
+
+This file is the main public header for L\+I\+B\+B\+V\+G \begin{DoxyAuthor}{Author}
+David Gleich 
+\end{DoxyAuthor}
+\begin{DoxyDate}{Date}
+17 May 2007 
+\end{DoxyDate}
+
+
+\subsection{Macro Definition Documentation}
+\hypertarget{bvgraph_8h_a8e17e1b8ff112a50d64738ccc0c1c0dc}{\index{bvgraph.\+h@{bvgraph.\+h}!B\+V\+G\+R\+A\+P\+H\+\_\+\+V\+E\+R\+B\+O\+S\+E@{B\+V\+G\+R\+A\+P\+H\+\_\+\+V\+E\+R\+B\+O\+S\+E}}
+\index{B\+V\+G\+R\+A\+P\+H\+\_\+\+V\+E\+R\+B\+O\+S\+E@{B\+V\+G\+R\+A\+P\+H\+\_\+\+V\+E\+R\+B\+O\+S\+E}!bvgraph.\+h@{bvgraph.\+h}}
+\subsubsection[{B\+V\+G\+R\+A\+P\+H\+\_\+\+V\+E\+R\+B\+O\+S\+E}]{\setlength{\rightskip}{0pt plus 5cm}\#define B\+V\+G\+R\+A\+P\+H\+\_\+\+V\+E\+R\+B\+O\+S\+E~0}}\label{bvgraph_8h_a8e17e1b8ff112a50d64738ccc0c1c0dc}
+History
+
+2007-\/06-\/10\+: Added block,len,left,buf1,buf2 fields to the iterator types.
+
+2008-\/03-\/10\+: Defined long long as bvg\+\_\+long\+\_\+int for a 64-\/bit type Added more comments. Fixed lines over 80 characters long. Added prototypes for random access iterator.
+
+2008-\/05-\/08\+: Added iterator\+\_\+copy 2008-\/05-\/09\+: Added parallel iterators Added B\+V\+G\+R\+A\+P\+H\+\_\+\+V\+E\+R\+B\+O\+S\+E macro 
+
+\subsection{Enumeration Type Documentation}
+\hypertarget{bvgraph_8h_a4ea6daab9cc8f1f480167ac67a2bf2c5}{\index{bvgraph.\+h@{bvgraph.\+h}!bvgraph\+\_\+compression\+\_\+flag\+\_\+tag@{bvgraph\+\_\+compression\+\_\+flag\+\_\+tag}}
+\index{bvgraph\+\_\+compression\+\_\+flag\+\_\+tag@{bvgraph\+\_\+compression\+\_\+flag\+\_\+tag}!bvgraph.\+h@{bvgraph.\+h}}
+\subsubsection[{bvgraph\+\_\+compression\+\_\+flag\+\_\+tag}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf bvgraph\+\_\+compression\+\_\+flag\+\_\+tag}}}\label{bvgraph_8h_a4ea6daab9cc8f1f480167ac67a2bf2c5}
+
+
+compression flags for bvgraph The enum records all the possible compression options for bvgraph. 
+
+\begin{Desc}
+\item[Enumerator]\par
+\begin{description}
+\index{B\+V\+G\+R\+A\+P\+H\+\_\+\+F\+L\+A\+G\+\_\+\+D\+E\+L\+T\+A@{B\+V\+G\+R\+A\+P\+H\+\_\+\+F\+L\+A\+G\+\_\+\+D\+E\+L\+T\+A}!bvgraph.\+h@{bvgraph.\+h}}\index{bvgraph.\+h@{bvgraph.\+h}!B\+V\+G\+R\+A\+P\+H\+\_\+\+F\+L\+A\+G\+\_\+\+D\+E\+L\+T\+A@{B\+V\+G\+R\+A\+P\+H\+\_\+\+F\+L\+A\+G\+\_\+\+D\+E\+L\+T\+A}}\item[{\em 
+\hypertarget{bvgraph_8h_a4ea6daab9cc8f1f480167ac67a2bf2c5ad614996190f1fad6472322bbb8173bb9}{B\+V\+G\+R\+A\+P\+H\+\_\+\+F\+L\+A\+G\+\_\+\+D\+E\+L\+T\+A}\label{bvgraph_8h_a4ea6daab9cc8f1f480167ac67a2bf2c5ad614996190f1fad6472322bbb8173bb9}
+}]coding \index{B\+V\+G\+R\+A\+P\+H\+\_\+\+F\+L\+A\+G\+\_\+\+G\+A\+M\+M\+A@{B\+V\+G\+R\+A\+P\+H\+\_\+\+F\+L\+A\+G\+\_\+\+G\+A\+M\+M\+A}!bvgraph.\+h@{bvgraph.\+h}}\index{bvgraph.\+h@{bvgraph.\+h}!B\+V\+G\+R\+A\+P\+H\+\_\+\+F\+L\+A\+G\+\_\+\+G\+A\+M\+M\+A@{B\+V\+G\+R\+A\+P\+H\+\_\+\+F\+L\+A\+G\+\_\+\+G\+A\+M\+M\+A}}\item[{\em 
+\hypertarget{bvgraph_8h_a4ea6daab9cc8f1f480167ac67a2bf2c5a82ee52e418cc495ef9489143d760a237}{B\+V\+G\+R\+A\+P\+H\+\_\+\+F\+L\+A\+G\+\_\+\+G\+A\+M\+M\+A}\label{bvgraph_8h_a4ea6daab9cc8f1f480167ac67a2bf2c5a82ee52e418cc495ef9489143d760a237}
+}]coding \index{B\+V\+G\+R\+A\+P\+H\+\_\+\+F\+L\+A\+G\+\_\+\+G\+O\+L\+O\+M\+B@{B\+V\+G\+R\+A\+P\+H\+\_\+\+F\+L\+A\+G\+\_\+\+G\+O\+L\+O\+M\+B}!bvgraph.\+h@{bvgraph.\+h}}\index{bvgraph.\+h@{bvgraph.\+h}!B\+V\+G\+R\+A\+P\+H\+\_\+\+F\+L\+A\+G\+\_\+\+G\+O\+L\+O\+M\+B@{B\+V\+G\+R\+A\+P\+H\+\_\+\+F\+L\+A\+G\+\_\+\+G\+O\+L\+O\+M\+B}}\item[{\em 
+\hypertarget{bvgraph_8h_a4ea6daab9cc8f1f480167ac67a2bf2c5a19df4fa7d9fd10087d825a130c401f3d}{B\+V\+G\+R\+A\+P\+H\+\_\+\+F\+L\+A\+G\+\_\+\+G\+O\+L\+O\+M\+B}\label{bvgraph_8h_a4ea6daab9cc8f1f480167ac67a2bf2c5a19df4fa7d9fd10087d825a130c401f3d}
+}]Golomb coding. \index{B\+V\+G\+R\+A\+P\+H\+\_\+\+F\+L\+A\+G\+\_\+\+S\+K\+E\+W\+E\+D\+\_\+\+G\+O\+L\+O\+M\+B@{B\+V\+G\+R\+A\+P\+H\+\_\+\+F\+L\+A\+G\+\_\+\+S\+K\+E\+W\+E\+D\+\_\+\+G\+O\+L\+O\+M\+B}!bvgraph.\+h@{bvgraph.\+h}}\index{bvgraph.\+h@{bvgraph.\+h}!B\+V\+G\+R\+A\+P\+H\+\_\+\+F\+L\+A\+G\+\_\+\+S\+K\+E\+W\+E\+D\+\_\+\+G\+O\+L\+O\+M\+B@{B\+V\+G\+R\+A\+P\+H\+\_\+\+F\+L\+A\+G\+\_\+\+S\+K\+E\+W\+E\+D\+\_\+\+G\+O\+L\+O\+M\+B}}\item[{\em 
+\hypertarget{bvgraph_8h_a4ea6daab9cc8f1f480167ac67a2bf2c5a0090c0f69d408259488ce764c02bc2af}{B\+V\+G\+R\+A\+P\+H\+\_\+\+F\+L\+A\+G\+\_\+\+S\+K\+E\+W\+E\+D\+\_\+\+G\+O\+L\+O\+M\+B}\label{bvgraph_8h_a4ea6daab9cc8f1f480167ac67a2bf2c5a0090c0f69d408259488ce764c02bc2af}
+}]skewed Golomb coding \index{B\+V\+G\+R\+A\+P\+H\+\_\+\+F\+L\+A\+G\+\_\+\+A\+R\+I\+T\+H@{B\+V\+G\+R\+A\+P\+H\+\_\+\+F\+L\+A\+G\+\_\+\+A\+R\+I\+T\+H}!bvgraph.\+h@{bvgraph.\+h}}\index{bvgraph.\+h@{bvgraph.\+h}!B\+V\+G\+R\+A\+P\+H\+\_\+\+F\+L\+A\+G\+\_\+\+A\+R\+I\+T\+H@{B\+V\+G\+R\+A\+P\+H\+\_\+\+F\+L\+A\+G\+\_\+\+A\+R\+I\+T\+H}}\item[{\em 
+\hypertarget{bvgraph_8h_a4ea6daab9cc8f1f480167ac67a2bf2c5a1cae2d49a571f3c208b4e7e0368d2b4e}{B\+V\+G\+R\+A\+P\+H\+\_\+\+F\+L\+A\+G\+\_\+\+A\+R\+I\+T\+H}\label{bvgraph_8h_a4ea6daab9cc8f1f480167ac67a2bf2c5a1cae2d49a571f3c208b4e7e0368d2b4e}
+}]arith coding \index{B\+V\+G\+R\+A\+P\+H\+\_\+\+F\+L\+A\+G\+\_\+\+I\+N\+T\+E\+R\+P@{B\+V\+G\+R\+A\+P\+H\+\_\+\+F\+L\+A\+G\+\_\+\+I\+N\+T\+E\+R\+P}!bvgraph.\+h@{bvgraph.\+h}}\index{bvgraph.\+h@{bvgraph.\+h}!B\+V\+G\+R\+A\+P\+H\+\_\+\+F\+L\+A\+G\+\_\+\+I\+N\+T\+E\+R\+P@{B\+V\+G\+R\+A\+P\+H\+\_\+\+F\+L\+A\+G\+\_\+\+I\+N\+T\+E\+R\+P}}\item[{\em 
+\hypertarget{bvgraph_8h_a4ea6daab9cc8f1f480167ac67a2bf2c5a8a446bee8987a910b60f25fddb8741fc}{B\+V\+G\+R\+A\+P\+H\+\_\+\+F\+L\+A\+G\+\_\+\+I\+N\+T\+E\+R\+P}\label{bvgraph_8h_a4ea6daab9cc8f1f480167ac67a2bf2c5a8a446bee8987a910b60f25fddb8741fc}
+}]interp coding \index{B\+V\+G\+R\+A\+P\+H\+\_\+\+F\+L\+A\+G\+\_\+\+U\+N\+A\+R\+Y@{B\+V\+G\+R\+A\+P\+H\+\_\+\+F\+L\+A\+G\+\_\+\+U\+N\+A\+R\+Y}!bvgraph.\+h@{bvgraph.\+h}}\index{bvgraph.\+h@{bvgraph.\+h}!B\+V\+G\+R\+A\+P\+H\+\_\+\+F\+L\+A\+G\+\_\+\+U\+N\+A\+R\+Y@{B\+V\+G\+R\+A\+P\+H\+\_\+\+F\+L\+A\+G\+\_\+\+U\+N\+A\+R\+Y}}\item[{\em 
+\hypertarget{bvgraph_8h_a4ea6daab9cc8f1f480167ac67a2bf2c5a978f9e6c87c9120ee149e416ecc6c1cf}{B\+V\+G\+R\+A\+P\+H\+\_\+\+F\+L\+A\+G\+\_\+\+U\+N\+A\+R\+Y}\label{bvgraph_8h_a4ea6daab9cc8f1f480167ac67a2bf2c5a978f9e6c87c9120ee149e416ecc6c1cf}
+}]unary coding \index{B\+V\+G\+R\+A\+P\+H\+\_\+\+F\+L\+A\+G\+\_\+\+Z\+E\+T\+A@{B\+V\+G\+R\+A\+P\+H\+\_\+\+F\+L\+A\+G\+\_\+\+Z\+E\+T\+A}!bvgraph.\+h@{bvgraph.\+h}}\index{bvgraph.\+h@{bvgraph.\+h}!B\+V\+G\+R\+A\+P\+H\+\_\+\+F\+L\+A\+G\+\_\+\+Z\+E\+T\+A@{B\+V\+G\+R\+A\+P\+H\+\_\+\+F\+L\+A\+G\+\_\+\+Z\+E\+T\+A}}\item[{\em 
+\hypertarget{bvgraph_8h_a4ea6daab9cc8f1f480167ac67a2bf2c5a3c802069c5e0d4eafff529eb3a0dc203}{B\+V\+G\+R\+A\+P\+H\+\_\+\+F\+L\+A\+G\+\_\+\+Z\+E\+T\+A}\label{bvgraph_8h_a4ea6daab9cc8f1f480167ac67a2bf2c5a3c802069c5e0d4eafff529eb3a0dc203}
+}]coding \index{B\+V\+G\+R\+A\+P\+H\+\_\+\+F\+L\+A\+G\+\_\+\+N\+I\+B\+B\+L\+E@{B\+V\+G\+R\+A\+P\+H\+\_\+\+F\+L\+A\+G\+\_\+\+N\+I\+B\+B\+L\+E}!bvgraph.\+h@{bvgraph.\+h}}\index{bvgraph.\+h@{bvgraph.\+h}!B\+V\+G\+R\+A\+P\+H\+\_\+\+F\+L\+A\+G\+\_\+\+N\+I\+B\+B\+L\+E@{B\+V\+G\+R\+A\+P\+H\+\_\+\+F\+L\+A\+G\+\_\+\+N\+I\+B\+B\+L\+E}}\item[{\em 
+\hypertarget{bvgraph_8h_a4ea6daab9cc8f1f480167ac67a2bf2c5a6037e23fe10cfea67c85def880418ba6}{B\+V\+G\+R\+A\+P\+H\+\_\+\+F\+L\+A\+G\+\_\+\+N\+I\+B\+B\+L\+E}\label{bvgraph_8h_a4ea6daab9cc8f1f480167ac67a2bf2c5a6037e23fe10cfea67c85def880418ba6}
+}]variable-\/length nibble coding \end{description}
+\end{Desc}
+
+
+\subsection{Function Documentation}
+\hypertarget{bvgraph_8h_a31308c861752f08792a4482bca9cc9ef}{\index{bvgraph.\+h@{bvgraph.\+h}!bvgraph\+\_\+close@{bvgraph\+\_\+close}}
+\index{bvgraph\+\_\+close@{bvgraph\+\_\+close}!bvgraph.\+h@{bvgraph.\+h}}
+\subsubsection[{bvgraph\+\_\+close}]{\setlength{\rightskip}{0pt plus 5cm}int bvgraph\+\_\+close (
+\begin{DoxyParamCaption}
+\item[{{\bf bvgraph} $\ast$}]{g}
+\end{DoxyParamCaption}
+)}}\label{bvgraph_8h_a31308c861752f08792a4482bca9cc9ef}
+Close a bvgraph object. This operation will free any associated memory. However, it will leave any existing iterators in an zombie state. These iterators should be closed before closing the graph, but this is only recommended to avoid bugs.
+
+\begin{DoxyRefDesc}{Todo}
+\item[\hyperlink{todo__todo000001}{Todo}]Implement a \char`\"{}valid\char`\"{} function that all the iterators would check?\end{DoxyRefDesc}
+
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em g} & the graph \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 on success 
+\end{DoxyReturn}
+\hypertarget{bvgraph_8h_a513f85e6113a55cf753cd9bc808614c0}{\index{bvgraph.\+h@{bvgraph.\+h}!bvgraph\+\_\+error\+\_\+string@{bvgraph\+\_\+error\+\_\+string}}
+\index{bvgraph\+\_\+error\+\_\+string@{bvgraph\+\_\+error\+\_\+string}!bvgraph.\+h@{bvgraph.\+h}}
+\subsubsection[{bvgraph\+\_\+error\+\_\+string}]{\setlength{\rightskip}{0pt plus 5cm}const char$\ast$ bvgraph\+\_\+error\+\_\+string (
+\begin{DoxyParamCaption}
+\item[{int}]{code}
+\end{DoxyParamCaption}
+)}}\label{bvgraph_8h_a513f85e6113a55cf753cd9bc808614c0}
+Return an error string associated with an error code.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em code} & the error code \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+the pointer to a string associated with an error code. 
+\end{DoxyReturn}
+\hypertarget{bvgraph_8h_a2e646e59c5bf70818e7495b4e192f65e}{\index{bvgraph.\+h@{bvgraph.\+h}!bvgraph\+\_\+free@{bvgraph\+\_\+free}}
+\index{bvgraph\+\_\+free@{bvgraph\+\_\+free}!bvgraph.\+h@{bvgraph.\+h}}
+\subsubsection[{bvgraph\+\_\+free}]{\setlength{\rightskip}{0pt plus 5cm}void bvgraph\+\_\+free (
+\begin{DoxyParamCaption}
+\item[{{\bf bvgraph} $\ast$}]{g}
+\end{DoxyParamCaption}
+)}}\label{bvgraph_8h_a2e646e59c5bf70818e7495b4e192f65e}
+Free a bvgraph in the memory. 
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em g} & a pointer to the bvgraph in the memory \\
+\hline
+\end{DoxyParams}
+\hypertarget{bvgraph_8h_a4fd9f1e94af583bfdccb276d697e47d2}{\index{bvgraph.\+h@{bvgraph.\+h}!bvgraph\+\_\+iterator\+\_\+copy@{bvgraph\+\_\+iterator\+\_\+copy}}
+\index{bvgraph\+\_\+iterator\+\_\+copy@{bvgraph\+\_\+iterator\+\_\+copy}!bvgraph.\+h@{bvgraph.\+h}}
+\subsubsection[{bvgraph\+\_\+iterator\+\_\+copy}]{\setlength{\rightskip}{0pt plus 5cm}int bvgraph\+\_\+iterator\+\_\+copy (
+\begin{DoxyParamCaption}
+\item[{{\bf bvgraph\+\_\+iterator} $\ast$}]{i, }
+\item[{{\bf bvgraph\+\_\+iterator} $\ast$}]{j}
+\end{DoxyParamCaption}
+)}}\label{bvgraph_8h_a4fd9f1e94af583bfdccb276d697e47d2}
+Copy a bvgraph iterator structure along with all of the arrays.
+
+This operation makes an exact copy of the iterator i and C\+O\+U\+L\+D be used to restart iteration from E\+X\+A\+C\+T\+L\+Y the state of i.
+
+At the moment, this only works for bvgraphs loaded into memory, as supporting bitfiles on disk would mean we need to be able to seek to positions in bitfiles, which isn't quite supported yet.
+
+The iteration $\ast$j should be empty, as we'll allocate all arrays for it. (It should have either been freshly allocated, or had bvgraph\+\_\+iterator\+\_\+free called on it.)
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt out}  & {\em i} & the new iterator \\
+\hline
+\mbox{\tt in}  & {\em j} & the old iterator \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 on success 
+\end{DoxyReturn}
+\hypertarget{bvgraph_8h_a05cd25a2d7cd0d30b299ef3677e1184f}{\index{bvgraph.\+h@{bvgraph.\+h}!bvgraph\+\_\+iterator\+\_\+free@{bvgraph\+\_\+iterator\+\_\+free}}
+\index{bvgraph\+\_\+iterator\+\_\+free@{bvgraph\+\_\+iterator\+\_\+free}!bvgraph.\+h@{bvgraph.\+h}}
+\subsubsection[{bvgraph\+\_\+iterator\+\_\+free}]{\setlength{\rightskip}{0pt plus 5cm}int bvgraph\+\_\+iterator\+\_\+free (
+\begin{DoxyParamCaption}
+\item[{{\bf bvgraph\+\_\+iterator} $\ast$}]{iter}
+\end{DoxyParamCaption}
+)}}\label{bvgraph_8h_a05cd25a2d7cd0d30b299ef3677e1184f}
+free the bvgraph iterator 
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em iter} & the iterator \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 on success 
+\end{DoxyReturn}
+\hypertarget{bvgraph_8h_a62724670eda6a39a910e04c83a6fc6bc}{\index{bvgraph.\+h@{bvgraph.\+h}!bvgraph\+\_\+iterator\+\_\+next@{bvgraph\+\_\+iterator\+\_\+next}}
+\index{bvgraph\+\_\+iterator\+\_\+next@{bvgraph\+\_\+iterator\+\_\+next}!bvgraph.\+h@{bvgraph.\+h}}
+\subsubsection[{bvgraph\+\_\+iterator\+\_\+next}]{\setlength{\rightskip}{0pt plus 5cm}int bvgraph\+\_\+iterator\+\_\+next (
+\begin{DoxyParamCaption}
+\item[{{\bf bvgraph\+\_\+iterator} $\ast$}]{iter}
+\end{DoxyParamCaption}
+)}}\label{bvgraph_8h_a62724670eda6a39a910e04c83a6fc6bc}
+Load the next set of successors into the i-\/$>$successors array. This routine invalidates the current set of successors.
+
+\begin{DoxyRefDesc}{Todo}
+\item[\hyperlink{todo__todo000003}{Todo}]Optimize memory usage in this routine.\end{DoxyRefDesc}
+
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em iter} & the iterator \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 on success 
+\end{DoxyReturn}
+\hypertarget{bvgraph_8h_afd71af7bdaf925a00cfdf3b19c9cb506}{\index{bvgraph.\+h@{bvgraph.\+h}!bvgraph\+\_\+iterator\+\_\+outedges@{bvgraph\+\_\+iterator\+\_\+outedges}}
+\index{bvgraph\+\_\+iterator\+\_\+outedges@{bvgraph\+\_\+iterator\+\_\+outedges}!bvgraph.\+h@{bvgraph.\+h}}
+\subsubsection[{bvgraph\+\_\+iterator\+\_\+outedges}]{\setlength{\rightskip}{0pt plus 5cm}int bvgraph\+\_\+iterator\+\_\+outedges (
+\begin{DoxyParamCaption}
+\item[{{\bf bvgraph\+\_\+iterator} $\ast$}]{i, }
+\item[{int64\+\_\+t $\ast$$\ast$}]{start, }
+\item[{uint64\+\_\+t $\ast$}]{len}
+\end{DoxyParamCaption}
+)}}\label{bvgraph_8h_afd71af7bdaf925a00cfdf3b19c9cb506}
+This routine provides access to the successors array stored inside the iterator, so the successor array will be invalidated after a call to iterator\+\_\+next. 08/28/11 
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt out}  & {\em start} & starting point of links (array) \\
+\hline
+\mbox{\tt out}  & {\em len} & outdegree \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 on success 
+\end{DoxyReturn}
+\hypertarget{bvgraph_8h_abd717166f7e27a393ac60d97353fe897}{\index{bvgraph.\+h@{bvgraph.\+h}!bvgraph\+\_\+iterator\+\_\+valid@{bvgraph\+\_\+iterator\+\_\+valid}}
+\index{bvgraph\+\_\+iterator\+\_\+valid@{bvgraph\+\_\+iterator\+\_\+valid}!bvgraph.\+h@{bvgraph.\+h}}
+\subsubsection[{bvgraph\+\_\+iterator\+\_\+valid}]{\setlength{\rightskip}{0pt plus 5cm}int bvgraph\+\_\+iterator\+\_\+valid (
+\begin{DoxyParamCaption}
+\item[{{\bf bvgraph\+\_\+iterator} $\ast$}]{i}
+\end{DoxyParamCaption}
+)}}\label{bvgraph_8h_abd717166f7e27a393ac60d97353fe897}
+check if the iterator is valid 
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em i} & the bvgraph iterator \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+1 if the iterator is still valid, 0 otherwise 
+\end{DoxyReturn}
+\hypertarget{bvgraph_8h_ae1dfa094776c463224625630ca654b7c}{\index{bvgraph.\+h@{bvgraph.\+h}!bvgraph\+\_\+load@{bvgraph\+\_\+load}}
+\index{bvgraph\+\_\+load@{bvgraph\+\_\+load}!bvgraph.\+h@{bvgraph.\+h}}
+\subsubsection[{bvgraph\+\_\+load}]{\setlength{\rightskip}{0pt plus 5cm}int bvgraph\+\_\+load (
+\begin{DoxyParamCaption}
+\item[{{\bf bvgraph} $\ast$}]{g, }
+\item[{const char $\ast$}]{filename, }
+\item[{unsigned int}]{filenamelen, }
+\item[{int}]{offset\+\_\+step}
+\end{DoxyParamCaption}
+)}}\label{bvgraph_8h_ae1dfa094776c463224625630ca654b7c}
+Load the metadata associated with a bvgraph. Largely, this involves just parsing the properties files.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em g} & a newly created bvgraph structure \\
+\hline
+\mbox{\tt in}  & {\em filename} & the base filename for a set of bvgraph files, so filename.\+graph and filename.\+properties must exist. \\
+\hline
+\mbox{\tt in}  & {\em offset\+\_\+step} & controls how many offsets are loaded, if offset\+\_\+step = -\/1, then the graph file isn't loaded into memory if offset\+\_\+step = 0, then the graph file is loaded, but no offsets no other values are supported at the moment. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 if successful; bvgraph\+\_\+load\+\_\+error\+\_\+filename\+\_\+too\+\_\+long -\/ indicates the filename was too long
+\end{DoxyReturn}
+
+\begin{DoxyCode}
+\hyperlink{structbvgraph__tag}{bvgraph} g; \hyperlink{bvgraph_8c_ae1dfa094776c463224625630ca654b7c}{bvgraph\_load}(&b, \textcolor{stringliteral}{"cnr-2000"}, 0);
+\end{DoxyCode}
+ \hypertarget{bvgraph_8h_aa815fcc22af8cd3e1e5fc2dfc2a19ac9}{\index{bvgraph.\+h@{bvgraph.\+h}!bvgraph\+\_\+load\+\_\+external@{bvgraph\+\_\+load\+\_\+external}}
+\index{bvgraph\+\_\+load\+\_\+external@{bvgraph\+\_\+load\+\_\+external}!bvgraph.\+h@{bvgraph.\+h}}
+\subsubsection[{bvgraph\+\_\+load\+\_\+external}]{\setlength{\rightskip}{0pt plus 5cm}int bvgraph\+\_\+load\+\_\+external (
+\begin{DoxyParamCaption}
+\item[{{\bf bvgraph} $\ast$}]{g, }
+\item[{const char $\ast$}]{filename, }
+\item[{unsigned int}]{filenamelen, }
+\item[{int}]{offset\+\_\+step, }
+\item[{unsigned char $\ast$}]{gmemory, }
+\item[{size\+\_\+t}]{gmemsize, }
+\item[{unsigned long long $\ast$}]{offsets, }
+\item[{int}]{offsetssize}
+\end{DoxyParamCaption}
+)}}\label{bvgraph_8h_aa815fcc22af8cd3e1e5fc2dfc2a19ac9}
+Load a graph file but using a set of externally provided buffers for the data. This might be useful in the case that you want to managed memory for the graph independently of this function.
+
+To maintain the graph, only the bvgraph structure, and the two external ararys\+: gmemory and offsets are required. Consequently, a bvgraph structure can always be patched together out of these functions.
+
+One common way of using this function would be to first load a graph on the disk (bvgraph\+\_\+load(...,offset\+\_\+step=-\/1)) and then call bvgraph\+\_\+required\+\_\+memory with an alternative offset step.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em g} & a newly created bvgraph structure \\
+\hline
+\mbox{\tt in}  & {\em filename} & the base filename for a set of bvgraph files, so filename.\+graph and filename.\+properties must exist. \\
+\hline
+\mbox{\tt in}  & {\em offset\+\_\+step} & controls how many offsets are loaded, if offset\+\_\+step = -\/1, then the graph file isn't loaded into memory if offset\+\_\+step = 0, then the graph file is loaded, but no offsets no other values are supported at the moment. \\
+\hline
+\mbox{\tt in}  & {\em gmemory} & an arry of size gmemsize for the graph (if N\+U\+L\+L, then this parameter is treated as internal memory) \\
+\hline
+\mbox{\tt in}  & {\em gmemsize} & the size of the gmemory block \\
+\hline
+\mbox{\tt in}  & {\em offsets} & an array of offsets (if N\+U\+L\+L, then this parameter is treated as internal memory) \\
+\hline
+\mbox{\tt in}  & {\em offsetssize} & the number of offsets \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 if successful; bvgraph\+\_\+load\+\_\+error\+\_\+filename\+\_\+too\+\_\+long -\/ indicates the filename was too long 
+\end{DoxyReturn}
+\hypertarget{bvgraph_8h_a3d83d353195292c1ac1b5122f0f160d1}{\index{bvgraph.\+h@{bvgraph.\+h}!bvgraph\+\_\+new@{bvgraph\+\_\+new}}
+\index{bvgraph\+\_\+new@{bvgraph\+\_\+new}!bvgraph.\+h@{bvgraph.\+h}}
+\subsubsection[{bvgraph\+\_\+new}]{\setlength{\rightskip}{0pt plus 5cm}{\bf bvgraph}$\ast$ bvgraph\+\_\+new (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)}}\label{bvgraph_8h_a3d83d353195292c1ac1b5122f0f160d1}
+Create a new bvgraph in the memory. \begin{DoxyReturn}{Returns}
+A pointer to the newly created bvgraph in the memory. 
+\end{DoxyReturn}
+\hypertarget{bvgraph_8h_abb9e6af465a17ca110ca4194ff37b9dd}{\index{bvgraph.\+h@{bvgraph.\+h}!bvgraph\+\_\+nonzero\+\_\+iterator@{bvgraph\+\_\+nonzero\+\_\+iterator}}
+\index{bvgraph\+\_\+nonzero\+\_\+iterator@{bvgraph\+\_\+nonzero\+\_\+iterator}!bvgraph.\+h@{bvgraph.\+h}}
+\subsubsection[{bvgraph\+\_\+nonzero\+\_\+iterator}]{\setlength{\rightskip}{0pt plus 5cm}int bvgraph\+\_\+nonzero\+\_\+iterator (
+\begin{DoxyParamCaption}
+\item[{{\bf bvgraph} $\ast$}]{g, }
+\item[{{\bf bvgraph\+\_\+iterator} $\ast$}]{i}
+\end{DoxyParamCaption}
+)}}\label{bvgraph_8h_abb9e6af465a17ca110ca4194ff37b9dd}
+\begin{DoxyRefDesc}{Todo}
+\item[\hyperlink{todo__todo000002}{Todo}]Add error checking and error returns Check for performance (remove memcopies?) \end{DoxyRefDesc}
+Create a non-\/zero iterator for the bvgraph. The non-\/zero iterator is a new object like structure that iterates over the successors of each node in the graph. There can be many nonzero iterators and each nonzero iterator is independent.
+
+The nonzero iterator requires persistent memory to work and is useful for a single iteration over the file. Each new iteration requires a new nonzero iterator at present.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em g} & the graph \\
+\hline
+\mbox{\tt in}  & {\em i} & the iterator \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 on success 
+\end{DoxyReturn}
+\hypertarget{bvgraph_8h_a264d0ff560674482dceede5f4d3ad44f}{\index{bvgraph.\+h@{bvgraph.\+h}!bvgraph\+\_\+outdegree@{bvgraph\+\_\+outdegree}}
+\index{bvgraph\+\_\+outdegree@{bvgraph\+\_\+outdegree}!bvgraph.\+h@{bvgraph.\+h}}
+\subsubsection[{bvgraph\+\_\+outdegree}]{\setlength{\rightskip}{0pt plus 5cm}int bvgraph\+\_\+outdegree (
+\begin{DoxyParamCaption}
+\item[{{\bf bvgraph} $\ast$}]{g, }
+\item[{int64\+\_\+t}]{x, }
+\item[{uint64\+\_\+t $\ast$}]{d}
+\end{DoxyParamCaption}
+)}}\label{bvgraph_8h_a264d0ff560674482dceede5f4d3ad44f}
+Access the outdegree for a given node.
+
+For a random access graph, this method provides a thread-\/safe means of getting the outdegree for a given node. If you are going to make many sequential outdegree calls from a single thread, the random\+\_\+access\+\_\+iterator structure is much more efficient.
+
+To use this method, the graph must be loaded with offsets.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em g} & the bvgraph structure with offsets loaded \\
+\hline
+\mbox{\tt in}  & {\em x} & the node \\
+\hline
+\mbox{\tt out}  & {\em d} & the outdegree \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 on success 
+\end{DoxyReturn}
+\hypertarget{bvgraph_8h_a4b78ead237cf15ee282760fd71b1c68a}{\index{bvgraph.\+h@{bvgraph.\+h}!bvgraph\+\_\+parallel\+\_\+iterator@{bvgraph\+\_\+parallel\+\_\+iterator}}
+\index{bvgraph\+\_\+parallel\+\_\+iterator@{bvgraph\+\_\+parallel\+\_\+iterator}!bvgraph.\+h@{bvgraph.\+h}}
+\subsubsection[{bvgraph\+\_\+parallel\+\_\+iterator}]{\setlength{\rightskip}{0pt plus 5cm}int bvgraph\+\_\+parallel\+\_\+iterator (
+\begin{DoxyParamCaption}
+\item[{{\bf bvgraph\+\_\+parallel\+\_\+iterators} $\ast$}]{pits, }
+\item[{int}]{i, }
+\item[{{\bf bvgraph\+\_\+iterator} $\ast$}]{iter, }
+\item[{int $\ast$}]{nsteps}
+\end{DoxyParamCaption}
+)}}\label{bvgraph_8h_a4b78ead237cf15ee282760fd71b1c68a}
+Pick a parallel iterator from the set.
+
+Create a copy of the ith parallel iterator suitable for actually iterating over the graph.
+
+You should N\+O\+T use the contents of the parallel\+\_\+iterators directly!
+
+You are responsible for calling \hyperlink{bvgraph__iterator_8c_a819d47b7ab5af2bca60f1ccebcd8c0bf}{bvgraph\+\_\+iterator\+\_\+free()} on the iterator.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em pits} & the set of parallel iterators \\
+\hline
+\mbox{\tt out}  & {\em iter} & the newly allocated iterator starting from the ith parallel iterator \\
+\hline
+\mbox{\tt in}  & {\em i} & the index of the iterator in the parallel set \\
+\hline
+\mbox{\tt out}  & {\em nsteps} & the number of steps to take with this iterator before hitting the next parallel iterator. \\
+\hline
+\end{DoxyParams}
+\hypertarget{bvgraph_8h_a7470188de4911d5a38306132f209af03}{\index{bvgraph.\+h@{bvgraph.\+h}!bvgraph\+\_\+parallel\+\_\+iterators\+\_\+create@{bvgraph\+\_\+parallel\+\_\+iterators\+\_\+create}}
+\index{bvgraph\+\_\+parallel\+\_\+iterators\+\_\+create@{bvgraph\+\_\+parallel\+\_\+iterators\+\_\+create}!bvgraph.\+h@{bvgraph.\+h}}
+\subsubsection[{bvgraph\+\_\+parallel\+\_\+iterators\+\_\+create}]{\setlength{\rightskip}{0pt plus 5cm}int bvgraph\+\_\+parallel\+\_\+iterators\+\_\+create (
+\begin{DoxyParamCaption}
+\item[{{\bf bvgraph} $\ast$}]{g, }
+\item[{{\bf bvgraph\+\_\+parallel\+\_\+iterators} $\ast$}]{pits, }
+\item[{int}]{niters, }
+\item[{int}]{wnode, }
+\item[{int}]{wedge}
+\end{DoxyParamCaption}
+)}}\label{bvgraph_8h_a7470188de4911d5a38306132f209af03}
+Construct independent iterators over portions of the graph.
+
+These iterators are most often used to do parallel iteration over the graph, hence the term.
+
+The graph is divided into a series of iterators by trying to balance wnode$\ast$nnodes + wedge$\ast$nedges on each of the iterators.
+
+For Open\+M\+P tasks, wnode=0, wedge=1 is often a good choice. For M\+P\+I taks, wnode=1, wedge=1 is often a good choice.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em g} & the bvgraph \\
+\hline
+\mbox{\tt out}  & {\em pits} & an uninitialized bvgraph\+\_\+parallel\+\_\+iterators structure to hold the set of iterators \\
+\hline
+\mbox{\tt in}  & {\em niters} & the number of iterators to create \\
+\hline
+\mbox{\tt in}  & {\em wnode} & a weight applied to each node to balance the work \\
+\hline
+\mbox{\tt in}  & {\em wedge} & a weight applied to each edge to balance the work \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 on success 
+\end{DoxyReturn}
+\hypertarget{bvgraph_8h_ac33ffd562616f5470442c311985ff9b1}{\index{bvgraph.\+h@{bvgraph.\+h}!bvgraph\+\_\+parallel\+\_\+iterators\+\_\+free@{bvgraph\+\_\+parallel\+\_\+iterators\+\_\+free}}
+\index{bvgraph\+\_\+parallel\+\_\+iterators\+\_\+free@{bvgraph\+\_\+parallel\+\_\+iterators\+\_\+free}!bvgraph.\+h@{bvgraph.\+h}}
+\subsubsection[{bvgraph\+\_\+parallel\+\_\+iterators\+\_\+free}]{\setlength{\rightskip}{0pt plus 5cm}int bvgraph\+\_\+parallel\+\_\+iterators\+\_\+free (
+\begin{DoxyParamCaption}
+\item[{{\bf bvgraph\+\_\+parallel\+\_\+iterators} $\ast$}]{pits}
+\end{DoxyParamCaption}
+)}}\label{bvgraph_8h_ac33ffd562616f5470442c311985ff9b1}
+Release the collection of parallel iterators
+
+You should only use this function once you are done with all operations from a set of parallel iterators.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em pits} & the set to release \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 on success 
+\end{DoxyReturn}
+\hypertarget{bvgraph_8h_aa0dad2df1bff5c9b2448a636771c26a1}{\index{bvgraph.\+h@{bvgraph.\+h}!bvgraph\+\_\+random\+\_\+access\+\_\+iterator@{bvgraph\+\_\+random\+\_\+access\+\_\+iterator}}
+\index{bvgraph\+\_\+random\+\_\+access\+\_\+iterator@{bvgraph\+\_\+random\+\_\+access\+\_\+iterator}!bvgraph.\+h@{bvgraph.\+h}}
+\subsubsection[{bvgraph\+\_\+random\+\_\+access\+\_\+iterator}]{\setlength{\rightskip}{0pt plus 5cm}int bvgraph\+\_\+random\+\_\+access\+\_\+iterator (
+\begin{DoxyParamCaption}
+\item[{{\bf bvgraph} $\ast$}]{g, }
+\item[{{\bf bvgraph\+\_\+random\+\_\+iterator} $\ast$}]{i}
+\end{DoxyParamCaption}
+)}}\label{bvgraph_8h_aa0dad2df1bff5c9b2448a636771c26a1}
+to be modified. Create a random access iterator for the bvgraph. The random access iterator is a new object, which is different from non-\/zero iterator and used to access the outdegree or successors for any given node. There can be many random access iterators and each random access iterator is independent.
+
+The random access iterator requires persistent memory to work and is useful for a single access over the file. Each new access requires a new random access iterator at present.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em g} & the graph \\
+\hline
+\mbox{\tt in}  & {\em i} & the random iterator \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 on success 
+\end{DoxyReturn}
+\hypertarget{bvgraph_8h_a30dd8c44769a7d1347bf63b58304f8f4}{\index{bvgraph.\+h@{bvgraph.\+h}!bvgraph\+\_\+random\+\_\+free@{bvgraph\+\_\+random\+\_\+free}}
+\index{bvgraph\+\_\+random\+\_\+free@{bvgraph\+\_\+random\+\_\+free}!bvgraph.\+h@{bvgraph.\+h}}
+\subsubsection[{bvgraph\+\_\+random\+\_\+free}]{\setlength{\rightskip}{0pt plus 5cm}int bvgraph\+\_\+random\+\_\+free (
+\begin{DoxyParamCaption}
+\item[{{\bf bvgraph\+\_\+random\+\_\+iterator} $\ast$}]{ri}
+\end{DoxyParamCaption}
+)}}\label{bvgraph_8h_a30dd8c44769a7d1347bf63b58304f8f4}
+Release memory associated with the random iterator.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em ri} & the random iterator \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 on success 
+\end{DoxyReturn}
+\hypertarget{bvgraph_8h_ace5dcd4e40138bb3d2e0dd87119fddda}{\index{bvgraph.\+h@{bvgraph.\+h}!bvgraph\+\_\+random\+\_\+outdegree@{bvgraph\+\_\+random\+\_\+outdegree}}
+\index{bvgraph\+\_\+random\+\_\+outdegree@{bvgraph\+\_\+random\+\_\+outdegree}!bvgraph.\+h@{bvgraph.\+h}}
+\subsubsection[{bvgraph\+\_\+random\+\_\+outdegree}]{\setlength{\rightskip}{0pt plus 5cm}int bvgraph\+\_\+random\+\_\+outdegree (
+\begin{DoxyParamCaption}
+\item[{{\bf bvgraph\+\_\+random\+\_\+iterator} $\ast$}]{ri, }
+\item[{int64\+\_\+t}]{i, }
+\item[{uint64\+\_\+t $\ast$}]{d}
+\end{DoxyParamCaption}
+)}}\label{bvgraph_8h_ace5dcd4e40138bb3d2e0dd87119fddda}
+Get the outdegree for a vertex in the graph.
+
+This operation just modifies the special outdegree specific bitfile and not the successor bitfile.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em ri} & a random access iterator for the graph \\
+\hline
+\mbox{\tt in}  & {\em i} & the index of the node (i in \mbox{[}0,g-\/$>$n-\/1\mbox{]}) \\
+\hline
+\mbox{\tt out}  & {\em d} & the node degree. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 on success 
+\end{DoxyReturn}
+\hypertarget{bvgraph_8h_ac846ed51b9e0e84df430c7d82371c3ab}{\index{bvgraph.\+h@{bvgraph.\+h}!bvgraph\+\_\+random\+\_\+successors@{bvgraph\+\_\+random\+\_\+successors}}
+\index{bvgraph\+\_\+random\+\_\+successors@{bvgraph\+\_\+random\+\_\+successors}!bvgraph.\+h@{bvgraph.\+h}}
+\subsubsection[{bvgraph\+\_\+random\+\_\+successors}]{\setlength{\rightskip}{0pt plus 5cm}int bvgraph\+\_\+random\+\_\+successors (
+\begin{DoxyParamCaption}
+\item[{{\bf bvgraph\+\_\+random\+\_\+iterator} $\ast$}]{ri, }
+\item[{int64\+\_\+t}]{x, }
+\item[{int64\+\_\+t $\ast$$\ast$}]{start, }
+\item[{uint64\+\_\+t $\ast$}]{length}
+\end{DoxyParamCaption}
+)}}\label{bvgraph_8h_ac846ed51b9e0e84df430c7d82371c3ab}
+Access the successors of a vertex.
+
+This operation is not thread-\/safe and heavily modifies the random access iterator. (Don't worry though, it doesn't touch the underlying graph, so please do use one random iterator for each thread in your code.)
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em ri} & a random access iterator for the graph \\
+\hline
+\mbox{\tt in}  & {\em x} & the index of the node (i in \mbox{[}0,g-\/$>$n-\/1\mbox{]}) \\
+\hline
+\mbox{\tt out}  & {\em start} & a pointer to internal memory for an array of length len for the successors. D\+O N\+O\+T M\+O\+D\+I\+F\+Y T\+H\+I\+S A\+R\+R\+A\+Y. \\
+\hline
+\mbox{\tt out}  & {\em len} & the node degree. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 on success 
+\end{DoxyReturn}
+\hypertarget{bvgraph_8h_ae07da12e465b2b8264ce43ac8ebaab11}{\index{bvgraph.\+h@{bvgraph.\+h}!bvgraph\+\_\+required\+\_\+memory@{bvgraph\+\_\+required\+\_\+memory}}
+\index{bvgraph\+\_\+required\+\_\+memory@{bvgraph\+\_\+required\+\_\+memory}!bvgraph.\+h@{bvgraph.\+h}}
+\subsubsection[{bvgraph\+\_\+required\+\_\+memory}]{\setlength{\rightskip}{0pt plus 5cm}int bvgraph\+\_\+required\+\_\+memory (
+\begin{DoxyParamCaption}
+\item[{{\bf bvgraph} $\ast$}]{g, }
+\item[{int}]{offset\+\_\+step, }
+\item[{size\+\_\+t $\ast$}]{gbuf, }
+\item[{size\+\_\+t $\ast$}]{offsetbuf}
+\end{DoxyParamCaption}
+)}}\label{bvgraph_8h_ae07da12e465b2b8264ce43ac8ebaab11}
+Compute the memory required to load a bvgraph into memory with the desired offset\+\_\+step.
+
+The best way to use this function is to load the bvgraph with offset\+\_\+step = -\/1, and then call this function to determine how much additional memory is required.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em g} & the graph \\
+\hline
+\mbox{\tt in}  & {\em offset\+\_\+step} & the new offset\+\_\+step value \\
+\hline
+\mbox{\tt out}  & {\em gbuf} & the size of the graph buffer \\
+\hline
+\mbox{\tt out}  & {\em offsetbuf} & the size of the offset buffer \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 on success 
+\end{DoxyReturn}
+\hypertarget{bvgraph_8h_ae6077e3021b42d4a488b2bda116df72a}{\index{bvgraph.\+h@{bvgraph.\+h}!bvgraph\+\_\+successors@{bvgraph\+\_\+successors}}
+\index{bvgraph\+\_\+successors@{bvgraph\+\_\+successors}!bvgraph.\+h@{bvgraph.\+h}}
+\subsubsection[{bvgraph\+\_\+successors}]{\setlength{\rightskip}{0pt plus 5cm}int bvgraph\+\_\+successors (
+\begin{DoxyParamCaption}
+\item[{{\bf bvgraph} $\ast$}]{g, }
+\item[{int64\+\_\+t}]{x, }
+\item[{int64\+\_\+t $\ast$$\ast$}]{start, }
+\item[{uint64\+\_\+t $\ast$}]{length}
+\end{DoxyParamCaption}
+)}}\label{bvgraph_8h_ae6077e3021b42d4a488b2bda116df72a}
+Access the successors for a given node.
+
+For a random access graph, this method provides a thread-\/safe means of getting the outdegree for a given node. If you are going to make many sequential outdegree calls from a single thread, the random\+\_\+access\+\_\+iterator structure is much more efficient.
+
+To use this method, the graph must be loaded with offsets.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em g} & the bvgraph structure with offsets loaded \\
+\hline
+\mbox{\tt in}  & {\em x} & the node \\
+\hline
+\mbox{\tt out}  & {\em start} & the starting point of successor list \\
+\hline
+\mbox{\tt out}  & {\em length} & the length of successor list (degree) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 on success 
+\end{DoxyReturn}
+\hypertarget{bvgraph_8h_a3b4634a6785d2da0b492f052e7f1cd3d}{\index{bvgraph.\+h@{bvgraph.\+h}!merge\+\_\+int\+\_\+arrays@{merge\+\_\+int\+\_\+arrays}}
+\index{merge\+\_\+int\+\_\+arrays@{merge\+\_\+int\+\_\+arrays}!bvgraph.\+h@{bvgraph.\+h}}
+\subsubsection[{merge\+\_\+int\+\_\+arrays}]{\setlength{\rightskip}{0pt plus 5cm}int merge\+\_\+int\+\_\+arrays (
+\begin{DoxyParamCaption}
+\item[{const int64\+\_\+t $\ast$}]{a1, }
+\item[{size\+\_\+t}]{a1len, }
+\item[{const int64\+\_\+t $\ast$}]{a2, }
+\item[{size\+\_\+t}]{a2len, }
+\item[{int64\+\_\+t $\ast$}]{out, }
+\item[{size\+\_\+t}]{outlen}
+\end{DoxyParamCaption}
+)}}\label{bvgraph_8h_a3b4634a6785d2da0b492f052e7f1cd3d}
+Merege two sorted arrays into a single sorted array.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em a1} & the first array \\
+\hline
+\mbox{\tt in}  & {\em a1len} & the length of the first array \\
+\hline
+\mbox{\tt in}  & {\em a2} & the second array \\
+\hline
+\mbox{\tt in}  & {\em a2len} & the length of the second array \\
+\hline
+\mbox{\tt out}  & {\em out} & the final array \\
+\hline
+\mbox{\tt out}  & {\em outlen} & the length of the output array \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 on success 
+\end{DoxyReturn}
+
+
+\subsection{Variable Documentation}
+\hypertarget{bvgraph_8h_acf8e5a019558a8623a2355214e99d34b}{\index{bvgraph.\+h@{bvgraph.\+h}!bvgraph\+\_\+call\+\_\+out\+\_\+of\+\_\+memory@{bvgraph\+\_\+call\+\_\+out\+\_\+of\+\_\+memory}}
+\index{bvgraph\+\_\+call\+\_\+out\+\_\+of\+\_\+memory@{bvgraph\+\_\+call\+\_\+out\+\_\+of\+\_\+memory}!bvgraph.\+h@{bvgraph.\+h}}
+\subsubsection[{bvgraph\+\_\+call\+\_\+out\+\_\+of\+\_\+memory}]{\setlength{\rightskip}{0pt plus 5cm}const int bvgraph\+\_\+call\+\_\+out\+\_\+of\+\_\+memory}}\label{bvgraph_8h_acf8e5a019558a8623a2355214e99d34b}
+
+
+error code for call out of memory 
+
+Define all the error codes 

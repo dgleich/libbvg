@@ -1,0 +1,366 @@
+\hypertarget{bitfile_8h}{\section{include/bitfile.h File Reference}
+\label{bitfile_8h}\index{include/bitfile.\+h@{include/bitfile.\+h}}
+}
+
+
+The main declarations for the bitfile class.  
+
+
+{\ttfamily \#include $<$stdio.\+h$>$}\\*
+{\ttfamily \#include \char`\"{}pstdint.\+h\char`\"{}}\\*
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \hyperlink{structbitfile__tag}{bitfile\+\_\+tag}
+\begin{DoxyCompactList}\small\item\em underly implementation of bitfile class \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{bitfile_8h_ac323ecf9a35627c8601b9c3f1246b8c6}{typedef struct \hyperlink{structbitfile__tag}{bitfile\+\_\+tag} {\bfseries bitfile}}\label{bitfile_8h_ac323ecf9a35627c8601b9c3f1246b8c6}
+
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+int \hyperlink{bitfile_8h_aefada15378baeddaea7fa1a85f25395b}{bitfile\+\_\+open} (F\+I\+L\+E $\ast$f, \hyperlink{structbitfile__tag}{bitfile} $\ast$bf)
+\item 
+int \hyperlink{bitfile_8h_ad6aadec622a85368c0ed3ae84feb80aa}{bitfile\+\_\+map} (unsigned char $\ast$mem, size\+\_\+t len, \hyperlink{structbitfile__tag}{bitfile} $\ast$bf)
+\item 
+int \hyperlink{bitfile_8h_aba6be0a0815d236e4faf7abe60f0c58b}{bitfile\+\_\+close} (\hyperlink{structbitfile__tag}{bitfile} $\ast$bf)
+\item 
+int \hyperlink{bitfile_8h_aafa8e7e6ba9926e8e88097b97c6275bd}{bitfile\+\_\+flush} (\hyperlink{structbitfile__tag}{bitfile} $\ast$bf)
+\item 
+int \hyperlink{bitfile_8h_a9c69797c71c743071aed5794a4c34956}{bitfile\+\_\+read\+\_\+bit} (\hyperlink{structbitfile__tag}{bitfile} $\ast$bf)
+\item 
+int64\+\_\+t \hyperlink{bitfile_8h_a45dcbe23af0a81ca3cf6b594db3155e8}{bitfile\+\_\+read\+\_\+int} (\hyperlink{structbitfile__tag}{bitfile} $\ast$bf, unsigned int len)
+\item 
+int \hyperlink{bitfile_8h_a1f7ef4d1e004e02e139fda0e31793fa8}{bitfile\+\_\+read\+\_\+unary} (\hyperlink{structbitfile__tag}{bitfile} $\ast$bf)
+\item 
+int64\+\_\+t \hyperlink{bitfile_8h_aa7056d328c7def797e4ff34e4ecd74c6}{bitfile\+\_\+read\+\_\+gamma} (\hyperlink{structbitfile__tag}{bitfile} $\ast$bf)
+\item 
+int64\+\_\+t \hyperlink{bitfile_8h_a9c8c4fb1551572651336bc95d3e0dfc8}{bitfile\+\_\+read\+\_\+zeta} (\hyperlink{structbitfile__tag}{bitfile} $\ast$bf, const int k)
+\item 
+int64\+\_\+t \hyperlink{bitfile_8h_ae5fe0aa9eaa855dcae1291e4413926b8}{bitfile\+\_\+read\+\_\+nibble} (\hyperlink{structbitfile__tag}{bitfile} $\ast$bf)
+\item 
+long long \hyperlink{bitfile_8h_a974d8f5d9ad389a62472e560472e0b54}{bitfile\+\_\+tell} (\hyperlink{structbitfile__tag}{bitfile} $\ast$bf)
+\item 
+int \hyperlink{bitfile_8h_ac7b19690ff6b2ff43ae5250d8664ed67}{bitfile\+\_\+position} (\hyperlink{structbitfile__tag}{bitfile} $\ast$bf, const long long pos)
+\item 
+long long \hyperlink{bitfile_8h_a17e77518d6b330ebc6a03e830d590e2b}{bitfile\+\_\+skip} (\hyperlink{structbitfile__tag}{bitfile} $\ast$bf, long long n)
+\item 
+int \hyperlink{bitfile_8h_a93410ba42e53084e8c0dc89d87107db4}{bitfile\+\_\+skip\+\_\+gammas} (\hyperlink{structbitfile__tag}{bitfile} $\ast$bf, int n)
+\item 
+int \hyperlink{bitfile_8h_a85fc8c7479edc3299f16fac6d0baa389}{bitfile\+\_\+skip\+\_\+deltas} (\hyperlink{structbitfile__tag}{bitfile} $\ast$bf, int n)
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+The main declarations for the bitfile class. 
+
+bitfile class
+
+\begin{DoxyAuthor}{Author}
+David Gleich 
+\end{DoxyAuthor}
+\begin{DoxyDate}{Date}
+17 May 2007
+\end{DoxyDate}
+
+
+\subsection{Function Documentation}
+\hypertarget{bitfile_8h_aba6be0a0815d236e4faf7abe60f0c58b}{\index{bitfile.\+h@{bitfile.\+h}!bitfile\+\_\+close@{bitfile\+\_\+close}}
+\index{bitfile\+\_\+close@{bitfile\+\_\+close}!bitfile.\+h@{bitfile.\+h}}
+\subsubsection[{bitfile\+\_\+close}]{\setlength{\rightskip}{0pt plus 5cm}int bitfile\+\_\+close (
+\begin{DoxyParamCaption}
+\item[{{\bf bitfile} $\ast$}]{bf}
+\end{DoxyParamCaption}
+)}}\label{bitfile_8h_aba6be0a0815d236e4faf7abe60f0c58b}
+Close a bitfile structure which will free any memory allocated for the structure.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em bf} & the bitfile \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 on success 
+\end{DoxyReturn}
+\hypertarget{bitfile_8h_aafa8e7e6ba9926e8e88097b97c6275bd}{\index{bitfile.\+h@{bitfile.\+h}!bitfile\+\_\+flush@{bitfile\+\_\+flush}}
+\index{bitfile\+\_\+flush@{bitfile\+\_\+flush}!bitfile.\+h@{bitfile.\+h}}
+\subsubsection[{bitfile\+\_\+flush}]{\setlength{\rightskip}{0pt plus 5cm}int bitfile\+\_\+flush (
+\begin{DoxyParamCaption}
+\item[{{\bf bitfile} $\ast$}]{bf}
+\end{DoxyParamCaption}
+)}}\label{bitfile_8h_aafa8e7e6ba9926e8e88097b97c6275bd}
+Flush a bitfile, which allows the underlying stream to be repositioned. 
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em bf} & the bitfile \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 on success 
+\end{DoxyReturn}
+\hypertarget{bitfile_8h_ad6aadec622a85368c0ed3ae84feb80aa}{\index{bitfile.\+h@{bitfile.\+h}!bitfile\+\_\+map@{bitfile\+\_\+map}}
+\index{bitfile\+\_\+map@{bitfile\+\_\+map}!bitfile.\+h@{bitfile.\+h}}
+\subsubsection[{bitfile\+\_\+map}]{\setlength{\rightskip}{0pt plus 5cm}int bitfile\+\_\+map (
+\begin{DoxyParamCaption}
+\item[{unsigned char $\ast$}]{mem, }
+\item[{size\+\_\+t}]{len, }
+\item[{{\bf bitfile} $\ast$}]{bf}
+\end{DoxyParamCaption}
+)}}\label{bitfile_8h_ad6aadec622a85368c0ed3ae84feb80aa}
+Wrap an exisiting array as a bitfile. The result is something that acts just like a bitfile, but never actually touches the underlying disk.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em mem} & the in memory array \\
+\hline
+\mbox{\tt in}  & {\em len} & the length of the in memory array \\
+\hline
+\mbox{\tt in}  & {\em bf} & the newly created bitfile structure \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 if everything succeeded 
+\begin{DoxyCode}
+\textcolor{keywordtype}{int} mem = ; \textcolor{comment}{// encode the first 5 digits of pi in unary}
+\hyperlink{structbitfile__tag}{bitfile} bf;
+\hyperlink{bitfile_8c_ad6aadec622a85368c0ed3ae84feb80aa}{bitfile\_map}((\textcolor{keywordtype}{void} *)&mem, 4, &bf);
+fprintf(\textcolor{stringliteral}{"%i %i %i %i %i\(\backslash\)n"}, 
+  \hyperlink{bitfile_8c_a1f7ef4d1e004e02e139fda0e31793fa8}{bitfile\_read\_unary}(bf), 
+  \hyperlink{bitfile_8c_a1f7ef4d1e004e02e139fda0e31793fa8}{bitfile\_read\_unary}(bf), 
+  \hyperlink{bitfile_8c_a1f7ef4d1e004e02e139fda0e31793fa8}{bitfile\_read\_unary}(bf), 
+  \hyperlink{bitfile_8c_a1f7ef4d1e004e02e139fda0e31793fa8}{bitfile\_read\_unary}(bf), 
+  \hyperlink{bitfile_8c_a1f7ef4d1e004e02e139fda0e31793fa8}{bitfile\_read\_unary}(bf));
+\end{DoxyCode}
+ 
+\end{DoxyReturn}
+\hypertarget{bitfile_8h_aefada15378baeddaea7fa1a85f25395b}{\index{bitfile.\+h@{bitfile.\+h}!bitfile\+\_\+open@{bitfile\+\_\+open}}
+\index{bitfile\+\_\+open@{bitfile\+\_\+open}!bitfile.\+h@{bitfile.\+h}}
+\subsubsection[{bitfile\+\_\+open}]{\setlength{\rightskip}{0pt plus 5cm}int bitfile\+\_\+open (
+\begin{DoxyParamCaption}
+\item[{F\+I\+L\+E $\ast$}]{f, }
+\item[{{\bf bitfile} $\ast$}]{bf}
+\end{DoxyParamCaption}
+)}}\label{bitfile_8h_aefada15378baeddaea7fa1a85f25395b}
+Wrap a file pointer as a bitstream. The wrapping provides access to the sequential bits of the file.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em f} & the open and valid file pointer. \\
+\hline
+\mbox{\tt in}  & {\em bf} & the newly created bitfile structure. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 if everything succeeded
+\end{DoxyReturn}
+
+\begin{DoxyCode}
+FILE *f;
+\hyperlink{structbitfile__tag}{bitfile} bf;
+\textcolor{keywordtype}{int} state
+f = fopen(\textcolor{stringliteral}{"myfile"},\textcolor{stringliteral}{"rb"});
+state = \hyperlink{bitfile_8c_aefada15378baeddaea7fa1a85f25395b}{bitfile\_open}(f,&bf);
+\textcolor{keywordflow}{if} (state) \{ \textcolor{comment}{// error! \}}
+\end{DoxyCode}
+ \hypertarget{bitfile_8h_ac7b19690ff6b2ff43ae5250d8664ed67}{\index{bitfile.\+h@{bitfile.\+h}!bitfile\+\_\+position@{bitfile\+\_\+position}}
+\index{bitfile\+\_\+position@{bitfile\+\_\+position}!bitfile.\+h@{bitfile.\+h}}
+\subsubsection[{bitfile\+\_\+position}]{\setlength{\rightskip}{0pt plus 5cm}int bitfile\+\_\+position (
+\begin{DoxyParamCaption}
+\item[{{\bf bitfile} $\ast$}]{bf, }
+\item[{const long long}]{position}
+\end{DoxyParamCaption}
+)}}\label{bitfile_8h_ac7b19690ff6b2ff43ae5250d8664ed67}
+Positions the stream at a particular bit.
+
+Given an underlying stream that implements \href{http://fastutil.di.unimi.it/docs/it/unimi/dsi/fastutil/io/RepositionableStream.html}{\tt Repositionable\+Stream} or that can provide a \href{http://docs.oracle.com/javase/7/docs/api/java/nio/channels/FileChannel.html}{\tt java.\+nio.\+channels.\+File\+Channel} via the {\ttfamily get\+Channel()} method, a call to this method has the same semantics of a \href{http://dsiutils.di.unimi.it/docs/it/unimi/dsi/io/InputBitStream.html#flush()}{\tt flush()}, followed by a call to \href{http://docs.oracle.com/javase/7/docs/api/java/nio/channels/FileChannel.html#position(long)}{\tt position(position / 8)} on the byte stream, followed by a \href{http://dsiutils.di.unimi.it/docs/it/unimi/dsi/io/InputBitStream.html#skip(long)}{\tt skip(position \% 8)}.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em bf} & the bitfile \\
+\hline
+\mbox{\tt in}  & {\em position} & the new position expressed as a bit offset. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 if everything succeeded 
+\end{DoxyReturn}
+\hypertarget{bitfile_8h_a9c69797c71c743071aed5794a4c34956}{\index{bitfile.\+h@{bitfile.\+h}!bitfile\+\_\+read\+\_\+bit@{bitfile\+\_\+read\+\_\+bit}}
+\index{bitfile\+\_\+read\+\_\+bit@{bitfile\+\_\+read\+\_\+bit}!bitfile.\+h@{bitfile.\+h}}
+\subsubsection[{bitfile\+\_\+read\+\_\+bit}]{\setlength{\rightskip}{0pt plus 5cm}int bitfile\+\_\+read\+\_\+bit (
+\begin{DoxyParamCaption}
+\item[{{\bf bitfile} $\ast$}]{bf}
+\end{DoxyParamCaption}
+)}}\label{bitfile_8h_a9c69797c71c743071aed5794a4c34956}
+Read a single bit. 
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em bf} & the bitfile \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+the bit 
+\end{DoxyReturn}
+\hypertarget{bitfile_8h_aa7056d328c7def797e4ff34e4ecd74c6}{\index{bitfile.\+h@{bitfile.\+h}!bitfile\+\_\+read\+\_\+gamma@{bitfile\+\_\+read\+\_\+gamma}}
+\index{bitfile\+\_\+read\+\_\+gamma@{bitfile\+\_\+read\+\_\+gamma}!bitfile.\+h@{bitfile.\+h}}
+\subsubsection[{bitfile\+\_\+read\+\_\+gamma}]{\setlength{\rightskip}{0pt plus 5cm}int64\+\_\+t bitfile\+\_\+read\+\_\+gamma (
+\begin{DoxyParamCaption}
+\item[{{\bf bitfile} $\ast$}]{bf}
+\end{DoxyParamCaption}
+)}}\label{bitfile_8h_aa7056d328c7def797e4ff34e4ecd74c6}
+Read a gamma coded integer. 
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em bf} & the bitfile \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+the value of the gamma coded integer 
+\end{DoxyReturn}
+\hypertarget{bitfile_8h_a45dcbe23af0a81ca3cf6b594db3155e8}{\index{bitfile.\+h@{bitfile.\+h}!bitfile\+\_\+read\+\_\+int@{bitfile\+\_\+read\+\_\+int}}
+\index{bitfile\+\_\+read\+\_\+int@{bitfile\+\_\+read\+\_\+int}!bitfile.\+h@{bitfile.\+h}}
+\subsubsection[{bitfile\+\_\+read\+\_\+int}]{\setlength{\rightskip}{0pt plus 5cm}int64\+\_\+t bitfile\+\_\+read\+\_\+int (
+\begin{DoxyParamCaption}
+\item[{{\bf bitfile} $\ast$}]{bf, }
+\item[{unsigned int}]{len}
+\end{DoxyParamCaption}
+)}}\label{bitfile_8h_a45dcbe23af0a81ca3cf6b594db3155e8}
+Read a set of bits and interpret them as a non-\/negative integer value. 
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em bf} & the bitfile \\
+\hline
+\mbox{\tt in}  & {\em len} & the number of bits \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+the non-\/negative integer represented by the bits 
+\end{DoxyReturn}
+\hypertarget{bitfile_8h_ae5fe0aa9eaa855dcae1291e4413926b8}{\index{bitfile.\+h@{bitfile.\+h}!bitfile\+\_\+read\+\_\+nibble@{bitfile\+\_\+read\+\_\+nibble}}
+\index{bitfile\+\_\+read\+\_\+nibble@{bitfile\+\_\+read\+\_\+nibble}!bitfile.\+h@{bitfile.\+h}}
+\subsubsection[{bitfile\+\_\+read\+\_\+nibble}]{\setlength{\rightskip}{0pt plus 5cm}int64\+\_\+t bitfile\+\_\+read\+\_\+nibble (
+\begin{DoxyParamCaption}
+\item[{{\bf bitfile} $\ast$}]{bf}
+\end{DoxyParamCaption}
+)}}\label{bitfile_8h_ae5fe0aa9eaa855dcae1291e4413926b8}
+Read a nibbled coded integer. 
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em bf} & the bitfile \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+the nibble coded integer. 
+\end{DoxyReturn}
+\hypertarget{bitfile_8h_a1f7ef4d1e004e02e139fda0e31793fa8}{\index{bitfile.\+h@{bitfile.\+h}!bitfile\+\_\+read\+\_\+unary@{bitfile\+\_\+read\+\_\+unary}}
+\index{bitfile\+\_\+read\+\_\+unary@{bitfile\+\_\+read\+\_\+unary}!bitfile.\+h@{bitfile.\+h}}
+\subsubsection[{bitfile\+\_\+read\+\_\+unary}]{\setlength{\rightskip}{0pt plus 5cm}int bitfile\+\_\+read\+\_\+unary (
+\begin{DoxyParamCaption}
+\item[{{\bf bitfile} $\ast$}]{bf}
+\end{DoxyParamCaption}
+)}}\label{bitfile_8h_a1f7ef4d1e004e02e139fda0e31793fa8}
+Read a unary value, which is a series of 0s and then terminated by a one. The value is the number of 0 bits. 
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em bf} & the bitfile \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+the value in unary 
+\end{DoxyReturn}
+\hypertarget{bitfile_8h_a9c8c4fb1551572651336bc95d3e0dfc8}{\index{bitfile.\+h@{bitfile.\+h}!bitfile\+\_\+read\+\_\+zeta@{bitfile\+\_\+read\+\_\+zeta}}
+\index{bitfile\+\_\+read\+\_\+zeta@{bitfile\+\_\+read\+\_\+zeta}!bitfile.\+h@{bitfile.\+h}}
+\subsubsection[{bitfile\+\_\+read\+\_\+zeta}]{\setlength{\rightskip}{0pt plus 5cm}int64\+\_\+t bitfile\+\_\+read\+\_\+zeta (
+\begin{DoxyParamCaption}
+\item[{{\bf bitfile} $\ast$}]{bf, }
+\item[{const int}]{k}
+\end{DoxyParamCaption}
+)}}\label{bitfile_8h_a9c8c4fb1551572651336bc95d3e0dfc8}
+Read a zeta coded integer. 
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em bf} & the bitfile \\
+\hline
+\mbox{\tt in}  & {\em k} & the parameter k in the gamma code. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+the value of the zeta(k) coded integer. 
+\end{DoxyReturn}
+\hypertarget{bitfile_8h_a17e77518d6b330ebc6a03e830d590e2b}{\index{bitfile.\+h@{bitfile.\+h}!bitfile\+\_\+skip@{bitfile\+\_\+skip}}
+\index{bitfile\+\_\+skip@{bitfile\+\_\+skip}!bitfile.\+h@{bitfile.\+h}}
+\subsubsection[{bitfile\+\_\+skip}]{\setlength{\rightskip}{0pt plus 5cm}long long bitfile\+\_\+skip (
+\begin{DoxyParamCaption}
+\item[{{\bf bitfile} $\ast$}]{bf, }
+\item[{long long}]{n}
+\end{DoxyParamCaption}
+)}}\label{bitfile_8h_a17e77518d6b330ebc6a03e830d590e2b}
+Skips the given number of bits.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em bf} & the bitfile \\
+\hline
+\mbox{\tt in}  & {\em n} & the number of bits to skip. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+{\ttfamily on} success, the number of bits skipped, {\ttfamily on} failure, a negative number 
+\end{DoxyReturn}
+\hypertarget{bitfile_8h_a85fc8c7479edc3299f16fac6d0baa389}{\index{bitfile.\+h@{bitfile.\+h}!bitfile\+\_\+skip\+\_\+deltas@{bitfile\+\_\+skip\+\_\+deltas}}
+\index{bitfile\+\_\+skip\+\_\+deltas@{bitfile\+\_\+skip\+\_\+deltas}!bitfile.\+h@{bitfile.\+h}}
+\subsubsection[{bitfile\+\_\+skip\+\_\+deltas}]{\setlength{\rightskip}{0pt plus 5cm}int bitfile\+\_\+skip\+\_\+deltas (
+\begin{DoxyParamCaption}
+\item[{{\bf bitfile} $\ast$}]{bf, }
+\item[{int}]{n}
+\end{DoxyParamCaption}
+)}}\label{bitfile_8h_a85fc8c7479edc3299f16fac6d0baa389}
+Skips a given number of {$\delta$}-\/coded integers.
+
+This method should be significantly quicker than iterating {\ttfamily n} times on \href{http://dsiutils.di.unimi.it/docs/it/unimi/dsi/io/InputBitStream.html#readDelta()}{\tt read\+Delta()} or \href{http://dsiutils.di.unimi.it/docs/it/unimi/dsi/io/InputBitStream.html#readLongDelta()}{\tt read\+Long\+Delta()}, as precomputed tables are used directly, so the number of method calls is greatly reduced, and the result is discarded, so \href{http://dsiutils.di.unimi.it/docs/it/unimi/dsi/io/InputBitStream.html#skip(long)}{\tt skip(long)} can be invoked instead of more specific decoding methods.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em bf} & the bitfile \\
+\hline
+\mbox{\tt in}  & {\em n} & the number of {$\delta$}-\/coded integers to be skipped. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 on success 
+\end{DoxyReturn}
+\begin{DoxySeeAlso}{See also}
+\href{http://dsiutils.di.unimi.it/docs/it/unimi/dsi/io/InputBitStream.html#readDelta()}{\tt read\+Delta()} 
+\end{DoxySeeAlso}
+\hypertarget{bitfile_8h_a93410ba42e53084e8c0dc89d87107db4}{\index{bitfile.\+h@{bitfile.\+h}!bitfile\+\_\+skip\+\_\+gammas@{bitfile\+\_\+skip\+\_\+gammas}}
+\index{bitfile\+\_\+skip\+\_\+gammas@{bitfile\+\_\+skip\+\_\+gammas}!bitfile.\+h@{bitfile.\+h}}
+\subsubsection[{bitfile\+\_\+skip\+\_\+gammas}]{\setlength{\rightskip}{0pt plus 5cm}int bitfile\+\_\+skip\+\_\+gammas (
+\begin{DoxyParamCaption}
+\item[{{\bf bitfile} $\ast$}]{bf, }
+\item[{int}]{n}
+\end{DoxyParamCaption}
+)}}\label{bitfile_8h_a93410ba42e53084e8c0dc89d87107db4}
+Skips a given number of {$\gamma$}-\/coded integers.
+
+This method should be significantly quicker than iterating {\ttfamily n} times on \href{http://dsiutils.di.unimi.it/docs/it/unimi/dsi/io/InputBitStream.html#readGamma()}{\tt read\+Gamma()} or \href{http://dsiutils.di.unimi.it/docs/it/unimi/dsi/io/InputBitStream.html#readLongGamma()}{\tt read\+Long\+Gamma()}, as precomputed tables are used directly, so the number of method calls is greatly reduced, and the result is discarded, so \href{http://dsiutils.di.unimi.it/docs/it/unimi/dsi/io/InputBitStream.html#skip(long)}{\tt skip(long)} can be invoked instead of more specific decoding methods.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em bf} & the bitfile \\
+\hline
+\mbox{\tt in}  & {\em n} & the number of {$\gamma$}-\/coded integers to be skipped. \\
+\hline
+\end{DoxyParams}
+\begin{DoxySeeAlso}{See also}
+\href{http://dsiutils.di.unimi.it/docs/it/unimi/dsi/io/InputBitStream.html#readGamma()}{\tt read\+Gamma()} 
+\end{DoxySeeAlso}
+\hypertarget{bitfile_8h_a974d8f5d9ad389a62472e560472e0b54}{\index{bitfile.\+h@{bitfile.\+h}!bitfile\+\_\+tell@{bitfile\+\_\+tell}}
+\index{bitfile\+\_\+tell@{bitfile\+\_\+tell}!bitfile.\+h@{bitfile.\+h}}
+\subsubsection[{bitfile\+\_\+tell}]{\setlength{\rightskip}{0pt plus 5cm}long long bitfile\+\_\+tell (
+\begin{DoxyParamCaption}
+\item[{{\bf bitfile} $\ast$}]{bf}
+\end{DoxyParamCaption}
+)}}\label{bitfile_8h_a974d8f5d9ad389a62472e560472e0b54}
+Return the current position 
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em bf} & the bitfile \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+the number of bits current into the bitfile 
+\end{DoxyReturn}

@@ -1,0 +1,22 @@
+\hypertarget{_2_users_2yongyangyu_2_desktop_2summer_2014_2libbvg-git_2libbvg_2src_2bvgraph_8c-example}{\section{/\+Users/yongyangyu/\+Desktop/summer\+\_\+2014/libbvg-\/git/libbvg/src/bvgraph.\+c}
+}
+Load the metadata associated with a bvgraph. Largely, this involves just parsing the properties files.
+
+
+\begin{DoxyParams}{Parameters}
+{\em g} & a newly created bvgraph structure \\
+\hline
+{\em filename} & the base filename for a set of bvgraph files, so filename.\+graph and filename.\+properties must exist. \\
+\hline
+{\em offset\+\_\+step} & controls how many offsets are loaded, if offset\+\_\+step = -\/1, then the graph file isn't loaded into memory if offset\+\_\+step = 0, then the graph file is loaded, but no offsets no other values are supported at the moment. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 if successful bvgraph\+\_\+load\+\_\+error\+\_\+filename\+\_\+too\+\_\+long -\/ indicates the filename was too long
+\end{DoxyReturn}
+bvgraph g; bvgraph\+\_\+load(\&b, \char`\"{}cnr-\/2000\char`\"{}, 0);
+
+
+\begin{DoxyCodeInclude}
+\end{DoxyCodeInclude}
+ 
