@@ -1,0 +1,263 @@
+\hypertarget{util_8c}{\section{src/util.c File Reference}
+\label{util_8c}\index{src/util.\+c@{src/util.\+c}}
+}
+
+
+utility routines  
+
+
+{\ttfamily \#include \char`\"{}bvgraph\+\_\+internal.\+h\char`\"{}}\\*
+{\ttfamily \#include $<$sys/types.\+h$>$}\\*
+{\ttfamily \#include $<$sys/stat.\+h$>$}\\*
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+int64\+\_\+t \hyperlink{util_8c_a64b07b17366ddad4469aa5556df76b6f}{atoin} (const char $\ast$str, uint len)
+\item 
+char $\ast$ \hyperlink{util_8c_a7cf17fbb8d1bed271f74905dd44ac1bb}{strappend} (const char $\ast$str, uint len, const char $\ast$str2, uint len2)
+\item 
+const char $\ast$ \hyperlink{util_8c_ad60e6f7ece5e15eb99f8303bc22d86fd}{strchrn} (const char $\ast$str, uint len, int c)
+\item 
+void \hyperlink{util_8c_a7eaeb64bee393d8854676ad8fd5f586c}{fnextline} (F\+I\+L\+E $\ast$f)
+\item 
+void \hyperlink{util_8c_a3cfc5f86009da3cc65c8a6f7632b2bc7}{fskipchars} (F\+I\+L\+E $\ast$f, const char $\ast$schars, uint scharslen)
+\item 
+int \hyperlink{util_8c_afb26b271a658e281979f56ca4d3a8040}{ftestnewline} (F\+I\+L\+E $\ast$f)
+\item 
+int \hyperlink{util_8c_add1fc922832e33082aec5a42e6c9ce78}{fsize} (const char $\ast$filename, unsigned long long $\ast$s)
+\item 
+int \hyperlink{util_8c_a2e634c0268b69488cac6351f57b03b8e}{int\+\_\+vector\+\_\+create} (\hyperlink{structbvgraph__int__vector__tag}{bvgraph\+\_\+int\+\_\+vector} $\ast$v, uint64\+\_\+t n)
+\item 
+int \hyperlink{util_8c_af74e820ae68e9297e8df91a2652fdaa7}{int\+\_\+vector\+\_\+create\+\_\+copy} (\hyperlink{structbvgraph__int__vector__tag}{bvgraph\+\_\+int\+\_\+vector} $\ast$u, \hyperlink{structbvgraph__int__vector__tag}{bvgraph\+\_\+int\+\_\+vector} $\ast$v)
+\item 
+int \hyperlink{util_8c_a08018464a30e25b55e25bc5f64b4afdf}{int\+\_\+vector\+\_\+ensure\+\_\+size} (\hyperlink{structbvgraph__int__vector__tag}{bvgraph\+\_\+int\+\_\+vector} $\ast$v, uint64\+\_\+t n)
+\item 
+int \hyperlink{util_8c_ae7bae3ceec78daeead93a73f832a757f}{int\+\_\+vector\+\_\+free} (\hyperlink{structbvgraph__int__vector__tag}{bvgraph\+\_\+int\+\_\+vector} $\ast$v)
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+utility routines 
+
+Include a set of utility routines to make a few operations a little easier. \begin{DoxyAuthor}{Author}
+David Gleich 
+\end{DoxyAuthor}
+\begin{DoxyDate}{Date}
+17 May 2007 
+\end{DoxyDate}
+\begin{DoxyVersion}{Version}
+
+\end{DoxyVersion}
+2008-\/01-\/15\+: Added {\bfseries A\+P\+P\+L\+E\+\_\+\+C\+C} case to fsize to get correct size in that case. 2008-\/05-\/09\+: Added int\+\_\+vector\+\_\+create\+\_\+copy Fixed int\+\_\+vector\+\_\+ensure\+\_\+size to remove spurious alloc on $>$= n instead of $>$ n 
+
+\subsection{Function Documentation}
+\hypertarget{util_8c_a64b07b17366ddad4469aa5556df76b6f}{\index{util.\+c@{util.\+c}!atoin@{atoin}}
+\index{atoin@{atoin}!util.\+c@{util.\+c}}
+\subsubsection[{atoin}]{\setlength{\rightskip}{0pt plus 5cm}int64\+\_\+t atoin (
+\begin{DoxyParamCaption}
+\item[{const char $\ast$}]{str, }
+\item[{uint}]{len}
+\end{DoxyParamCaption}
+)}}\label{util_8c_a64b07b17366ddad4469aa5556df76b6f}
+Convert a specified number of characters into a number. This function is a more secure version of atoi, because it does not depend on null-\/termination.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em str} & the string with a digit \\
+\hline
+\mbox{\tt in}  & {\em len} & the length of the string \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+the value encoded by the string 
+\end{DoxyReturn}
+\hypertarget{util_8c_a7eaeb64bee393d8854676ad8fd5f586c}{\index{util.\+c@{util.\+c}!fnextline@{fnextline}}
+\index{fnextline@{fnextline}!util.\+c@{util.\+c}}
+\subsubsection[{fnextline}]{\setlength{\rightskip}{0pt plus 5cm}void fnextline (
+\begin{DoxyParamCaption}
+\item[{F\+I\+L\+E $\ast$}]{f}
+\end{DoxyParamCaption}
+)}}\label{util_8c_a7eaeb64bee393d8854676ad8fd5f586c}
+Advance the file pointer to the start of the next line
+
+The file must be opened as a text file for this routine to work so that newlines are translated to '~\newline
+' and not flagged as '' and then '~\newline
+'; 
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em f} & the file stream \\
+\hline
+\end{DoxyParams}
+\hypertarget{util_8c_add1fc922832e33082aec5a42e6c9ce78}{\index{util.\+c@{util.\+c}!fsize@{fsize}}
+\index{fsize@{fsize}!util.\+c@{util.\+c}}
+\subsubsection[{fsize}]{\setlength{\rightskip}{0pt plus 5cm}int fsize (
+\begin{DoxyParamCaption}
+\item[{const char $\ast$}]{filename, }
+\item[{unsigned long long $\ast$}]{s}
+\end{DoxyParamCaption}
+)}}\label{util_8c_add1fc922832e33082aec5a42e6c9ce78}
+This function is a pseudo-\/portable file size function in C that works for the two compilers I intend to use for this code namely gcc and msvc.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em filename} & the name of the file \\
+\hline
+\mbox{\tt in}  & {\em s} & the size of the file \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 on success 
+\end{DoxyReturn}
+\hypertarget{util_8c_a3cfc5f86009da3cc65c8a6f7632b2bc7}{\index{util.\+c@{util.\+c}!fskipchars@{fskipchars}}
+\index{fskipchars@{fskipchars}!util.\+c@{util.\+c}}
+\subsubsection[{fskipchars}]{\setlength{\rightskip}{0pt plus 5cm}void fskipchars (
+\begin{DoxyParamCaption}
+\item[{F\+I\+L\+E $\ast$}]{f, }
+\item[{const char $\ast$}]{schars, }
+\item[{uint}]{scharslen}
+\end{DoxyParamCaption}
+)}}\label{util_8c_a3cfc5f86009da3cc65c8a6f7632b2bc7}
+Skip characters from the set of characters in the string schars.
+
+On return, the file pointer will be positioned at the first non-\/skipped character, or the end of the file
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em f} & the file pointer \\
+\hline
+\mbox{\tt in}  & {\em schars} & a string of characters to skip \\
+\hline
+\mbox{\tt in}  & {\em scharslen} & the number of characters characters \\
+\hline
+\end{DoxyParams}
+\hypertarget{util_8c_afb26b271a658e281979f56ca4d3a8040}{\index{util.\+c@{util.\+c}!ftestnewline@{ftestnewline}}
+\index{ftestnewline@{ftestnewline}!util.\+c@{util.\+c}}
+\subsubsection[{ftestnewline}]{\setlength{\rightskip}{0pt plus 5cm}int ftestnewline (
+\begin{DoxyParamCaption}
+\item[{F\+I\+L\+E $\ast$}]{f}
+\end{DoxyParamCaption}
+)}}\label{util_8c_afb26b271a658e281979f56ca4d3a8040}
+check if next character is a new line 
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em f} & the file pointer \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+1 if true; 0 otherwise 
+\end{DoxyReturn}
+\hypertarget{util_8c_a2e634c0268b69488cac6351f57b03b8e}{\index{util.\+c@{util.\+c}!int\+\_\+vector\+\_\+create@{int\+\_\+vector\+\_\+create}}
+\index{int\+\_\+vector\+\_\+create@{int\+\_\+vector\+\_\+create}!util.\+c@{util.\+c}}
+\subsubsection[{int\+\_\+vector\+\_\+create}]{\setlength{\rightskip}{0pt plus 5cm}int int\+\_\+vector\+\_\+create (
+\begin{DoxyParamCaption}
+\item[{{\bf bvgraph\+\_\+int\+\_\+vector} $\ast$}]{v, }
+\item[{uint64\+\_\+t}]{n}
+\end{DoxyParamCaption}
+)}}\label{util_8c_a2e634c0268b69488cac6351f57b03b8e}
+Create a vector of length n 
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt out}  & {\em v} & the vector \\
+\hline
+\mbox{\tt in}  & {\em n} & the length \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 on success 
+\end{DoxyReturn}
+\hypertarget{util_8c_af74e820ae68e9297e8df91a2652fdaa7}{\index{util.\+c@{util.\+c}!int\+\_\+vector\+\_\+create\+\_\+copy@{int\+\_\+vector\+\_\+create\+\_\+copy}}
+\index{int\+\_\+vector\+\_\+create\+\_\+copy@{int\+\_\+vector\+\_\+create\+\_\+copy}!util.\+c@{util.\+c}}
+\subsubsection[{int\+\_\+vector\+\_\+create\+\_\+copy}]{\setlength{\rightskip}{0pt plus 5cm}int int\+\_\+vector\+\_\+create\+\_\+copy (
+\begin{DoxyParamCaption}
+\item[{{\bf bvgraph\+\_\+int\+\_\+vector} $\ast$}]{u, }
+\item[{{\bf bvgraph\+\_\+int\+\_\+vector} $\ast$}]{v}
+\end{DoxyParamCaption}
+)}}\label{util_8c_af74e820ae68e9297e8df91a2652fdaa7}
+Create a new int\+\_\+vector from a deep copy of another int\+\_\+vector.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt out}  & {\em u} & the new vector \\
+\hline
+\mbox{\tt in}  & {\em v} & the old vector \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 on success 
+\end{DoxyReturn}
+\hypertarget{util_8c_a08018464a30e25b55e25bc5f64b4afdf}{\index{util.\+c@{util.\+c}!int\+\_\+vector\+\_\+ensure\+\_\+size@{int\+\_\+vector\+\_\+ensure\+\_\+size}}
+\index{int\+\_\+vector\+\_\+ensure\+\_\+size@{int\+\_\+vector\+\_\+ensure\+\_\+size}!util.\+c@{util.\+c}}
+\subsubsection[{int\+\_\+vector\+\_\+ensure\+\_\+size}]{\setlength{\rightskip}{0pt plus 5cm}int int\+\_\+vector\+\_\+ensure\+\_\+size (
+\begin{DoxyParamCaption}
+\item[{{\bf bvgraph\+\_\+int\+\_\+vector} $\ast$}]{v, }
+\item[{uint64\+\_\+t}]{n}
+\end{DoxyParamCaption}
+)}}\label{util_8c_a08018464a30e25b55e25bc5f64b4afdf}
+Check if we can get a block of memory of size n 
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt out}  & {\em v} & the bvgraph vector \\
+\hline
+\mbox{\tt in}  & {\em n} & length return 0 on success \\
+\hline
+\end{DoxyParams}
+\hypertarget{util_8c_ae7bae3ceec78daeead93a73f832a757f}{\index{util.\+c@{util.\+c}!int\+\_\+vector\+\_\+free@{int\+\_\+vector\+\_\+free}}
+\index{int\+\_\+vector\+\_\+free@{int\+\_\+vector\+\_\+free}!util.\+c@{util.\+c}}
+\subsubsection[{int\+\_\+vector\+\_\+free}]{\setlength{\rightskip}{0pt plus 5cm}int int\+\_\+vector\+\_\+free (
+\begin{DoxyParamCaption}
+\item[{{\bf bvgraph\+\_\+int\+\_\+vector} $\ast$}]{v}
+\end{DoxyParamCaption}
+)}}\label{util_8c_ae7bae3ceec78daeead93a73f832a757f}
+Free the vector. 
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em v} & the vector \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 on success 
+\end{DoxyReturn}
+\hypertarget{util_8c_a7cf17fbb8d1bed271f74905dd44ac1bb}{\index{util.\+c@{util.\+c}!strappend@{strappend}}
+\index{strappend@{strappend}!util.\+c@{util.\+c}}
+\subsubsection[{strappend}]{\setlength{\rightskip}{0pt plus 5cm}char$\ast$ strappend (
+\begin{DoxyParamCaption}
+\item[{const char $\ast$}]{str, }
+\item[{uint}]{len, }
+\item[{const char $\ast$}]{str2, }
+\item[{uint}]{len2}
+\end{DoxyParamCaption}
+)}}\label{util_8c_a7cf17fbb8d1bed271f74905dd44ac1bb}
+append two strings of fixed length, and return the result as a new string. the C\+A\+L\+L\+E\+R I\+S R\+E\+S\+P\+O\+N\+S\+I\+B\+L\+E F\+O\+R F\+R\+E\+E\+I\+N\+G the new string. 
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em str} & the 1st string \\
+\hline
+\mbox{\tt in}  & {\em len} & length of the 1st string \\
+\hline
+\mbox{\tt in}  & {\em str2} & the 2nd string \\
+\hline
+\mbox{\tt in}  & {\em len2} & the length of the 2nd string \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+a new string (appending 2nd string to the 1st one) 
+\end{DoxyReturn}
+\hypertarget{util_8c_ad60e6f7ece5e15eb99f8303bc22d86fd}{\index{util.\+c@{util.\+c}!strchrn@{strchrn}}
+\index{strchrn@{strchrn}!util.\+c@{util.\+c}}
+\subsubsection[{strchrn}]{\setlength{\rightskip}{0pt plus 5cm}const char$\ast$ strchrn (
+\begin{DoxyParamCaption}
+\item[{const char $\ast$}]{str, }
+\item[{uint}]{len, }
+\item[{int}]{c}
+\end{DoxyParamCaption}
+)}}\label{util_8c_ad60e6f7ece5e15eb99f8303bc22d86fd}
+Search for a character in a length limited string
+
+strchrn returns a pointer to the first occurence of the c in str
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em str} & the string \\
+\hline
+\mbox{\tt in}  & {\em len} & the length of the string \\
+\hline
+\mbox{\tt in}  & {\em c} & the character \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+the pointer to the first occurrence of c in str or N\+U\+L\+L if c does not occur in the first len positions of str. 
+\end{DoxyReturn}

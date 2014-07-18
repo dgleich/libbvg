@@ -1,0 +1,85 @@
+\hypertarget{structbvgraph__random__iterator__tag}{\section{bvgraph\+\_\+random\+\_\+iterator\+\_\+tag Struct Reference}
+\label{structbvgraph__random__iterator__tag}\index{bvgraph\+\_\+random\+\_\+iterator\+\_\+tag@{bvgraph\+\_\+random\+\_\+iterator\+\_\+tag}}
+}
+
+
+implementation of bvgraph\+\_\+random\+\_\+iterator A random access iterator for the bvgraph.  
+
+
+
+
+{\ttfamily \#include $<$bvgraph.\+h$>$}
+
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{structbvgraph__random__iterator__tag_aa62a5e67e8156a2831702379b0b8b601}{int64\+\_\+t \hyperlink{structbvgraph__random__iterator__tag_aa62a5e67e8156a2831702379b0b8b601}{curr}}\label{structbvgraph__random__iterator__tag_aa62a5e67e8156a2831702379b0b8b601}
+
+\begin{DoxyCompactList}\small\item\em current node id \end{DoxyCompactList}\item 
+\hypertarget{structbvgraph__random__iterator__tag_abaab674ceca73b01741ac80eff7264a2}{struct \hyperlink{structbvgraph__tag}{bvgraph\+\_\+tag} $\ast$ {\bfseries g}}\label{structbvgraph__random__iterator__tag_abaab674ceca73b01741ac80eff7264a2}
+
+\item 
+\hypertarget{structbvgraph__random__iterator__tag_acf6ec00c6e69d1c75f2fee6def2b2657}{\hyperlink{structbitfile__tag}{bitfile} \hyperlink{structbvgraph__random__iterator__tag_acf6ec00c6e69d1c75f2fee6def2b2657}{bf}}\label{structbvgraph__random__iterator__tag_acf6ec00c6e69d1c75f2fee6def2b2657}
+
+\begin{DoxyCompactList}\small\item\em bitfile for successors \end{DoxyCompactList}\item 
+\hypertarget{structbvgraph__random__iterator__tag_a44226151602e7b5bd5b0be43df7e508a}{\hyperlink{structbitfile__tag}{bitfile} \hyperlink{structbvgraph__random__iterator__tag_a44226151602e7b5bd5b0be43df7e508a}{outd\+\_\+bf}}\label{structbvgraph__random__iterator__tag_a44226151602e7b5bd5b0be43df7e508a}
+
+\begin{DoxyCompactList}\small\item\em bitfile for outdegrees \end{DoxyCompactList}\item 
+\hypertarget{structbvgraph__random__iterator__tag_a2fbfd543f9fbd5a51b6bd90c4e9c5dbd}{int {\bfseries offset\+\_\+step}}\label{structbvgraph__random__iterator__tag_a2fbfd543f9fbd5a51b6bd90c4e9c5dbd}
+
+\item 
+\hypertarget{structbvgraph__random__iterator__tag_ac45ceb3168ac87c08a2eeb341111dbaa}{int64\+\_\+t $\ast$ {\bfseries offsets}}\label{structbvgraph__random__iterator__tag_ac45ceb3168ac87c08a2eeb341111dbaa}
+
+\item 
+\hypertarget{structbvgraph__random__iterator__tag_a60868de53a1be085b499b121e643188e}{int64\+\_\+t $\ast$ \hyperlink{structbvgraph__random__iterator__tag_a60868de53a1be085b499b121e643188e}{outd\+\_\+cache}}\label{structbvgraph__random__iterator__tag_a60868de53a1be085b499b121e643188e}
+
+\begin{DoxyCompactList}\small\item\em a cache for outdegrees \end{DoxyCompactList}\item 
+\hypertarget{structbvgraph__random__iterator__tag_aaa2ae8215033f140701f5c90f41a58ca}{int64\+\_\+t \hyperlink{structbvgraph__random__iterator__tag_aaa2ae8215033f140701f5c90f41a58ca}{outd\+\_\+cache\+\_\+end}}\label{structbvgraph__random__iterator__tag_aaa2ae8215033f140701f5c90f41a58ca}
+
+\begin{DoxyCompactList}\small\item\em the endpoint of the outdegree cache \end{DoxyCompactList}\item 
+\hypertarget{structbvgraph__random__iterator__tag_a798ff0fe2555f0b009d523d276c5522a}{int64\+\_\+t $\ast$ \hyperlink{structbvgraph__random__iterator__tag_a798ff0fe2555f0b009d523d276c5522a}{offset\+\_\+cache}}\label{structbvgraph__random__iterator__tag_a798ff0fe2555f0b009d523d276c5522a}
+
+\begin{DoxyCompactList}\small\item\em a cache for offests \end{DoxyCompactList}\item 
+\hypertarget{structbvgraph__random__iterator__tag_a532abb1768c93c7fef304b40688e96c3}{int64\+\_\+t \hyperlink{structbvgraph__random__iterator__tag_a532abb1768c93c7fef304b40688e96c3}{offset\+\_\+cache\+\_\+end}}\label{structbvgraph__random__iterator__tag_a532abb1768c93c7fef304b40688e96c3}
+
+\begin{DoxyCompactList}\small\item\em the end of the offset cache \end{DoxyCompactList}\item 
+\hypertarget{structbvgraph__random__iterator__tag_ab127068ef80a3b252647658f52e117e1}{int64\+\_\+t \hyperlink{structbvgraph__random__iterator__tag_ab127068ef80a3b252647658f52e117e1}{cache\+\_\+start}}\label{structbvgraph__random__iterator__tag_ab127068ef80a3b252647658f52e117e1}
+
+\begin{DoxyCompactList}\small\item\em the start of both caches \end{DoxyCompactList}\item 
+\hypertarget{structbvgraph__random__iterator__tag_a9c87eea0675113dc72e27c0cb4f4e5eb}{struct \hyperlink{structsuccessor}{successor} $\ast$ \hyperlink{structbvgraph__random__iterator__tag_a9c87eea0675113dc72e27c0cb4f4e5eb}{successors\+\_\+cache}}\label{structbvgraph__random__iterator__tag_a9c87eea0675113dc72e27c0cb4f4e5eb}
+
+\begin{DoxyCompactList}\small\item\em a cache for successors \end{DoxyCompactList}\item 
+\hypertarget{structbvgraph__random__iterator__tag_ae74fe1a5d4939a75748c1bfc3902ed3d}{int {\bfseries cyclic\+\_\+buffer\+\_\+size}}\label{structbvgraph__random__iterator__tag_ae74fe1a5d4939a75748c1bfc3902ed3d}
+
+\item 
+\hypertarget{structbvgraph__random__iterator__tag_a50c606965ba2fe4e2c7a083ccda2ed55}{struct \hyperlink{structbvgraph__int__vector__tag}{bvgraph\+\_\+int\+\_\+vector\+\_\+tag} $\ast$ {\bfseries window}}\label{structbvgraph__random__iterator__tag_a50c606965ba2fe4e2c7a083ccda2ed55}
+
+\item 
+\hypertarget{structbvgraph__random__iterator__tag_a282df3e39953ff741509cdf247c1b84d}{struct \hyperlink{structbvgraph__int__vector__tag}{bvgraph\+\_\+int\+\_\+vector\+\_\+tag} {\bfseries successors}}\label{structbvgraph__random__iterator__tag_a282df3e39953ff741509cdf247c1b84d}
+
+\item 
+\hypertarget{structbvgraph__random__iterator__tag_ac910a1d1e59e85482f396e30de0f3d6b}{struct \hyperlink{structbvgraph__int__vector__tag}{bvgraph\+\_\+int\+\_\+vector\+\_\+tag} {\bfseries ref\+\_\+successors}}\label{structbvgraph__random__iterator__tag_ac910a1d1e59e85482f396e30de0f3d6b}
+
+\item 
+\hypertarget{structbvgraph__random__iterator__tag_a5d67bd44df08556b03d380e56098192f}{int64\+\_\+t {\bfseries curr\+\_\+outd}}\label{structbvgraph__random__iterator__tag_a5d67bd44df08556b03d380e56098192f}
+
+\item 
+\hypertarget{structbvgraph__random__iterator__tag_a5decc36e84f0f43ec4d50eddfd387e5c}{int64\+\_\+t {\bfseries max\+\_\+outd}}\label{structbvgraph__random__iterator__tag_a5decc36e84f0f43ec4d50eddfd387e5c}
+
+\item 
+\hypertarget{structbvgraph__random__iterator__tag_a17b253a6eaa477ffefb43567de8de03f}{struct \hyperlink{structbvgraph__int__vector__tag}{bvgraph\+\_\+int\+\_\+vector\+\_\+tag} \\*
+block left len buf1 {\bfseries buf2}}\label{structbvgraph__random__iterator__tag_a17b253a6eaa477ffefb43567de8de03f}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+implementation of bvgraph\+\_\+random\+\_\+iterator A random access iterator for the bvgraph. 
+
+Use this type through its alias bvgraph\+\_\+iterator.
+
+A bvgraph\+\_\+iterator gives a sequential view of a bvgraph by iterating over its edges. 
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+include/\hyperlink{bvgraph_8h}{bvgraph.\+h}\end{DoxyCompactItemize}
