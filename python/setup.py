@@ -34,11 +34,10 @@ ext_modules = [
               libraries=["bvg"])]
 
 setup (
-    name = 'python interface for libbvg',
+    name = 'pylibbvg',
     version = '2.0.1',
     author = 'David F. Gleich, Wei-Yen Day and Yongyang Yu',
     url = 'https://github.com/dgleich/libbvg',
-    long_description = open('README.md').read(),
     keywords = 'python interface for decompressing bvgraph',
     cmdclass = {'build_ext': build_ext, 'clean': clean},
     classifiers=[
