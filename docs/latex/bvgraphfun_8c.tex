@@ -1,0 +1,325 @@
+\hypertarget{bvgraphfun_8c}{\section{src/bvgraphfun.c File Reference}
+\label{bvgraphfun_8c}\index{src/bvgraphfun.\+c@{src/bvgraphfun.\+c}}
+}
+
+
+routines to matrix interface  
+
+
+{\ttfamily \#include \char`\"{}bvgraph.\+h\char`\"{}}\\*
+{\ttfamily \#include $<$string.\+h$>$}\\*
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \hyperlink{bvgraphfun_8c_a76d275f233d92c7a042940d2b0f319ef}{C\+S\+U\+M2}(x, y1, y2, t, z)~\{ t=y1; z=(x)+y2; y1=t+z; y2=(t-\/y1)+z; \}
+\item 
+\hypertarget{bvgraphfun_8c_a05fb2558b23c4d468d3d762839d39be5}{\#define {\bfseries C\+S\+U\+M}(x, y, t, z)~\{ t=y\mbox{[}0\mbox{]}; z=(x)+y\mbox{[}1\mbox{]}; y\mbox{[}0\mbox{]}=t+z; y\mbox{[}1\mbox{]}=(t-\/y\mbox{[}0\mbox{]})+z; \}}\label{bvgraphfun_8c_a05fb2558b23c4d468d3d762839d39be5}
+
+\item 
+\hypertarget{bvgraphfun_8c_a57692f2c527a40bf1858df404bf6940a}{\#define {\bfseries F\+C\+S\+U\+M2}(y1, y2)~(y1+y2)}\label{bvgraphfun_8c_a57692f2c527a40bf1858df404bf6940a}
+
+\item 
+\hypertarget{bvgraphfun_8c_ab879809a0dacb1a352567e0f6fbff977}{\#define {\bfseries F\+C\+S\+U\+M}(y)~(y\mbox{[}0\mbox{]}+y\mbox{[}1\mbox{]})}\label{bvgraphfun_8c_ab879809a0dacb1a352567e0f6fbff977}
+
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+int \hyperlink{bvgraphfun_8c_a4f600afcae31bccd465c87a0cf8fd3b8}{bvgraph\+\_\+mult} (\hyperlink{structbvgraph__tag}{bvgraph} $\ast$g, double $\ast$x, double $\ast$y)
+\item 
+int \hyperlink{bvgraphfun_8c_a3fe23f5f6419974f4e82631801818072}{bvgraph\+\_\+transmult} (\hyperlink{structbvgraph__tag}{bvgraph} $\ast$g, double $\ast$x, double $\ast$y)
+\item 
+int \hyperlink{bvgraphfun_8c_a27057d5e4fec29ea9e73079b009aeaa2}{bvgraph\+\_\+diag} (\hyperlink{structbvgraph__tag}{bvgraph} $\ast$g, double $\ast$x)
+\item 
+\hypertarget{bvgraphfun_8c_accd8ce66db7f7ba6ada73c682824d030}{int {\bfseries bvgraph\+\_\+relax\+\_\+sor} (\hyperlink{structbvgraph__tag}{bvgraph} $\ast$g, double $\ast$x, double w)}\label{bvgraphfun_8c_accd8ce66db7f7ba6ada73c682824d030}
+
+\item 
+int \hyperlink{bvgraphfun_8c_aa1dd77d593be792b378845353da19915}{bvgraph\+\_\+sum\+\_\+row} (\hyperlink{structbvgraph__tag}{bvgraph} $\ast$g, double $\ast$x)
+\item 
+int \hyperlink{bvgraphfun_8c_a855016d28c5b6321313bbaee44fbfe84}{bvgraph\+\_\+sum\+\_\+col} (\hyperlink{structbvgraph__tag}{bvgraph} $\ast$g, double $\ast$x)
+\item 
+int \hyperlink{bvgraphfun_8c_aeb285ee9b36cf00581b3f029725d8059}{bvgraph\+\_\+csr} (\hyperlink{structbvgraph__tag}{bvgraph} $\ast$g, int $\ast$ai, int $\ast$aj)
+\item 
+int \hyperlink{bvgraphfun_8c_a0b96470567500e9fb7eda65f2de9adb6}{bvgraph\+\_\+csr\+\_\+large} (\hyperlink{structbvgraph__tag}{bvgraph} $\ast$g, size\+\_\+t $\ast$ai, size\+\_\+t $\ast$aj)
+\item 
+int \hyperlink{bvgraphfun_8c_aeac7e4c468f2d8834632ef2957321490}{bvgraph\+\_\+substochastic\+\_\+mult} (\hyperlink{structbvgraph__tag}{bvgraph} $\ast$g, double $\ast$x, double $\ast$y)
+\item 
+int \hyperlink{bvgraphfun_8c_a05564692f6654d70e0edff445f06b877}{bvgraph\+\_\+substochastic\+\_\+transmult} (\hyperlink{structbvgraph__tag}{bvgraph} $\ast$g, double $\ast$x, double $\ast$y)
+\item 
+int \hyperlink{bvgraphfun_8c_afc00b33bbbb869b3bbd026a1ad026076}{bvgraph\+\_\+substochastic\+\_\+sum\+\_\+row} (\hyperlink{structbvgraph__tag}{bvgraph} $\ast$g, double $\ast$x)
+\item 
+int \hyperlink{bvgraphfun_8c_a6afc85be2bca12f48972e8573af26473}{bvgraph\+\_\+substochastic\+\_\+sum\+\_\+col} (\hyperlink{structbvgraph__tag}{bvgraph} $\ast$g, double $\ast$x)
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+routines to matrix interface 
+
+Routines to manipulate a bvgraph like a matrix. \begin{DoxyAuthor}{Author}
+David Gleich 
+\end{DoxyAuthor}
+\begin{DoxyDate}{Date}
+20 May 2007 
+\end{DoxyDate}
+\begin{DoxyVersion}{Version}
+
+\end{DoxyVersion}
+3 September 2007
+
+Added bvgraph\+\_\+csr and bvgraph\+\_\+csr\+\_\+large to convert to a C\+S\+R representation. Added bvgraph\+\_\+substochastic\+\_\+mult and bvgraph\+\_\+substochastic\+\_\+transmult to compute the stochastic products.
+
+2008-\/01-\/24\+:Added error checking and more comments
+
+4 March 2008 Added compensated summation 
+
+\subsection{Macro Definition Documentation}
+\hypertarget{bvgraphfun_8c_a76d275f233d92c7a042940d2b0f319ef}{\index{bvgraphfun.\+c@{bvgraphfun.\+c}!C\+S\+U\+M2@{C\+S\+U\+M2}}
+\index{C\+S\+U\+M2@{C\+S\+U\+M2}!bvgraphfun.\+c@{bvgraphfun.\+c}}
+\subsubsection[{C\+S\+U\+M2}]{\setlength{\rightskip}{0pt plus 5cm}\#define C\+S\+U\+M2(
+\begin{DoxyParamCaption}
+\item[{}]{x, }
+\item[{}]{y1, }
+\item[{}]{y2, }
+\item[{}]{t, }
+\item[{}]{z}
+\end{DoxyParamCaption}
+)~\{ t=y1; z=(x)+y2; y1=t+z; y2=(t-\/y1)+z; \}}}\label{bvgraphfun_8c_a76d275f233d92c7a042940d2b0f319ef}
+Define macros for compensated summation
+
+given y\mbox{[}2\mbox{]} (a vector of length 2 of summation values) x (the new summand) t (a temp variable) C\+S\+U\+M(x,svals,t,z) \char`\"{}computes y+= x\char`\"{} with compensated summation 
+
+\subsection{Function Documentation}
+\hypertarget{bvgraphfun_8c_aeb285ee9b36cf00581b3f029725d8059}{\index{bvgraphfun.\+c@{bvgraphfun.\+c}!bvgraph\+\_\+csr@{bvgraph\+\_\+csr}}
+\index{bvgraph\+\_\+csr@{bvgraph\+\_\+csr}!bvgraphfun.\+c@{bvgraphfun.\+c}}
+\subsubsection[{bvgraph\+\_\+csr}]{\setlength{\rightskip}{0pt plus 5cm}int bvgraph\+\_\+csr (
+\begin{DoxyParamCaption}
+\item[{{\bf bvgraph} $\ast$}]{g, }
+\item[{int $\ast$}]{ai, }
+\item[{int $\ast$}]{aj}
+\end{DoxyParamCaption}
+)}}\label{bvgraphfun_8c_aeb285ee9b36cf00581b3f029725d8059}
+Generate the matlab csr representation of the graph g 
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em g} & the graph \\
+\hline
+\mbox{\tt out}  & {\em ai} & row index \\
+\hline
+\mbox{\tt out}  & {\em aj} & col index \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 if successful 
+\end{DoxyReturn}
+\hypertarget{bvgraphfun_8c_a0b96470567500e9fb7eda65f2de9adb6}{\index{bvgraphfun.\+c@{bvgraphfun.\+c}!bvgraph\+\_\+csr\+\_\+large@{bvgraph\+\_\+csr\+\_\+large}}
+\index{bvgraph\+\_\+csr\+\_\+large@{bvgraph\+\_\+csr\+\_\+large}!bvgraphfun.\+c@{bvgraphfun.\+c}}
+\subsubsection[{bvgraph\+\_\+csr\+\_\+large}]{\setlength{\rightskip}{0pt plus 5cm}int bvgraph\+\_\+csr\+\_\+large (
+\begin{DoxyParamCaption}
+\item[{{\bf bvgraph} $\ast$}]{g, }
+\item[{size\+\_\+t $\ast$}]{ai, }
+\item[{size\+\_\+t $\ast$}]{aj}
+\end{DoxyParamCaption}
+)}}\label{bvgraphfun_8c_a0b96470567500e9fb7eda65f2de9adb6}
+Generate the matlab csr representation of the graph g 
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em g} & the graph \\
+\hline
+\mbox{\tt out}  & {\em ai} & the row index \\
+\hline
+\mbox{\tt out}  & {\em aj} & the col index \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 if successful 
+\end{DoxyReturn}
+\hypertarget{bvgraphfun_8c_a27057d5e4fec29ea9e73079b009aeaa2}{\index{bvgraphfun.\+c@{bvgraphfun.\+c}!bvgraph\+\_\+diag@{bvgraph\+\_\+diag}}
+\index{bvgraph\+\_\+diag@{bvgraph\+\_\+diag}!bvgraphfun.\+c@{bvgraphfun.\+c}}
+\subsubsection[{bvgraph\+\_\+diag}]{\setlength{\rightskip}{0pt plus 5cm}int bvgraph\+\_\+diag (
+\begin{DoxyParamCaption}
+\item[{{\bf bvgraph} $\ast$}]{g, }
+\item[{double $\ast$}]{x}
+\end{DoxyParamCaption}
+)}}\label{bvgraphfun_8c_a27057d5e4fec29ea9e73079b009aeaa2}
+Extract the entries along the diagonal of the matrix.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em g} & the bvgraph structure \\
+\hline
+\mbox{\tt in}  & {\em x} & the vector of diagonal elements (size g.\+n) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 if successful 
+\end{DoxyReturn}
+\hypertarget{bvgraphfun_8c_a4f600afcae31bccd465c87a0cf8fd3b8}{\index{bvgraphfun.\+c@{bvgraphfun.\+c}!bvgraph\+\_\+mult@{bvgraph\+\_\+mult}}
+\index{bvgraph\+\_\+mult@{bvgraph\+\_\+mult}!bvgraphfun.\+c@{bvgraphfun.\+c}}
+\subsubsection[{bvgraph\+\_\+mult}]{\setlength{\rightskip}{0pt plus 5cm}int bvgraph\+\_\+mult (
+\begin{DoxyParamCaption}
+\item[{{\bf bvgraph} $\ast$}]{g, }
+\item[{double $\ast$}]{x, }
+\item[{double $\ast$}]{y}
+\end{DoxyParamCaption}
+)}}\label{bvgraphfun_8c_a4f600afcae31bccd465c87a0cf8fd3b8}
+Computes a matrix vector product y = A$\ast$x
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em g} & the bvgraph structure \\
+\hline
+\mbox{\tt in}  & {\em x} & the vector x \\
+\hline
+\mbox{\tt in}  & {\em y} & the output vector y \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 if successful 
+\end{DoxyReturn}
+\hypertarget{bvgraphfun_8c_aeac7e4c468f2d8834632ef2957321490}{\index{bvgraphfun.\+c@{bvgraphfun.\+c}!bvgraph\+\_\+substochastic\+\_\+mult@{bvgraph\+\_\+substochastic\+\_\+mult}}
+\index{bvgraph\+\_\+substochastic\+\_\+mult@{bvgraph\+\_\+substochastic\+\_\+mult}!bvgraphfun.\+c@{bvgraphfun.\+c}}
+\subsubsection[{bvgraph\+\_\+substochastic\+\_\+mult}]{\setlength{\rightskip}{0pt plus 5cm}int bvgraph\+\_\+substochastic\+\_\+mult (
+\begin{DoxyParamCaption}
+\item[{{\bf bvgraph} $\ast$}]{g, }
+\item[{double $\ast$}]{x, }
+\item[{double $\ast$}]{y}
+\end{DoxyParamCaption}
+)}}\label{bvgraphfun_8c_aeac7e4c468f2d8834632ef2957321490}
+Computes a substochastic matrix vector product y = (D$^\wedge$+ A) x efficiently without storing a vector of out-\/degrees.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em g} & the bvgraph structure \\
+\hline
+\mbox{\tt in}  & {\em x} & the vector x \\
+\hline
+\mbox{\tt in}  & {\em y} & the output vector y \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 if successful 
+\end{DoxyReturn}
+\hypertarget{bvgraphfun_8c_a6afc85be2bca12f48972e8573af26473}{\index{bvgraphfun.\+c@{bvgraphfun.\+c}!bvgraph\+\_\+substochastic\+\_\+sum\+\_\+col@{bvgraph\+\_\+substochastic\+\_\+sum\+\_\+col}}
+\index{bvgraph\+\_\+substochastic\+\_\+sum\+\_\+col@{bvgraph\+\_\+substochastic\+\_\+sum\+\_\+col}!bvgraphfun.\+c@{bvgraphfun.\+c}}
+\subsubsection[{bvgraph\+\_\+substochastic\+\_\+sum\+\_\+col}]{\setlength{\rightskip}{0pt plus 5cm}int bvgraph\+\_\+substochastic\+\_\+sum\+\_\+col (
+\begin{DoxyParamCaption}
+\item[{{\bf bvgraph} $\ast$}]{g, }
+\item[{double $\ast$}]{x}
+\end{DoxyParamCaption}
+)}}\label{bvgraphfun_8c_a6afc85be2bca12f48972e8573af26473}
+Compute the sum along columns of the matrix, i.\+e. x = ones(g.\+n,1)'$\ast$\+A, but efficiently.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em g} & the bvgraph structure \\
+\hline
+\mbox{\tt in}  & {\em x} & the vector of column sums \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 if successful 
+\end{DoxyReturn}
+\hypertarget{bvgraphfun_8c_afc00b33bbbb869b3bbd026a1ad026076}{\index{bvgraphfun.\+c@{bvgraphfun.\+c}!bvgraph\+\_\+substochastic\+\_\+sum\+\_\+row@{bvgraph\+\_\+substochastic\+\_\+sum\+\_\+row}}
+\index{bvgraph\+\_\+substochastic\+\_\+sum\+\_\+row@{bvgraph\+\_\+substochastic\+\_\+sum\+\_\+row}!bvgraphfun.\+c@{bvgraphfun.\+c}}
+\subsubsection[{bvgraph\+\_\+substochastic\+\_\+sum\+\_\+row}]{\setlength{\rightskip}{0pt plus 5cm}int bvgraph\+\_\+substochastic\+\_\+sum\+\_\+row (
+\begin{DoxyParamCaption}
+\item[{{\bf bvgraph} $\ast$}]{g, }
+\item[{double $\ast$}]{x}
+\end{DoxyParamCaption}
+)}}\label{bvgraphfun_8c_afc00b33bbbb869b3bbd026a1ad026076}
+Compute the sum along rows of the matrix, i.\+e. x = P$\ast$ones(g.\+n,1), but efficiently
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em g} & the bvgraph structure \\
+\hline
+\mbox{\tt in}  & {\em x} & the vector of row sums \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 if successful 
+\end{DoxyReturn}
+\hypertarget{bvgraphfun_8c_a05564692f6654d70e0edff445f06b877}{\index{bvgraphfun.\+c@{bvgraphfun.\+c}!bvgraph\+\_\+substochastic\+\_\+transmult@{bvgraph\+\_\+substochastic\+\_\+transmult}}
+\index{bvgraph\+\_\+substochastic\+\_\+transmult@{bvgraph\+\_\+substochastic\+\_\+transmult}!bvgraphfun.\+c@{bvgraphfun.\+c}}
+\subsubsection[{bvgraph\+\_\+substochastic\+\_\+transmult}]{\setlength{\rightskip}{0pt plus 5cm}int bvgraph\+\_\+substochastic\+\_\+transmult (
+\begin{DoxyParamCaption}
+\item[{{\bf bvgraph} $\ast$}]{g, }
+\item[{double $\ast$}]{x, }
+\item[{double $\ast$}]{y}
+\end{DoxyParamCaption}
+)}}\label{bvgraphfun_8c_a05564692f6654d70e0edff445f06b877}
+Computes a substochastic tranpose matrix vector product y = (D$^\wedge$+ A)$^\wedge$\+T x efficiently without storing a vector of out-\/degrees.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em g} & the bvgraph structure \\
+\hline
+\mbox{\tt in}  & {\em x} & the vector x \\
+\hline
+\mbox{\tt in}  & {\em y} & the output vector y \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 if successful 
+\end{DoxyReturn}
+\hypertarget{bvgraphfun_8c_a855016d28c5b6321313bbaee44fbfe84}{\index{bvgraphfun.\+c@{bvgraphfun.\+c}!bvgraph\+\_\+sum\+\_\+col@{bvgraph\+\_\+sum\+\_\+col}}
+\index{bvgraph\+\_\+sum\+\_\+col@{bvgraph\+\_\+sum\+\_\+col}!bvgraphfun.\+c@{bvgraphfun.\+c}}
+\subsubsection[{bvgraph\+\_\+sum\+\_\+col}]{\setlength{\rightskip}{0pt plus 5cm}int bvgraph\+\_\+sum\+\_\+col (
+\begin{DoxyParamCaption}
+\item[{{\bf bvgraph} $\ast$}]{g, }
+\item[{double $\ast$}]{x}
+\end{DoxyParamCaption}
+)}}\label{bvgraphfun_8c_a855016d28c5b6321313bbaee44fbfe84}
+Compute the sum along columns of the matrix, i.\+e. x = ones(g.\+n,1)'$\ast$\+A, but efficiently.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em g} & the bvgraph structure \\
+\hline
+\mbox{\tt in}  & {\em x} & the vector of column sums \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 if successful 
+\end{DoxyReturn}
+\hypertarget{bvgraphfun_8c_aa1dd77d593be792b378845353da19915}{\index{bvgraphfun.\+c@{bvgraphfun.\+c}!bvgraph\+\_\+sum\+\_\+row@{bvgraph\+\_\+sum\+\_\+row}}
+\index{bvgraph\+\_\+sum\+\_\+row@{bvgraph\+\_\+sum\+\_\+row}!bvgraphfun.\+c@{bvgraphfun.\+c}}
+\subsubsection[{bvgraph\+\_\+sum\+\_\+row}]{\setlength{\rightskip}{0pt plus 5cm}int bvgraph\+\_\+sum\+\_\+row (
+\begin{DoxyParamCaption}
+\item[{{\bf bvgraph} $\ast$}]{g, }
+\item[{double $\ast$}]{x}
+\end{DoxyParamCaption}
+)}}\label{bvgraphfun_8c_aa1dd77d593be792b378845353da19915}
+Compute the sum along rows of the matrix, i.\+e. x = A$\ast$ones(g.\+n,1), but efficiently.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em g} & the bvgraph structure \\
+\hline
+\mbox{\tt in}  & {\em x} & the vector of row sums \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 if successful 
+\end{DoxyReturn}
+\hypertarget{bvgraphfun_8c_a3fe23f5f6419974f4e82631801818072}{\index{bvgraphfun.\+c@{bvgraphfun.\+c}!bvgraph\+\_\+transmult@{bvgraph\+\_\+transmult}}
+\index{bvgraph\+\_\+transmult@{bvgraph\+\_\+transmult}!bvgraphfun.\+c@{bvgraphfun.\+c}}
+\subsubsection[{bvgraph\+\_\+transmult}]{\setlength{\rightskip}{0pt plus 5cm}int bvgraph\+\_\+transmult (
+\begin{DoxyParamCaption}
+\item[{{\bf bvgraph} $\ast$}]{g, }
+\item[{double $\ast$}]{x, }
+\item[{double $\ast$}]{y}
+\end{DoxyParamCaption}
+)}}\label{bvgraphfun_8c_a3fe23f5f6419974f4e82631801818072}
+Computes a matrix vector product y = A'$\ast$x
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em g} & the bvgraph structure \\
+\hline
+\mbox{\tt in}  & {\em x} & the vector x \\
+\hline
+\mbox{\tt in}  & {\em y} & the output vector y \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 if successful 
+\end{DoxyReturn}

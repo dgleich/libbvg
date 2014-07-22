@@ -1,0 +1,202 @@
+\hypertarget{properties_8c}{\section{src/properties.c File Reference}
+\label{properties_8c}\index{src/properties.\+c@{src/properties.\+c}}
+}
+
+
+parse java property file  
+
+
+{\ttfamily \#include \char`\"{}bvgraph\+\_\+internal.\+h\char`\"{}}\\*
+{\ttfamily \#include $<$stddef.\+h$>$}\\*
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+char $\ast$ \hyperlink{properties_8c_afeb199fd54c899d1ceccb85899048227}{parse\+\_\+property\+\_\+key} (F\+I\+L\+E $\ast$f, uint maxproplen)
+\item 
+char $\ast$ \hyperlink{properties_8c_a29bbb66032ce48bb5abe77f82da68645}{parse\+\_\+property\+\_\+value} (F\+I\+L\+E $\ast$f, uint maxvallen)
+\item 
+const char $\ast$ \hyperlink{properties_8c_ae86b41a2747148ee65d087576786391a}{strchrnp} (const char $\ast$str, uint len, const char $\ast$pos, int c)
+\item 
+size\+\_\+t \hyperlink{properties_8c_a0b2273ea8ee3f56dc0899ad79bfd6091}{minf} (ptrdiff\+\_\+t a, size\+\_\+t b)
+\item 
+int \hyperlink{properties_8c_a5174a24e658bb2c171fc8352b13546b6}{parse\+\_\+compression\+\_\+flags} (\hyperlink{structbvgraph__tag}{bvgraph} $\ast$g, const char $\ast$flagstr, uint len)
+\item 
+int \hyperlink{properties_8c_ac48637ffef0d898ab4d054e146f72480}{parse\+\_\+properties} (\hyperlink{structbvgraph__tag}{bvgraph} $\ast$g)
+\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+char \hyperlink{properties_8c_a5c28661720301e425f2f912d384614ea}{return\+\_\+error\+\_\+string} \mbox{[}$\,$\mbox{]} = \char`\"{}error string\char`\"{}
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+parse java property file 
+
+This is a set of routines to manage the properties file and parse a java property file in c. \begin{DoxyAuthor}{Author}
+David Gleich 
+\end{DoxyAuthor}
+\begin{DoxyDate}{Date}
+17 May 2007 
+\end{DoxyDate}
+\begin{DoxyVersion}{Version}
+
+\end{DoxyVersion}
+2007-\/05-\/30 Implemented parse\+\_\+compression\+\_\+flags Updated parse\+\_\+properties to use correct length of each key-\/value pair.
+
+2007-\/06-\/10 Added stddef.\+h header for linux
+
+2007-\/07-\/02 Fixed error on strnlen for gcc
+
+2007-\/09-\/01 Added strnlen for M\+S\+V\+C before 2005
+
+2008-\/01-\/15 Added strnlen for A\+P\+P\+L\+E\+\_\+\+C\+C 
+
+\subsection{Function Documentation}
+\hypertarget{properties_8c_a0b2273ea8ee3f56dc0899ad79bfd6091}{\index{properties.\+c@{properties.\+c}!minf@{minf}}
+\index{minf@{minf}!properties.\+c@{properties.\+c}}
+\subsubsection[{minf}]{\setlength{\rightskip}{0pt plus 5cm}size\+\_\+t minf (
+\begin{DoxyParamCaption}
+\item[{ptrdiff\+\_\+t}]{a, }
+\item[{size\+\_\+t}]{b}
+\end{DoxyParamCaption}
+)}}\label{properties_8c_a0b2273ea8ee3f56dc0899ad79bfd6091}
+Implement a small min helper function to aid cross-\/platform compiles 
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em a} & \\
+\hline
+\mbox{\tt in}  & {\em b} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+the smaller of a and b 
+\end{DoxyReturn}
+\hypertarget{properties_8c_a5174a24e658bb2c171fc8352b13546b6}{\index{properties.\+c@{properties.\+c}!parse\+\_\+compression\+\_\+flags@{parse\+\_\+compression\+\_\+flags}}
+\index{parse\+\_\+compression\+\_\+flags@{parse\+\_\+compression\+\_\+flags}!properties.\+c@{properties.\+c}}
+\subsubsection[{parse\+\_\+compression\+\_\+flags}]{\setlength{\rightskip}{0pt plus 5cm}int parse\+\_\+compression\+\_\+flags (
+\begin{DoxyParamCaption}
+\item[{{\bf bvgraph} $\ast$}]{g, }
+\item[{const char $\ast$}]{flagstr, }
+\item[{uint}]{len}
+\end{DoxyParamCaption}
+)}}\label{properties_8c_a5174a24e658bb2c171fc8352b13546b6}
+Parse the compression flags argument of the property file.
+
+The compression flags are stored in a string and split by $\vert$ characters. For example,
+
+\char`\"{}$\vert$ O\+U\+T\+D\+E\+G\+R\+E\+E\+S\+\_\+\+G\+A\+M\+M\+A $\vert$ B\+L\+O\+C\+K\+S\+\_\+\+G\+A\+M\+M\+A $\vert$ R\+E\+S\+I\+D\+U\+A\+L\+S\+\_\+\+Z\+E\+T\+A\char`\"{}
+
+is a valid compression flag string.
+
+To parse the compression flags, we split the string based on the \char`\"{}$\vert$\char`\"{} characters and then match the internal strings.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em g} & the graph structure for the flag \\
+\hline
+\mbox{\tt in}  & {\em flagstr} & the string encoding the flags \\
+\hline
+\mbox{\tt in}  & {\em len} & the length of the string \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 on success 
+\end{DoxyReturn}
+\hypertarget{properties_8c_ac48637ffef0d898ab4d054e146f72480}{\index{properties.\+c@{properties.\+c}!parse\+\_\+properties@{parse\+\_\+properties}}
+\index{parse\+\_\+properties@{parse\+\_\+properties}!properties.\+c@{properties.\+c}}
+\subsubsection[{parse\+\_\+properties}]{\setlength{\rightskip}{0pt plus 5cm}int parse\+\_\+properties (
+\begin{DoxyParamCaption}
+\item[{{\bf bvgraph} $\ast$}]{g}
+\end{DoxyParamCaption}
+)}}\label{properties_8c_ac48637ffef0d898ab4d054e146f72480}
+Parse the properties file for the bvgraph with a given filename. This operation will fill in the various fields of the bvgraph structure.
+
+This code implements a full parsing of a J\+A\+V\+A property file. 
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em g} & the graph \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 on success 
+\end{DoxyReturn}
+\hypertarget{properties_8c_afeb199fd54c899d1ceccb85899048227}{\index{properties.\+c@{properties.\+c}!parse\+\_\+property\+\_\+key@{parse\+\_\+property\+\_\+key}}
+\index{parse\+\_\+property\+\_\+key@{parse\+\_\+property\+\_\+key}!properties.\+c@{properties.\+c}}
+\subsubsection[{parse\+\_\+property\+\_\+key}]{\setlength{\rightskip}{0pt plus 5cm}char$\ast$ parse\+\_\+property\+\_\+key (
+\begin{DoxyParamCaption}
+\item[{F\+I\+L\+E $\ast$}]{f, }
+\item[{uint}]{maxproplen}
+\end{DoxyParamCaption}
+)}}\label{properties_8c_afeb199fd54c899d1ceccb85899048227}
+A property key is any set of characters
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em f} & the property file \\
+\hline
+\mbox{\tt in}  & {\em maxproplen} & the maximum length of a property \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+a string for the property (the C\+A\+L\+L\+E\+R is responsible for freeing the memory) 
+\end{DoxyReturn}
+\hypertarget{properties_8c_a29bbb66032ce48bb5abe77f82da68645}{\index{properties.\+c@{properties.\+c}!parse\+\_\+property\+\_\+value@{parse\+\_\+property\+\_\+value}}
+\index{parse\+\_\+property\+\_\+value@{parse\+\_\+property\+\_\+value}!properties.\+c@{properties.\+c}}
+\subsubsection[{parse\+\_\+property\+\_\+value}]{\setlength{\rightskip}{0pt plus 5cm}char$\ast$ parse\+\_\+property\+\_\+value (
+\begin{DoxyParamCaption}
+\item[{F\+I\+L\+E $\ast$}]{f, }
+\item[{uint}]{maxvallen}
+\end{DoxyParamCaption}
+)}}\label{properties_8c_a29bbb66032ce48bb5abe77f82da68645}
+This function must be called immediately following parse\+\_\+property\+\_\+key to correctly parse the property value.
+
+Following a property key, a property value begins after any whitespace including a single '=' or '\+:' character
+
+A property value continues until the end of line character or a non-\/escaped '\textbackslash{}' character. At which point parsing continues on the first non-\/whitespace character of the next line.
+
+For a value of length larger than maxvallen, only the first maxvallen characters are returned. The output is always null-\/terminated.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em f} & the property file \\
+\hline
+\mbox{\tt in}  & {\em maxvallen} & the maximum length of a value \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+N\+U\+L\+L indicates that an allocation error occurred, return\+\_\+error\+\_\+string indicates that the file is not a valid java property file, and any other return value is a valid string that the C\+A\+L\+L\+E\+R M\+U\+S\+T F\+R\+E\+E! 
+\end{DoxyReturn}
+\hypertarget{properties_8c_ae86b41a2747148ee65d087576786391a}{\index{properties.\+c@{properties.\+c}!strchrnp@{strchrnp}}
+\index{strchrnp@{strchrnp}!properties.\+c@{properties.\+c}}
+\subsubsection[{strchrnp}]{\setlength{\rightskip}{0pt plus 5cm}const char$\ast$ strchrnp (
+\begin{DoxyParamCaption}
+\item[{const char $\ast$}]{str, }
+\item[{uint}]{len, }
+\item[{const char $\ast$}]{pos, }
+\item[{int}]{c}
+\end{DoxyParamCaption}
+)}}\label{properties_8c_ae86b41a2747148ee65d087576786391a}
+Find a character in a string based on a length and position
+
+Searches through the string str with length len starting from the internal pointer pos.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em str} & the string \\
+\hline
+\mbox{\tt in}  & {\em len} & the length of str \\
+\hline
+\mbox{\tt in}  & {\em pos} & a valid pointer into str \\
+\hline
+\mbox{\tt in}  & {\em c} & the character \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+N\+U\+L\+L if not found 
+\end{DoxyReturn}
+
+
+\subsection{Variable Documentation}
+\hypertarget{properties_8c_a5c28661720301e425f2f912d384614ea}{\index{properties.\+c@{properties.\+c}!return\+\_\+error\+\_\+string@{return\+\_\+error\+\_\+string}}
+\index{return\+\_\+error\+\_\+string@{return\+\_\+error\+\_\+string}!properties.\+c@{properties.\+c}}
+\subsubsection[{return\+\_\+error\+\_\+string}]{\setlength{\rightskip}{0pt plus 5cm}char return\+\_\+error\+\_\+string\mbox{[}$\,$\mbox{]} = \char`\"{}error string\char`\"{}}}\label{properties_8c_a5c28661720301e425f2f912d384614ea}
+This string is used as a return value from a function that returns a string to indicate a parsing error, as opposed to a string allocation error (which involves returning N\+U\+L\+L); 
