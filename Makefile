@@ -40,7 +40,7 @@ clean:
 	$(RM) $(LIBBVG_FULL_SRC:.c=.o) $(LIBBVGNAME) $(ALLPROGS) $(ALLOBJS)
 	cd test && $(MAKE) clean
 	cd python && $(MAKE) clean
-	$(RM) -r docs && $(RM) doxyfile.inc
+	$(RM) -r docs doxyfile.inc
 
 $(BVPAGERANKNAME): lib $(BVPAGERANK_SRC_DIR)/bvpagerank.o
 	$(CXX) $(LDFLAGS) $(BVPAGERANK_SRC_DIR)/bvpagerank.o -o $(BVPAGERANKNAME) $(LOADLIBES) $(LDLIBS)
