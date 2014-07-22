@@ -50,7 +50,7 @@ if isunix
 end
     
 
-srcfiles = {'bitfile.c', 'bvgraph.c', 'bvgraph_iterator.c', 'bvgraphfun.c', 'properties.c', 'util.c'};
+srcfiles = {'bitfile.c', 'bvgraph.c', 'bvgraph_iterator.c', 'bvgraph_random.c','bvgraphfun.c', 'properties.c', 'util.c'};
 files{1} = 'bvgfun.c';
 for sfi=1:length(srcfiles)
     files{end+1} = sprintf('%s/%s',srcdir,srcfiles{sfi});
