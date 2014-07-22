@@ -7,9 +7,11 @@
 /**
  * @file util.c
  * Include a set of utility routines to make a few operations a little easier.
- */
-
-/** History
+ * @author David Gleich
+ * @date 17 May 2007
+ * @brief utility routines
+ *
+ * @version
  *
  *  2008-01-15: Added __APPLE_CC__ case to fsize to get correct size 
  *			  in that case.
@@ -39,8 +41,8 @@
  * function is a more secure version of atoi, because it does
  * not depend on null-termination.
  *
- * @param str the string with a digit
- * @param len the length of the string
+ * @param[in] str the string with a digit
+ * @param[in] len the length of the string
  * @return the value encoded by the string
  */
 int64_t atoin(const char* str, uint len)
@@ -71,10 +73,15 @@ int64_t atoin(const char* str, uint len)
 	return (value*sign);
 }
 
-/*
+/**
  * append two strings of fixed length, and return the result 
  * as a new string.  the CALLER IS RESPONSIBLE FOR FREEING the
  * new string.
+ * @param[in] str the 1st string
+ * @param[in] len length of the 1st string
+ * @param[in] str2 the 2nd string
+ * @param[in] len2 the length of the 2nd string
+ * @return a new string (appending 2nd string to the 1st one)
  */
 char* strappend(const char* str, uint len, const char* str2, uint len2)
 {
@@ -93,9 +100,9 @@ char* strappend(const char* str, uint len, const char* str2, uint len2)
  * strchrn returns a pointer to the first occurence of 
  * the c in str 
  *
- * @param str the string
- * @param len the length of the string
- * @param c the character
+ * @param[in] str the string
+ * @param[in] len the length of the string
+ * @param[in] c the character
  * @return the pointer to the first occurrence of c in str or NULL
  * if c does not occur in the first len positions of str.
  */
@@ -115,6 +122,7 @@ const char* strchrn(const char* str, uint len, int c)
  * The file must be opened as a text file for this routine to 
  * work so that newlines are translated to '\n' and not
  * flagged as '\r' and then '\n';
+ * @param[in] f the file stream
  */
 void fnextline(FILE *f)
 {
@@ -131,9 +139,9 @@ void fnextline(FILE *f)
  * On return, the file pointer will be positioned at the first
  * non-skipped character, or the end of the file
  *
- * @param f the file pointer
- * @param schars a string of characters to skip
- * @param scharslen the number of characters characters 
+ * @param[in] f the file pointer
+ * @param[in] schars a string of characters to skip
+ * @param[in] scharslen the number of characters characters 
  */
 void fskipchars(FILE *f, const char *schars, uint scharslen)
 {
@@ -149,6 +157,12 @@ void fskipchars(FILE *f, const char *schars, uint scharslen)
 	}
 }
 
+/**
+ * check if next character is a new line
+ * @param[in] f the file pointer
+ * @return 1 if true; 0 otherwise
+ */
+
 int ftestnewline(FILE *f)
 {
 	int c = getc(f);
@@ -161,8 +175,8 @@ int ftestnewline(FILE *f)
  * that works for the two compilers I intend to use for this code
  * namely gcc and msvc.
  *
- * @param filename the name of the file 
- * @param s the size of the file
+ * @param[in] filename the name of the file 
+ * @param[in] s the size of the file
  * @return 0 on success
  */
 int fsize(const char *filename, unsigned long long *s)
@@ -186,6 +200,13 @@ int fsize(const char *filename, unsigned long long *s)
 	return 0;
 }
 
+/**
+ * Create a vector of length n
+ * @param[out] v the vector
+ * @param[in] n the length
+ * @return 0 on success
+ */
+
 int int_vector_create(bvgraph_int_vector* v, uint64_t n)
 {
 	v->elements = n;
@@ -196,8 +217,9 @@ int int_vector_create(bvgraph_int_vector* v, uint64_t n)
 
 /** Create a new int_vector from a deep copy of another int_vector.
  * 
- * @param u the new vector
- * @param v the old vector
+ * @param[out] u the new vector
+ * @param[in] v the old vector
+ * @return 0 on success
  */
 int int_vector_create_copy(bvgraph_int_vector* u, bvgraph_int_vector *v)
 {
@@ -207,6 +229,13 @@ int int_vector_create_copy(bvgraph_int_vector* u, bvgraph_int_vector *v)
 	memcpy(u->a, v->a, sizeof(int64_t)*u->elements);
 	return (0);
 }
+
+/**
+ * Check if we can get a block of memory of size n
+ * @param[out] v the bvgraph vector
+ * @param[in] n length
+ * return 0 on success
+ */
 
 int int_vector_ensure_size(bvgraph_int_vector *v, uint64_t n)
 {
@@ -235,6 +264,13 @@ int int_vector_ensure_size(bvgraph_int_vector *v, uint64_t n)
 	}
 	return (0);
 }
+
+/**
+ * Free the vector.
+ * @param[in] v the vector
+ * @return 0 on success
+ */
+
 int int_vector_free(bvgraph_int_vector* v)
 {
 	if (v->a) { free(v->a); v->a = NULL; }
