@@ -10,8 +10,9 @@ function test_main
 msgid = 'bvgraph:test';
 
 %% Make sure the library is compiled
+
 try
-    G = bvgraph('../data/wb-cs.stanford');
+    G = bvgraph('../../data/wb-cs.stanford');
     fprintf('The library was already compiled!\n');
 catch
     s = lasterror;
@@ -22,10 +23,9 @@ catch
     end
 end
 
-
 %% Test the code documentation
 
-G = bvgraph('../data/wb-cs.stanford');
+G = bvgraph('../../data/wb-cs.stanford');
 A = sparse(G);
 x = ones(size(A,1),1);
 if norm(G*x - A*x) > eps(1)
@@ -36,8 +36,8 @@ end
 
 
 
-G = bvgraph('../data/wb-cs.stanford');
-y = pagerank(G);
+G = bvgraph('../../data/wb-cs.stanford');
+y = bvpagerank(G);
 d = diag(G);
 
 n = size(G,1);
@@ -50,7 +50,7 @@ if ~isequal(x2,x3')
     error(msgid,'there was an error multiplying two vectors');
 end
 
-G2 = bvgraph('../data/wb-cs.stanford',struct('offline',1));
+G2 = bvgraph('../../data/wb-cs.stanford',struct('offline',1));
 
 n2 = size(G2,1);
 
@@ -142,7 +142,7 @@ end
 
 rand('state',0);
 x = rand(n,1);
-G = bvgraph('../data/wb-cs.stanford');
+G = bvgraph('../../data/wb-cs.stanford');
 A = sparse(G);
 
 % create the substochastic matrix corresponding to a random walk on G/A
@@ -163,6 +163,5 @@ y_Gt = substochastic_mult(G',x);
 if norm(y_Pt-y_Gt,inf) > 100*eps(1)
     error(msgid,'stochastic_mult(tranpose) results are not correct to 100*eps');
 end
-
 
     
