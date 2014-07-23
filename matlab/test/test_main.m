@@ -164,4 +164,9 @@ if norm(y_Pt-y_Gt,inf) > 100*eps(1)
     error(msgid,'stochastic_mult(tranpose) results are not correct to 100*eps');
 end
 
+%% test 64bit integers
+rval = test_64bit();
+if rval != 0
+    error(msgid,'64-bit test failed to correctly read head-tail graph');
+end
     

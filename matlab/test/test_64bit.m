@@ -1,4 +1,4 @@
-function test_64bit
+function rval = test_64bit()
 % TEST_64BIT tests matlab interface for 64 bit integers
 %% Make sure the library is compiled
 
@@ -20,4 +20,9 @@ A = sparse(G);
 n = size(x, 1);
 summation = x(1)+y(1);
 assert(all(x+y == summation), 'failed to correctly read head-tail graph');
+if all(x+y == summation)
+    rval = 0
+else
+    rval = 1
+end
 end
