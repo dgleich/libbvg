@@ -7,9 +7,11 @@
 /**
  * @file bvgraph_iterator.c
  * Implement the set of routines to work with the bvgraph iterator
- */
-
-/** History
+ * @author David Gleich
+ * @date 18 May 2007
+ * @brief implementaion of routines for bvgraph iterator
+ *
+ * @version
  *
  * 2007-06-10: Changed iterator to allocate block,len,left,buf1,buf2 only once
  *              per iterator instead of once per next call.  This improved the
@@ -22,13 +24,14 @@
  * 2008-05-08: Set graph max_outd when closing the a valid iterator now 
  */
  
-/** Todo
+/** @todo
  * Add error checking and error returns
  * Check for performance (remove memcopies?)
  */
 
 #include "bvgraph_internal.h"
 #include "bvgraph_inline_io.h"
+#include <inttypes.h>
 
 /**
  * Create a non-zero iterator for the bvgraph.  The non-zero iterator is 
@@ -39,6 +42,10 @@
  * The nonzero iterator requires persistent memory to work and is useful
  * for a single iteration over the file.  Each new iteration requires a new
  * nonzero iterator at present.
+ *
+ * @param[in] g the graph
+ * @param[in] i the iterator
+ * @return 0 on success
  */
 int bvgraph_nonzero_iterator(bvgraph* g, bvgraph_iterator *i)
 {
@@ -145,6 +152,10 @@ int bvgraph_nonzero_iterator(bvgraph* g, bvgraph_iterator *i)
  * The random access iterator requires persistent memory to work and is useful
  * for a single access over the file.  Each new access requires a new random access
  * iterator at present.
+ *
+ * @param[in] g the graph
+ * @param[in] i the random iterator
+ * @return 0 on success
  */
 int bvgraph_random_access_iterator(bvgraph* g, bvgraph_random_iterator *i)
 {
@@ -234,10 +245,10 @@ int bvgraph_random_access_iterator(bvgraph* g, bvgraph_random_iterator *i)
  * This routine provides access to the successors array stored inside
  * the iterator, so the successor array will be invalidated after 
  * a call to iterator_next.
- * ===
  * 08/28/11
- * start: starting point of links (array)
- * len: outdegree
+ * @param[out] start starting point of links (array)
+ * @param[out] len outdegree
+ * @return 0 on success
  */
 int bvgraph_iterator_outedges(bvgraph_iterator* i, int64_t** start, uint64_t* len)
 {
@@ -250,12 +261,13 @@ int bvgraph_iterator_outedges(bvgraph_iterator* i, int64_t** start, uint64_t* le
 /**
  * Merege two sorted arrays into a single sorted array.
  *
- * @param a1 the first array
- * @param a1len the length of the first array
- * @param a2 the second array
- * @param a2len the length of the second array
- * @param out the final array
- * @param outlen the length of the output array
+ * @param[in] a1 the first array
+ * @param[in] a1len the length of the first array
+ * @param[in] a2 the second array
+ * @param[in] a2len the length of the second array
+ * @param[out] out the final array
+ * @param[out] outlen the length of the output array
+ * @return 0 on success
  */
 int merge_int_arrays(const int64_t* a1, size_t a1len, const int64_t* a2, 
                      size_t a2len, int64_t *out, size_t outlen)
@@ -280,7 +292,10 @@ int merge_int_arrays(const int64_t* a1, size_t a1len, const int64_t* a2,
  * Load the next set of successors into the i->successors array.  This
  * routine invalidates the current set of successors.
  *
- * TODO: Optimize memory usage in this routine.
+ * @todo Optimize memory usage in this routine.
+ *
+ * @param[in] iter the iterator
+ * @return 0 on success
  */
 int bvgraph_iterator_next(bvgraph_iterator* iter)
 {
@@ -328,7 +343,7 @@ int bvgraph_iterator_next(bvgraph_iterator* iter)
     int_vector_ensure_size(&iter->buf2, d);
 
 #ifdef MAX_DEBUG
-    fprintf(stderr, "** begin successors\ncurr = %ld\n", iter->curr);
+    fprintf(stderr, "** begin successors\ncurr = %"PRId64"\n", iter->curr);
 #endif 
             
     // we read the reference only if the actual window size is larger than one 
@@ -348,7 +363,7 @@ int bvgraph_iterator_next(bvgraph_iterator* iter)
         }
 
 #ifdef MAX_DEBUG
-    fprintf(stderr, "block_count = %ld\n", block_count);
+    fprintf(stderr, "block_count = %"PRId64"\n", block_count);
 #endif 
         // the number of successors copied, and the total number of successors specified
         // in some copy
@@ -405,7 +420,7 @@ int bvgraph_iterator_next(bvgraph_iterator* iter)
     buf2_index = 0;
 
 #ifdef MAX_DEBUG
-    fprintf("extra_count = %ld\ninterval_count = %ld\nref = %ld\n", extra_count, interval_count, ref);
+    fprintf("extra_count = %"PRId64"\ninterval_count = %"PRId64"\nref = %"PRId64"\n", extra_count, interval_count, ref);
 #endif 
     // read the residuals into a buffer
     {
@@ -515,7 +530,8 @@ int bvgraph_iterator_next(bvgraph_iterator* iter)
 }
 
 /**
- * @param i the bvgraph iterator
+ * check if the iterator is valid
+ * @param[in] i the bvgraph iterator
  * @return 1 if the iterator is still valid, 0 otherwise
  */
 int bvgraph_iterator_valid(bvgraph_iterator* i)
@@ -523,6 +539,12 @@ int bvgraph_iterator_valid(bvgraph_iterator* i)
     if (i->g && i->curr < i->g->n) { return 1; }
     return (0);
 }
+
+/**
+ * free the bvgraph iterator
+ * @param[in] iter the iterator
+ * @return 0 on success
+ */
 
 int bvgraph_iterator_free(bvgraph_iterator *iter)
 {
@@ -560,8 +582,9 @@ int bvgraph_iterator_free(bvgraph_iterator *iter)
  * for it.  (It should have either been freshly allocated, or had
  * bvgraph_iterator_free called on it.)
  * 
- * @param i the new iterator
- * @param j the old iterator
+ * @param[out] i the new iterator
+ * @param[in] j the old iterator
+ * @return 0 on success
  */
 int bvgraph_iterator_copy(bvgraph_iterator *i, bvgraph_iterator *j)
 {
@@ -764,12 +787,13 @@ static int distribute_iters(bvgraph *g, bvgraph_parallel_iterators *pits,
  * For OpenMP tasks, wnode=0, wedge=1 is often a good choice.
  * For MPI taks, wnode=1, wedge=1 is often a good choice.
  * 
- * @param g the bvgraph
- * @param pits an uninitialized bvgraph_parallel_iterators structure
+ * @param[in] g the bvgraph
+ * @param[out] pits an uninitialized bvgraph_parallel_iterators structure
  * to hold the set of iterators
- * @param niters the number of iterators to create
- * @param wnode a weight applied to each node to balance the work
- * @param wedge a weight applied to each edge to balance the work
+ * @param[in] niters the number of iterators to create
+ * @param[in] wnode a weight applied to each node to balance the work
+ * @param[in] wedge a weight applied to each edge to balance the work
+ * @return 0 on success
  */
 int bvgraph_parallel_iterators_create(bvgraph *g, 
         bvgraph_parallel_iterators *pits, int niters, int wnode, int wedge)
@@ -815,11 +839,11 @@ int bvgraph_parallel_iterators_create(bvgraph *g,
  * 
  * You are responsible for calling bvgraph_iterator_free() on the iterator.
  * 
- * @param pits the set of parallel iterators
- * @param iter the newly allocated iterator starting from the ith parallel 
+ * @param[in] pits the set of parallel iterators
+ * @param[out] iter the newly allocated iterator starting from the ith parallel 
  * iterator
- * @param i the index of the iterator in the parallel set
- * @param nsteps the number of steps to take with this iterator before
+ * @param[in] i the index of the iterator in the parallel set
+ * @param[out] nsteps the number of steps to take with this iterator before
  * hitting the next parallel iterator.
  */
 int bvgraph_parallel_iterator(bvgraph_parallel_iterators *pits, int i,
@@ -840,7 +864,8 @@ int bvgraph_parallel_iterator(bvgraph_parallel_iterators *pits, int i,
  * You should only use this function once you are done with all operations from
  * a set of parallel iterators.
  * 
- * @param pits the set to release
+ * @param[in] pits the set to release
+ * @return 0 on success
  */
 int bvgraph_parallel_iterators_free(bvgraph_parallel_iterators *pits)
 {

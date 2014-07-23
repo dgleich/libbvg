@@ -10,6 +10,9 @@
 /**
  * @file bvgraphfun.h
  * Include a few functions with a bvgraph to make linear algebra easier
+ * @author David
+ * @date 21 May 2007
+ * @brief Include a few fucntions with a bvgraph for Matlab interface
  */
 
 #include "bvgraph.h"

@@ -7,9 +7,11 @@
 /**
  * @file bvgraph_inline_io.h
  * Implement all the routines to read pieces of a bvgraph file.
- */
-
-/** History
+ * @author David Gleich
+ * @date 10 March 2008
+ * @brief implementations all the routines
+ *
+ * @version
  *
  * 2008-03-10: Coding started, ported codes from bvgraph_iterator.c
  */
