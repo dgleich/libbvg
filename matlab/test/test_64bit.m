@@ -18,7 +18,7 @@ display(G);
 A = sparse(G);
 [x, y] = find(A);
 n = size(x, 1);
-sumation = x(1)+y(1);
+summation = x(1)+y(1);
 rval = any(x + y - summation .* ones(n, 1));
 if rval != 0
     error('head tail summation not correct');
