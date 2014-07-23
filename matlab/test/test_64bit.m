@@ -16,12 +16,11 @@ end
 G = bvgraph('../../test/bv_head_tail_1000');
 display(G);
 A = sparse(G);
-[x, y, v] = find(A);
+[x, y] = find(A);
 n = size(x, 1);
 sumation = x(1)+y(1);
-for i = 2:n
-    if x(i) + y(i) != summation
-        error('head tail summation not correct');
-    end
+rval = any(x + y - summation .* ones(n, 1));
+if rval != 0
+    error('head tail summation not correct');
 end
 end
