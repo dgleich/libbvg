@@ -12,6 +12,7 @@
 #include "bvgraph.h"
 #include <string.h>
 #include <stdlib.h>
+#include <inttypes.h>
 
 // disable all of the unsafe operation warnings
 #ifdef _MSC_VER
@@ -44,7 +45,7 @@ int main(int argc, char **argv)
     {
         size_t memrequired;
         bvgraph_required_memory(g, 0, &memrequired, NULL);
-        printf("the graph %s requires %i bytes to load into memory\n", filename, memrequired);
+        printf("the graph %s requires %zu bytes to load into memory\n", filename, memrequired);
     }
     bvgraph_close(g);
 
@@ -52,13 +53,13 @@ int main(int argc, char **argv)
     if (rval) { perror("error with full load!"); }
     {
         bvgraph_iterator iter;
-        int *links;
-        unsigned int d;
+        int64_t *links = NULL;
+        uint64_t d;
         // initialize a vector of column sums
-        int *colsum = malloc(sizeof(int)*g->n);
-        int *colsum2 = malloc(sizeof(int)*g->n);
+        int64_t *colsum = malloc(sizeof(int64_t)*g->n);
+        int64_t *colsum2 = malloc(sizeof(int64_t)*g->n);
         int rep;
-        memset(colsum, 0, sizeof(int)*g->n);
+        memset(colsum, 0, sizeof(int64_t)*g->n);
         for (bvgraph_nonzero_iterator(g, &iter); 
              bvgraph_iterator_valid(&iter); 
              bvgraph_iterator_next(&iter))
@@ -70,7 +71,7 @@ int main(int argc, char **argv)
         }
         bvgraph_iterator_free(&iter);
         for (rep = 0; rep < 10000; rep++) {
-            memset(colsum2, 0, sizeof(int)*g->n);
+            memset(colsum2, 0, sizeof(int64_t)*g->n);
             for (bvgraph_nonzero_iterator(g, &iter); 
                  bvgraph_iterator_valid(&iter); 
                  bvgraph_iterator_next(&iter))
@@ -83,7 +84,7 @@ int main(int argc, char **argv)
             bvgraph_iterator_free(&iter);
             for (i=0; i < g->n; i++) {
                 if (colsum2[i] != colsum[i]) {
-                    fprintf(stderr, "error, column sum of column %i is not correct (%i =? %i)", 
+                    fprintf(stderr, "error, column sum of column %"PRId64" is not correct (%"PRId64" =? %"PRId64")", 
                         i, colsum[i], colsum2[i]);
                     perror("colsum error!");
                 }

@@ -12,6 +12,7 @@
 #include "bitfile.h"
 
 #include <stdlib.h>
+#include <inttypes.h>
 
 // disable all of the unsafe operation warnings
 #ifdef _MSC_VER
@@ -35,11 +36,11 @@ int main(int argc, char **argv)
     bf = &bfstruct;
     bitfile_open(f, bf);
     
-    printf("%d\n", bitfile_read_int(bf,10));
-    printf("%d\n", bitfile_read_int(bf,3));
-    printf("%d\n", bitfile_read_int(bf,3));
-    printf("%d\n", bitfile_read_int(bf,16));
-    printf("%d\n", bitfile_read_int(bf,30));
+    printf("%"PRId64"\n", bitfile_read_int(bf,10));
+    printf("%"PRId64"\n", bitfile_read_int(bf,3));
+    printf("%"PRId64"\n", bitfile_read_int(bf,3));
+    printf("%"PRId64"\n", bitfile_read_int(bf,16));
+    printf("%"PRId64"\n", bitfile_read_int(bf,30));
     
     
     for (i = 0; i < 64; i++) 
@@ -49,12 +50,12 @@ int main(int argc, char **argv)
     
     for (i = 0; i < 64; i++) 
     {
-        printf("%d\n", bitfile_read_gamma(bf));
+        printf("%"PRId64"\n", bitfile_read_gamma(bf));
     }
     
     for (i = 0; i < 64; i++) 
     {
-        printf("%d\n", bitfile_read_zeta(bf,3));
+        printf("%"PRId64"\n", bitfile_read_zeta(bf,3));
     }
 
     bitfile_close(bf);
@@ -67,11 +68,11 @@ int main(int argc, char **argv)
 
     bitfile_map(mem, i, bf);
 
-    printf("%d\n", bitfile_read_int(bf,10));
-    printf("%d\n", bitfile_read_int(bf,3));
-    printf("%d\n", bitfile_read_int(bf,3));
-    printf("%d\n", bitfile_read_int(bf,16));
-    printf("%d\n", bitfile_read_int(bf,30));
+    printf("%"PRId64"\n", bitfile_read_int(bf,10));
+    printf("%"PRId64"\n", bitfile_read_int(bf,3));
+    printf("%"PRId64"\n", bitfile_read_int(bf,3));
+    printf("%"PRId64"\n", bitfile_read_int(bf,16));
+    printf("%"PRId64"\n", bitfile_read_int(bf,30));
     
     
     for (i = 0; i < 64; i++) 
@@ -81,12 +82,12 @@ int main(int argc, char **argv)
     
     for (i = 0; i < 64; i++) 
     {
-        printf("%d\n", bitfile_read_gamma(bf));
+        printf("%"PRId64"\n", bitfile_read_gamma(bf));
     }
     
     for (i = 0; i < 64; i++) 
     {
-        printf("%d\n", bitfile_read_zeta(bf,3));
+        printf("%"PRId64"\n", bitfile_read_zeta(bf,3));
     }
 
     bitfile_close(bf);

@@ -22,16 +22,16 @@
 
 %% Load a graph
 % Loading a graph with the bvgraph class is simple.  
-G = bvgraph('../data/wb-cs.stanford')
+G = bvgraph('../../data/wb-cs.stanford')
 
 %% 
 % There is a slight caveat about loading.  The file with most of the data
-% for the bvgraph file is ../data/wb-cs.stanford.graph.  However, you must
+% for the bvgraph file is ../../data/wb-cs.stanford.graph.  However, you must
 % load the file without the .graph extension.  For example, you'll get a
 % slightly helpful error if you accidentally forget this.  (This may be
 % changed in a future version.)
 
-G2 = bvgraph('../data/wb-cs.stanford.graph');
+G2 = bvgraph('../../data/wb-cs.stanford.graph');
 
 %% Loading offline or online
 % There are two ways of loading a bvgraph file: streaming mode (offline) or
@@ -40,8 +40,8 @@ G2 = bvgraph('../data/wb-cs.stanford.graph');
 % memory, but iterates over the file on the disk for every operation.  This
 % is slower, but hardly uses any memory on the computer.  For example,
 
-G = bvgraph('../data/wb-cs.stanford');
-Goff = bvgraph('../data/wb-cs.stanford',struct('load_type','offline'));
+G = bvgraph('../../data/wb-cs.stanford');
+Goff = bvgraph('../../data/wb-cs.stanford',struct('load_type','offline'));
 
 whos
 
