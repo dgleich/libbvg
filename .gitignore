@@ -12,3 +12,5 @@ python/*.so
 test/bitfile_64bit_test
 test/bvgraph_64bit_random_test
 test/bvgraph_64bit_test
+html
+doxyfile.inc
