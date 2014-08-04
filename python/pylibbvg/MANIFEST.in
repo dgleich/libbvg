@@ -1,0 +1,11 @@
+include *.in
+include *.txt
+include *.rst
+include src/*.pxd
+include src/bvg.c
+include include/*.h
+include src/*.h
+include data/*.graph
+include data/*.properties
+include data/*.offsets
+include test/*.py
