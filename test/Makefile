@@ -32,10 +32,10 @@ test: bv_head_tail_1000.graph
 	./bvgraph_64bit_test bv_head_tail_1000
 
 bv_line.graph: bv_line.graph.bz2
-	bzip2 -d -k bv_line.graph.bz2
+	bzip2 -d -k -f bv_line.graph.bz2
 
 bv_head_tail_1000.graph: bv_head_tail_1000.graph.bz2
-	bzip2 -d -k bv_head_tail_1000.graph.bz2	
+	bzip2 -d -k -f bv_head_tail_1000.graph.bz2	
 	
 	
 

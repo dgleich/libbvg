@@ -7,6 +7,17 @@
 #include <time.h>
 #include <inttypes.h>
 
+#include <sys/time.h>
+
+double get_wall_time(){
+    struct timeval time;
+    if (gettimeofday(&time,NULL)){
+        //  Handle error
+        return 0;
+    }
+    return (double)time.tv_sec + (double)time.tv_usec * .000001;
+}
+
 struct pair{
     int from;
     int to;
@@ -230,7 +241,7 @@ void test_performance(bvgraph g, int test_num)
     int64_t i = 0;
     uint64_t d;
     srand(time(NULL));
-    clock_t start, end;
+    double start, end;
     bvgraph_random_iterator ri;
     int rval = bvgraph_random_access_iterator(&g, &ri);
 
@@ -243,7 +254,7 @@ void test_performance(bvgraph g, int test_num)
     int64_t *links = NULL;
     int64_t edge_count = 0;
  
-    start = clock();
+    start = get_wall_time();
     for (i = 0; i < test_num; i++) {
         node = rand() % g.n;
         bvgraph_random_outdegree(&ri, node, &d);
@@ -257,8 +268,8 @@ void test_performance(bvgraph g, int test_num)
 
         //printf ("node %d has degree %d\n", node, d);
     }
-    end = clock();
-    double dif = ((double)end - (double)start) / CLOCKS_PER_SEC;
+    end = get_wall_time();
+    double dif = ((double)end - (double)start);
     double edge_per_sec = edge_count / dif;
 
     printf("Used %.2lf secs. Edges = %"PRId64". Edges per second = %.2lf\n", dif, edge_count, edge_per_sec);
@@ -286,14 +297,19 @@ int main(int argc, char** argv)
     //const char* name = "libbvg/data/wb-cs.stanford";
     const char* name = argv[1];
     char* method = argv[2];
+    int rval = 0;
 
-    if (method == NULL){
+    if (method == NULL) {
         print_help();
         return 0;
     }
 
     //load with offsets
-    bvgraph_load(&g, name, strlen(name), 1);
+    rval = bvgraph_load(&g, name, strlen(name), 1);
+    if (rval != 0) {
+        printf("Failed to load file %s\n", name);
+        return (-1);
+    }
 
     printf("Input file: %s\n", name);
     printf("nodes = %"PRId64"\n", g.n);
