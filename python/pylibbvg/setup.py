@@ -55,7 +55,7 @@ ext_modules = [
 
 setup (
     name = 'pylibbvg',
-    version = '2.0.24',
+    version = '2.0.25',
     author = 'David F. Gleich, Wei-Yen Day and Yongyang Yu',
     author_email = 'dgleich@purdue.edu, yu163@purdue.edu',
     url = 'https://github.com/dgleich/libbvg',

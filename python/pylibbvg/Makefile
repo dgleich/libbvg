@@ -29,5 +29,9 @@ pylibbvg: src include test data
 	python setup.py sdist 
 	python setup.py bdist_egg
 	python setup.py bdist
+	
+upload:	
+	python setup.py register -r pypi
+	python setup.py sdist upload -r pypi	
 
 .PHONY: all clean pylibbvg
