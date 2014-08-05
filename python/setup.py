@@ -1,8 +1,23 @@
-from distutils.core import setup
-from distutils.extension import Extension
-from Cython.Distutils import build_ext
+#!/usr/bin/env python
+try:
+    from setuptools import setup
+    from setuptools.extension import Extension
+except ImportError:
+    print("Could't import setuptools. Falling back to distutils")
+    from distutils.core import setup
 from distutils import log
 import os
+import sys
+
+# force Cython to be installed before proceeding
+from setuptools.dist import Distribution
+Distribution(dict(setup_requires='Cython'))
+
+try:
+    from Cython.Distutils import build_ext
+except ImportError:
+    print("Could not import Cython.Distutils. Install `cython` and rerun.")
+    sys.exit(1)
 
 # from http://pymssql.googlecode.com/hg/setup.py
 from distutils.command.clean import clean as _clean
@@ -34,9 +49,9 @@ ext_modules = [
               libraries=["bvg"])]
 
 setup (
-    name = 'python interface for libbvg',
-    version = '2.0.0',
-    author = 'David F. Gleich and Wei-Yen Day',
+    name = 'pylibbvg',
+    version = '2.0.24',
+    author = 'David F. Gleich and Wei-Yen Day and Yongyang Yu',
     cmdclass = {'build_ext': build_ext, 'clean': clean},
     ext_modules = ext_modules
 )
