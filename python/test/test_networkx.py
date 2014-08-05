@@ -3,9 +3,10 @@
 import bvg as bvg
 import networkx as nx
 
-G = bvg.BVGraph('../../data/harvard500', 1)
-#nx.degree(G, 1)
-#nx.strongly_connected_components(G)
+G = bvg.BVGraph('../data/harvard500', 1)
+Gcc = bvg.BVGraph('../data/harvard500-cc', 1)
+nx.degree(G, 1)
+nx.strongly_connected_components(G)
 #g = nx.Graph()
 
 # centrality
@@ -39,14 +40,14 @@ nx.is_directed_acyclic_graph(G)
 nx.is_aperiodic(G)
 
 # distance measure  (all for connected graph)
-nx.center(G)
-nx.diameter(G)
-nx.eccentricity(G)
-nx.periphery(G)
-nx.radius(G)
+nx.center(Gcc)
+nx.diameter(Gcc)
+nx.eccentricity(Gcc) 
+nx.periphery(Gcc)
+nx.radius(Gcc)
 
 # flows (seg fault currently)
-#nx.max_flow(G, 1, 2)
+#nx.max_flow(Gcc, 1, 2)
 #nx.min_cut(G, 1, 2)
 
 # isolates
@@ -54,7 +55,7 @@ nx.is_isolate(G, 1)     # False
 nx.is_isolate(G, 5)     # True
 
 # HITS
-nx.hits(G)  # cannot converge?
+nx.hits(G,max_iter=1000)  # cannot converge?
 
 # maximal independent set
 nx.maximal_independent_set(G)

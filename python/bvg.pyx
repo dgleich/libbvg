@@ -156,10 +156,7 @@ cdef class BVGraph:
 
         """
 
-        for i in xrange(0, self.nverts):
-            yield i
-
-        #return xrange(0, self.nverts)
+        return xrange(0, self.nverts).__iter__()
         #return self.nodes()    # return non-iterator type?
 
     def is_directed(self):
@@ -371,7 +368,7 @@ cdef class BVGraph:
 
         """
  
-        return xrange(0, self.nverts)
+        return xrange(0, self.nverts).__iter__()
    
     def number_of_nodes(self):
         """Return the number of nodes in the graph.
@@ -530,7 +527,7 @@ cdef class BVGraph:
             yield neigh
 
     def nodes_iter(self):
-        return xrange(0, self.nverts)
+        return xrange(0, self.nverts).__iter__()
         #for i in xrange(0, self.nverts):
         #    yield i
 
