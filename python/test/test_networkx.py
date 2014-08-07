@@ -17,11 +17,11 @@ nx.closeness_centrality(G)
 nx.eigenvector_centrality(G)
 
 # clique
-list(nx.find_cliques(G))
-list(nx.make_max_clique_graph(G))
-list(nx.make_clique_bipartite(G))
-nx.graph_clique_number(G)
-nx.graph_number_of_cliques(G)
+#list(nx.find_cliques(G))
+#list(nx.make_max_clique_graph(G))
+#list(nx.make_clique_bipartite(G))
+#nx.graph_clique_number(G)
+#nx.graph_number_of_cliques(G)
 
 # components
 nx.is_strongly_connected(G)
