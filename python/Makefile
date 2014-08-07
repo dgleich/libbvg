@@ -12,7 +12,7 @@ clean:
 test: ext ../data/harvard500.smat ../test/bv_head_tail_1000.graph
 	PYTHONPATH="." python ./test/testunittest.py
 	PYTHONPATH="." python ./test/test_head_tail_1000_64bit.py ../test/bv_head_tail_1000
-	PYTHONPATH="." python ./test/test_networkx.py
+	#PYTHONPATH="." python ./test/test_networkx.py
 	
 ../test/bv_head_tail_1000.graph:
 	$(error please run make test in the main directory first)
