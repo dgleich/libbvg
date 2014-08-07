@@ -343,7 +343,7 @@ int bvgraph_iterator_next(bvgraph_iterator* iter)
     int_vector_ensure_size(&iter->buf2, d);
 
 #ifdef MAX_DEBUG
-    fprintf(stderr, "** begin successors\ncurr = %"PRId64"\n", iter->curr);
+    fprintf(stderr, "** begin successors\ncurr = %"PRId64"\nd=%"PRId64"\n", iter->curr, d);
 #endif 
             
     // we read the reference only if the actual window size is larger than one 
@@ -420,7 +420,7 @@ int bvgraph_iterator_next(bvgraph_iterator* iter)
     buf2_index = 0;
 
 #ifdef MAX_DEBUG
-    fprintf("extra_count = %"PRId64"\ninterval_count = %"PRId64"\nref = %"PRId64"\n", extra_count, interval_count, ref);
+    fprintf(stderr,"extra_count = %"PRId64"\ninterval_count = %"PRId64"\nref = %"PRId64"\n", extra_count, interval_count, ref);
 #endif 
     // read the residuals into a buffer
     {

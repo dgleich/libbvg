@@ -275,7 +275,7 @@ int bvgraph_random_successors(bvgraph_random_iterator *ri,
         buf2_index = 0;
 
         #ifdef MAX_DEBUG
-        fprintf("extra_count = %"PRId64"\ninterval_count = %"PRId64"\nref = %"PRId64"\n", extra_count, interval_count, ref);
+        fprintf(stderr,"extra_count = %"PRId64"\ninterval_count = %"PRId64"\nref = %"PRId64"\n", extra_count, interval_count, ref);
         #endif 
         // read the residuals into a buffer
         {
