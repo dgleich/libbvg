@@ -54,10 +54,10 @@ bvgraph2smat : lib tools/bvgraph2smat/bvgraph2smat.o
 ALLOBJS += tools/bvgraph2smat/bvgraph2smat.o
 ALLPROGS += bvgraph2smat
 
-everything: lib $(BVPAGERANKNAME) bvgraph2smat test python doxy
+everything: lib $(BVPAGERANKNAME) bvgraph2smat test python
 
 test: lib
-	cd test && $(MAKE) small clean
+	cd test && $(MAKE) small
 
 python: lib
 	cd python && $(MAKE) all
