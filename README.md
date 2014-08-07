@@ -7,6 +7,8 @@ web-graphs.  The library is written in pure C.
 It includes a Matlab wrapper, and a means to implement
 multi-threaded graph algorithms.
 
+[![Build Status](https://travis-ci.org/dgleich/libbvg.svg?branch=master)](https://travis-ci.org/dgleich/libbvg)
+
 Features
 --------
 
