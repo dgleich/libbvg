@@ -293,7 +293,7 @@ static int refill16(bitfile *bf) {
         }
     }
         
-    return bf->fill;
+    return (int)bf->fill;
 }
 
 /*
@@ -577,7 +577,7 @@ int bitfile_skip_deltas(bitfile* bf, int n)
         bitfile_skip(bf, (long long)bitfile_read_gamma(bf));
     }
 
-	return 0;
+    return 0;
 }
     
 
@@ -691,9 +691,10 @@ int64_t bitfile_read_gamma(bitfile* bf)
         bf->total_bits_read += precomp >> 16;
         bf->fill -= precomp >> 16;
         return (int64_t)( precomp & 0xFFFF );
+    } else {
+        const int msb = bitfile_read_unary(bf);
+        return ( ( 1ULL << msb ) | bitfile_read_int(bf, msb) ) - 1;
     }
-    const int msb = bitfile_read_unary(bf);
-	return ( ( 1ULL << msb ) | bitfile_read_int(bf, msb) ) - 1;
 }
 /**
  * Read a zeta coded integer.
@@ -703,24 +704,21 @@ int64_t bitfile_read_gamma(bitfile* bf)
  */
 int64_t bitfile_read_zeta(bitfile* bf, const int k)
 {
-    if ( k == 3 ) {
-        int precomp;
-        if ( ( bf->fill >= 16 || refill16(bf) >= 16 ) &&
-             ( precomp = ZETA[ bf->current >> ( bf->fill - 16 ) & 0xFFFF ] ) != 0 ) {
-            bf->total_bits_read += precomp >> 16;
-            bf->fill -= precomp >> 16;
-            return (int64_t)( precomp & 0xFFFF );
+    int precomp;
+    if ( k == 3 && ( bf->fill >= 16 || refill16(bf) >= 16 ) &&
+            ( precomp = ZETA[ bf->current >> ( bf->fill - 16 ) & 0xFFFF ] ) != 0 ) {
+        bf->total_bits_read += precomp >> 16;
+        bf->fill -= precomp >> 16;
+        return (int64_t)( precomp & 0xFFFF );
+    } else {
+        const int h = bitfile_read_unary(bf);
+        const int64_t left = 1ULL << h * k;
+        const int64_t m = bitfile_read_int(bf,h*k + k - 1);
+        if (m < left) { 
+            return (m + left - 1); 
+        } else { 
+            return (m << 1) + bitfile_read_bit(bf) - 1; 
         }
-
-    }
-    
-    const int h = bitfile_read_unary(bf);
-    const int64_t left = 1ULL << h * k;
-    const int64_t m = bitfile_read_int(bf,h*k + k - 1);
-    if (m < left) { 
-        return (m + left - 1); 
-    } else { 
-        return (m << 1) + bitfile_read_bit(bf) - 1; 
     }
 }
 

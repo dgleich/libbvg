@@ -207,6 +207,13 @@ int bvgraph_load_external(bvgraph *g,
             // we now have the graph in memory!
 
             if (offset_step == 1) {        //modified 082911
+                // now read the file
+                char *ofilename = strappend(g->filename, g->filenamelen, ".offsets", 8);
+                bitfile bf;
+                long long off = 0;
+                int64_t i;
+                FILE *ofile = fopen(ofilename, "rb");
+
                 if (offsets != NULL) {
                     g->offsets = offsets;
                     g->offsets_external = 1;
@@ -215,13 +222,7 @@ int bvgraph_load_external(bvgraph *g,
                     g->offsets = (unsigned long long*) malloc(sizeof(unsigned long long)*g->n);
                     g->offsets_external = 0;
                 }
-                // now read the file
-                char *ofilename = strappend(g->filename, g->filenamelen, ".offsets", 8);
-                bitfile bf;
-                long long off = 0;
-                int64_t i;
-                g->offsets = (unsigned long long*)malloc(g->n*sizeof(unsigned long long));
-                FILE *ofile = fopen(ofilename, "rb");
+
                 if (ofile) {
                     rval = bitfile_open(ofile, &bf);
                     if (rval) {
