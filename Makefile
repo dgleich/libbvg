@@ -57,7 +57,7 @@ ALLPROGS += bvgraph2smat
 everything: lib $(BVPAGERANKNAME) bvgraph2smat test python doxy
 
 test: lib
-	cd test && $(MAKE) small clean
+	cd test && $(MAKE) small
 
 python: lib
 	cd python && $(MAKE) all
