@@ -31,6 +31,7 @@
 
 
 #include "bitfile.h"
+#include "eflist.h"
 
 //#define MAX_DEBUG
 
@@ -89,6 +90,7 @@ struct bvgraph_tag {
     int window_size;
     int min_interval_length;
     int zeta_k;
+    double bits_per_link;
 
     enum bvgraph_compression_flag_tag outdegree_coding;
     enum bvgraph_compression_flag_tag block_coding;
@@ -106,6 +108,8 @@ struct bvgraph_tag {
 
     unsigned long long* offsets;
     int offsets_external;
+    elias_fano_list ef;
+    int use_ef;   //< 0: not use; 1: use only EF code; 
 };
 
 /** 
@@ -235,6 +239,7 @@ typedef struct bvgraph_random_iterator_tag bvgraph_random_iterator;
 typedef struct bvgraph_int_vector_tag bvgraph_int_vector;
 typedef struct bvgraph_parallel_iterators_tag bvgraph_parallel_iterators;
 
+
 // define all the error codes
 extern const int bvgraph_call_out_of_memory;
 extern const int bvgraph_call_io_error;
@@ -292,7 +297,7 @@ int bvgraph_parallel_iterators_free(bvgraph_parallel_iterators *pits);
 
 
 int bvgraph_required_memory(bvgraph *g, 
-                            int offset_step, size_t *gbuf, size_t *offsetbuf);
+                            int offset_step, size_t *gbuf, size_t *offsetbuf, size_t *efbuf);
 
 int merge_int_arrays(const int64_t* a1, size_t a1len, const int64_t* a2,
                              size_t a2len, int64_t *out, size_t outlen);
@@ -302,6 +307,13 @@ const char* bvgraph_error_string(int error);
 int add_to_cache(int node, int *links, int d);
 int loaded_sort(struct successor *a, struct successor *b);
 struct successor *find_in_cache(int node);
+
+int load_offset_from_file(bvgraph *g);
+int load_offset_online(bvgraph *g);
+
+int load_efcode_from_file(bvgraph *g);
+int load_efcode_online(bvgraph *g);
+int build_efcode(bvgraph *g, int spill_var_len);
 
 #ifdef __cplusplus
 }
