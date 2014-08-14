@@ -45,7 +45,7 @@ int main(int argc, char **argv)
     if (rval) { perror("error with initial load!"); }
     {
         size_t memrequired;
-        bvgraph_required_memory(g, 0, &memrequired, NULL);
+        bvgraph_required_memory(g, 0, &memrequired, NULL, NULL);
         printf("the graph %s requires %zu bytes to load into memory\n", filename, memrequired);
     }
     bvgraph_close(g);
