@@ -11,7 +11,7 @@ LIBBVG_SRC_DIR := src
 BVPAGERANKNAME := bvpr
 
 LIBBVG_INCLUDE := -Iinclude -Isrc
-LIBBVG_SRC := bitfile.c bvgraph.c bvgraph_iterator.c bvgraph_random.c bvgraphfun.c properties.c util.c
+LIBBVG_SRC := bitfile.c bvgraph.c bvgraph_iterator.c bvgraph_random.c bvgraphfun.c properties.c util.c eflist.c
 LIBBVG_FULL_SRC := $(addprefix $(LIBBVG_SRC_DIR)/,$(LIBBVG_SRC))
 
 BVPAGERANK_INCLUDE := -Iinclude
