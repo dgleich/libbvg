@@ -284,21 +284,21 @@ int bit_array_insert(bit_array *ptr, uint64_t num, int64_t k)
         return 0;
     }
     assert(ptr->s > 0);
-	uint64_t index = k * ptr->s / 64;
-	int offset = (k * ptr->s) % 64;
-	if (offset + ptr->s <= 64) { 
-		uint64_t tmp = num;
-		tmp = tmp << (64 - offset - ptr->s);
-		ptr->A[index] |= tmp;
-	}
-	else {
-		// need to span two words
-		int diff = offset + ptr->s - 64;
-		uint64_t tmp = num;
-		ptr->A[index] |= tmp >> diff;
-		ptr->A[index+1] |= tmp << (64-diff);
-	}
-	return 0;
+    uint64_t index = k * ptr->s / 64;
+    int offset = (k * ptr->s) % 64;
+    if (offset + ptr->s <= 64) { 
+        uint64_t tmp = num;
+        tmp = tmp << (64 - offset - ptr->s);
+        ptr->A[index] |= tmp;
+    }
+    else {
+        // need to span two words
+        int diff = offset + ptr->s - 64;
+        uint64_t tmp = num;
+        ptr->A[index] |= tmp >> diff;
+        ptr->A[index+1] |= tmp << (64-diff);
+    }
+    return 0;
 }
 
 /**
