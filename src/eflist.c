@@ -426,7 +426,7 @@ int bit_array_free(bit_array *ptr)
 
 int eflist_init(elias_fano_list *ef, uint64_t num_elements, uint64_t largest)
 {
-    *ef = {0};
+    memset(ef, 0, sizeof(elias_fano_list));
     ef->size = num_elements;
     (ef->lower).curr = 0;
     (ef->upper).curr = 0;
