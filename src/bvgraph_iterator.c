@@ -70,7 +70,7 @@ int bvgraph_nonzero_iterator(bvgraph* g, bvgraph_iterator *i)
     i->curr_outd = -1;
     i->cyclic_buffer_size = i->g->window_size+1;
 
-    if (g->offset_step == -1) {
+    if (g->offset_step < 0) {
         char *graphfilename = strappend(g->filename, g->filenamelen, ".graph", 6);
         FILE *f = fopen(graphfilename, "rb");
         free(graphfilename);
@@ -78,10 +78,8 @@ int bvgraph_nonzero_iterator(bvgraph* g, bvgraph_iterator *i)
 
         rval = bitfile_open(f,&i->bf);
         if (rval) { return rval; }
-    } else if (g->offset_step == 0 || g->offset_step == 1) {
+    } else {//g->offset_step == 0 || g->offset_step == 1
         rval = bitfile_map(g->memory, g->memory_size, &i->bf);
-    } else {
-        return bvgraph_call_unsupported;
     }
 
     // beyond this point, the bitfile was successfully allocated, so we must 
@@ -176,16 +174,26 @@ int bvgraph_random_access_iterator(bvgraph* g, bvgraph_random_iterator *i)
     // for successors cache
     i->successors_cache = NULL;
 
-    if (g->offset_step < 1) {
+    if (g->offset_step == -1 || g->offset_step == 0) { // the offset is not avaiable for offset_step = -1 or 0
         return bvgraph_call_unsupported;
     }
-
-    rval = bitfile_map(g->memory, g->memory_size, &i->bf);
-    rval |= bitfile_map(g->memory, g->memory_size, &i->outd_bf);
+    if (g->offset_step >= 1) {
+        rval = bitfile_map(g->memory, g->memory_size, &i->bf);
+        rval |= bitfile_map(g->memory, g->memory_size, &i->outd_bf);
+    }
+    else if (g->offset_step < -1) {
+        char *ofilename = strappend(g->filename, g->filenamelen, ".graph", 6);
+        FILE *ofile1 = fopen(ofilename, "rb");
+        FILE *ofile2 = fopen(ofilename, "rb");
+        if (ofile1 && ofile2) {
+            rval = bitfile_open(ofile1, &i->bf);
+            rval |= bitfile_open(ofile2, &i->outd_bf);
+        }
+    }
 
     // TODO deallocate these on failure
 
-    i->offset_step = 1;
+    i->offset_step = g->offset_step; // 1
 
     // beyond this point, the bitfile was successfully allocated, so we must 
     // deallocate it if we exit.
