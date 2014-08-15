@@ -313,25 +313,25 @@ uint64_t bit_array_get(bit_array *ptr, int64_t k)
     if (ptr->s == 0) {
         return 0;
     }
-	uint64_t index = k * ptr->s / 64;
-	int offset = (k * ptr->s) % 64;
-	if (offset + ptr->s <= 64) {
-		uint64_t mask = (1L << (64 - offset)) - 1;
-		mask -= (1L << (64 - offset - ptr->s)) - 1;
-		uint64_t rval = ptr->A[index] & mask;
-		return (rval >> (64 - offset - ptr->s));
-	}
-	else {
-		int diff = offset + ptr->s -64;
-		uint64_t mask = (1L << (ptr->s - diff)) - 1;
-		uint64_t rval = ptr->A[index] & mask;
-		uint64_t next_mask = 0xFFFFFFFFFFFFFFFF;
-		next_mask -= (1L << (64-diff)) - 1;
-		uint64_t next = ptr->A[index + 1] & next_mask;
-		next >>= (64 - diff);
-		rval = (rval << diff) | next;
-		return rval; 
-	}
+    uint64_t index = k * ptr->s / 64;
+    int offset = (k * ptr->s) % 64;
+    if (offset + ptr->s <= 64) {
+        uint64_t mask = (1L << (64 - offset)) - 1;
+        mask -= (1L << (64 - offset - ptr->s)) - 1;
+        uint64_t rval = ptr->A[index] & mask;
+        return (rval >> (64 - offset - ptr->s));
+    }
+    else {
+        int diff = offset + ptr->s -64;
+        uint64_t mask = (1L << (ptr->s - diff)) - 1;
+        uint64_t rval = ptr->A[index] & mask;
+        uint64_t next_mask = 0xFFFFFFFFFFFFFFFF;
+        next_mask -= (1L << (64-diff)) - 1;
+        uint64_t next = ptr->A[index + 1] & next_mask;
+        next >>= (64 - diff);
+        rval = (rval << diff) | next;
+        return rval; 
+    }
 }
 
 
