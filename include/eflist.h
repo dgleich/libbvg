@@ -25,7 +25,6 @@ struct bit_array_tag {
     uint64_t size; ///< number of elements in the bit array
 };    
 
-
 /**
  * Define data structure for the Elias-Fano list.
  */
@@ -65,8 +64,6 @@ int bit_array_create(bit_array *ptr, int s, int64_t size);
 int bit_array_free(bit_array *ptr);
 int bit_array_put(bit_array *ptr, uint64_t num, int64_t k);
 uint64_t bit_array_get(bit_array *ptr, int64_t k);
-//int bit_array_setbit(bit_array *ptr, int64_t k);
-//int bit_array_getbitk(bit_array *ptr, int64_t k);
 int eflist_create(elias_fano_list *ef, uint64_t num_elements, uint64_t largest);
 int eflist_add(elias_fano_list *ef, int64_t elem);
 int eflist_addbatch(elias_fano_list *ef, int64_t *arr, int64_t length);

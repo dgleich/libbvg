@@ -36,22 +36,6 @@ const unsigned int MAX_SPAN = (1 << 16);
 const unsigned int DEFAULT_SPILL_SIZE = 10 * 8192;  ///< default size for spill is 10*8K*8B=640KB
 
 /**
- * Return the k-th bit in the array upper.
- * @param[in] upper the array
- * @param[in] k the k-th index
- * @return the k-th bit in the arrayp upper
- */
-/*static int get_bitk(uint64_t *upper, int64_t k) {
-    int64_t index = k >> 6;
-    int64_t offset = k & ((1L << 6) - 1);
-    int64_t tmp = upper[index] & (1L << offset);
-    if (tmp == 0) {
-        return (0);
-    }
-    return (1);
-}*/
-
-/**
  * Return the number of 1's in the 64-bit word.
  * @param[in] x the 64-bit word
  * @return the number of 1's in the word
@@ -256,22 +240,6 @@ int eflist_free(elias_fano_list *ef)
 }
 
 /**
- * This function sets a single bit in the bit_array.
- *
- * @param[in] ptr a pointer to the bit_array
- * @param[in] k the k-th bit to set
- * @return 0 on success
- */
-/*int bit_array_setbit(bit_array *ptr, int64_t k)
-{
-    assert(ptr->s < 0);
-    int64_t index = k >> 6;
-    int64_t offset = k & ((1L << 6) - 1);
-    ptr->A[index] |= 1L << offset;
-    return 0;
-}*/
-
-/**
  * This function put a number of s-bits in the bit_array.
  * 
  * @param[in] ptr a pointer to the bit_array
@@ -361,19 +329,6 @@ int bit_array_create(bit_array *ptr, int s, int64_t size)
     memset(ptr->A, 0, sizeof(uint64_t) * array_len);
     return 0;
 }
-
-/**
- * This function retrieves the k-th bit in the bit_array (intended to work with upper bits array only).
- * 
- * @param[in] ptr a pointer to the bit_array
- * @param[in] k k-th bit to retrieve
- * @return 0 or 1
- */
-/*int bit_array_getbitk(bit_array *ptr, int64_t k)
-{
-    assert(ptr->s < 0);
-    return get_bitk(ptr->A, k);
-}*/
 
 /**
  * This functions frees the memory allocated for the bit_array.
