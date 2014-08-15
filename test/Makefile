@@ -1,7 +1,7 @@
 
 LINKER = $(CC)
 CFLAGS += -I../include -I../src -O3
-LOADLIBES += -lbvg
+LOADLIBES += -lbvg -lm
 LDFLAGS += -L../
 
 allcfiles := $(wildcard *.c)
