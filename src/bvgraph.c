@@ -567,7 +567,7 @@ int load_efcode_from_file(bvgraph *g)
         // here we build the estimate of last element from the property file
         // by g->bits_per_link * g->m, this value is larger than the last element in the array
         uint64_t build_last = (uint64_t)(g->bits_per_link * g->m);
-        eflist_init(ef, n, build_last);
+        eflist_create(ef, n, build_last);
         rval = bitfile_open(ofile, &bf);
         if (rval) {
             return bvgraph_call_io_error;
@@ -603,7 +603,7 @@ int load_efcode_online(bvgraph *g)
     // estimate the last element from the propery file by
     // g->bits_per_link * g->m
     uint64_t build_last = (uint64_t)(g->bits_per_link * g->m);
-    eflist_init(ef, n, build_last);
+    eflist_create(ef, n, build_last);
     r = bvgraph_nonzero_iterator(g, &git);
     if (r) { return r; }
     eflist_add(ef, 0);

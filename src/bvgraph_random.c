@@ -73,7 +73,7 @@ static int position_bvgraph(bvgraph_random_iterator *ri, int64_t x, uint64_t *d)
             offset = ri->g->offsets[x];
         }
         else {
-            offset = eflist_lookup(&(ri->g->ef), x);
+            offset = eflist_get(&(ri->g->ef), x);
         }
         rval = bitfile_position(&ri->bf, offset);//ri->g->offsets[x]
         if (rval == 0) {
@@ -109,7 +109,7 @@ int bvgraph_random_outdegree(bvgraph_random_iterator *ri,
             offset = ri->g->offsets[i];
         }
         else {
-            offset = eflist_lookup(&(ri->g->ef), i);
+            offset = eflist_get(&(ri->g->ef), i);
         }
         bitfile_position(&ri->outd_bf, offset); //ri->g->offsets[i]
         *d = read_outdegree(ri->g, &ri->outd_bf);
