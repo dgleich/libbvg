@@ -41,7 +41,7 @@ const unsigned int DEFAULT_SPILL_SIZE = 10 * 8192;  ///< default size for spill 
  * @param[in] k the k-th index
  * @return the k-th bit in the arrayp upper
  */
-static int get_bitk(uint64_t *upper, int64_t k) {
+/*static int get_bitk(uint64_t *upper, int64_t k) {
     int64_t index = k >> 6;
     int64_t offset = k & ((1L << 6) - 1);
     int64_t tmp = upper[index] & (1L << offset);
@@ -49,7 +49,7 @@ static int get_bitk(uint64_t *upper, int64_t k) {
         return (0);
     }
     return (1);
-}
+}*/
 
 /**
  * Return the number of 1's in the 64-bit word.
@@ -83,7 +83,7 @@ static int bit_count(int64_t x) {
 
 int simple_select_build(elias_fano_list *ef, int64_t num_ones, int spill_var_len)
 {
-    uint64_t length = ef->bitarraylen;
+    uint64_t length = (ef->upper).size;
     ef->num_ones = num_ones;
     int window = length == 0 ? 1: (int)((num_ones * MAX_ONES_PER_INVENTORY + length - 1) / length);
     ef->log2_ones_per_inventory = (int)(floor(log2(window)));
@@ -94,7 +94,7 @@ int simple_select_build(elias_fano_list *ef, int64_t num_ones, int spill_var_len
     int64_t d = 0;
     uint64_t i;
     for (i = 0; i < length; i ++) {      
-        if (bit_array_getbitk(&(ef->upper), i) == 1) {
+        if (bit_array_get(&(ef->upper), i) == 1) {
             if ((d & ef->ones_per_inventory_mask) == 0) {
                 ef->inventory[(int)(d >> ef->log2_ones_per_inventory)] = i;
             }
@@ -109,7 +109,7 @@ int simple_select_build(elias_fano_list *ef, int64_t num_ones, int spill_var_len
         uint64_t start = 0, span = 0;
         int spilled = 0, inventory_index = 0;
         for (i = 0; i < length; i ++) {
-            if (bit_array_getbitk(&(ef->upper), i) == 1) {
+            if (bit_array_get(&(ef->upper), i) == 1) {
                 if ((d & ef->ones_per_inventory_mask) == 0) {
                     inventory_index = (int)(d >> ef->log2_ones_per_inventory);
                     start = ef->inventory[inventory_index];
@@ -141,7 +141,7 @@ int simple_select_build(elias_fano_list *ef, int64_t num_ones, int spill_var_len
         spilled = 0;
         d = 0;
         for (i = 0; i < length; i ++) {
-            if (bit_array_getbitk(&(ef->upper), i) == 1) {
+            if (bit_array_get(&(ef->upper), i) == 1) {
                 if ((d & ef->ones_per_inventory_mask) == 0) {
                     inventory_index = (int)(d >> ef->log2_ones_per_inventory);
                     start = ef->inventory[inventory_index];
@@ -194,8 +194,9 @@ static int64_t select_rank(uint64_t rank, elias_fano_list *ef)
     int64_t upper_index = inventory_rank >> 6;
     int64_t offset = inventory_rank & ((1L << 6) - 1);
     int k;
+    uint64_t left1 = 0x8000000000000000;
     for (k = offset+1; k < 64; k ++) {
-        if ((((ef->upper).A[upper_index] & (1L << k)) != 0) && (subrank != 0)) {
+        if ((((ef->upper).A[upper_index] & (left1 >> k)) != 0) && (subrank != 0)) {
             subrank --;
         }
         if (subrank==0) {
@@ -211,7 +212,7 @@ static int64_t select_rank(uint64_t rank, elias_fano_list *ef)
     }
     
     for (j = 0; j < 64; j ++) {
-        if ((((ef->upper).A[upper_index] & (1L << j)) != 0) && (subrank != 0)) {
+        if ((((ef->upper).A[upper_index] & (left1 >> j)) != 0) && (subrank != 0)) {
             subrank --;
         }
         if (subrank == 0) {
@@ -228,7 +229,7 @@ static int64_t select_rank(uint64_t rank, elias_fano_list *ef)
  * @param[in] index the index of the list
  * @return the value at the required index
  */
-int64_t eflist_lookup(elias_fano_list *ef, int64_t index)
+int64_t eflist_get(elias_fano_list *ef, int64_t index)
 {
     int64_t lowx, highx;
     lowx = bit_array_get(&(ef->lower), index);
@@ -261,14 +262,14 @@ int eflist_free(elias_fano_list *ef)
  * @param[in] k the k-th bit to set
  * @return 0 on success
  */
-int bit_array_setbit(bit_array *ptr, int64_t k)
+/*int bit_array_setbit(bit_array *ptr, int64_t k)
 {
     assert(ptr->s < 0);
     int64_t index = k >> 6;
     int64_t offset = k & ((1L << 6) - 1);
     ptr->A[index] |= 1L << offset;
     return 0;
-}
+}*/
 
 /**
  * This function put a number of s-bits in the bit_array.
@@ -278,7 +279,7 @@ int bit_array_setbit(bit_array *ptr, int64_t k)
  * @param[in] k the k-th number
  * @return 0 on success
  */
-int bit_array_insert(bit_array *ptr, uint64_t num, int64_t k)
+int bit_array_put(bit_array *ptr, uint64_t num, int64_t k)
 {
     if (ptr->s == 0) {
         return 0;
@@ -345,17 +346,16 @@ uint64_t bit_array_get(bit_array *ptr, int64_t k)
  */
 int bit_array_create(bit_array *ptr, int s, int64_t size)
 {
+    assert(s >= 0);
     ptr->s = s;
+    ptr->size = size;
     int64_t array_len = 0;
     if (s == 0) {
         ptr->A = NULL;
         return 0;
-    }
+    } 
     if (s > 0) {
         array_len = (s * size + 63) / 64;
-    }
-    else if (s < 0) {
-        array_len = size;
     }
     ptr->A = malloc(sizeof(uint64_t) * array_len);
     memset(ptr->A, 0, sizeof(uint64_t) * array_len);
@@ -369,11 +369,11 @@ int bit_array_create(bit_array *ptr, int s, int64_t size)
  * @param[in] k k-th bit to retrieve
  * @return 0 or 1
  */
-int bit_array_getbitk(bit_array *ptr, int64_t k)
+/*int bit_array_getbitk(bit_array *ptr, int64_t k)
 {
     assert(ptr->s < 0);
     return get_bitk(ptr->A, k);
-}
+}*/
 
 /**
  * This functions frees the memory allocated for the bit_array.
@@ -424,19 +424,17 @@ int bit_array_free(bit_array *ptr)
  * @return 0 on success
  */
 
-int eflist_init(elias_fano_list *ef, uint64_t num_elements, uint64_t largest)
+int eflist_create(elias_fano_list *ef, uint64_t num_elements, uint64_t largest)
 {
     memset(ef, 0, sizeof(elias_fano_list));
     ef->size = num_elements;
-    (ef->lower).curr = 0;
-    (ef->upper).curr = 0;
+    ef->curr = 0;
     // set fields for lower and upper bit arrays
     int s = num_elements == 0 ? 0 : (int)(log2( (largest + 1) / num_elements));
     ef-> s = s;
     bit_array_create(&(ef->lower), s, num_elements);
     int64_t upper_length = num_elements + (largest >> s);
-    ef->bitarraylen = upper_length;
-    bit_array_create(&(ef->upper), -1, (upper_length + 63) / 64);
+    bit_array_create(&(ef->upper), 1, upper_length);
     ef->spill_size = DEFAULT_SPILL_SIZE;
     ef->exact_spill = malloc(sizeof(int64_t) * DEFAULT_SPILL_SIZE);
     return 0;
@@ -451,17 +449,16 @@ int eflist_init(elias_fano_list *ef, uint64_t num_elements, uint64_t largest)
  */
 int eflist_add(elias_fano_list *ef, int64_t elem)
 {
-    if ((ef->lower).curr >= ef->size) {
+    if (ef->curr >= ef->size) {
         return eflist_out_of_bound;  // an error returned if too many elements
     }
-    int64_t index = (ef->lower).curr;
+    int64_t index = ef->curr;
     int64_t mask = (1L << ef->s) - 1;
     int64_t val = elem & mask;
-    bit_array_insert(&(ef->lower), val, index);
+    bit_array_put(&(ef->lower), val, index);
     int64_t k = (elem >> ef->s) + index;
-    bit_array_setbit(&(ef->upper), k);
-    (ef->lower).curr ++;
-    (ef->upper).curr ++;
+    bit_array_put(&(ef->upper), 1, k);
+    ef->curr ++;
     return 0;
 }
 

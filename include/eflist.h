@@ -22,7 +22,7 @@ extern "C" {
 struct bit_array_tag {
     int s;
     uint64_t *A;
-    uint64_t curr; ///< curr index of next element to be inserted
+    uint64_t size; ///< number of elements in the bit array
 };    
 
 
@@ -32,6 +32,7 @@ struct bit_array_tag {
 
 struct elias_fano_list_tag {
     int s;
+    uint64_t curr;  ///< index of the current element
     uint64_t size;  ///< number of elements 
     struct bit_array_tag lower;
     struct bit_array_tag upper;
@@ -41,8 +42,7 @@ struct elias_fano_list_tag {
     int ones_per_inventory_mask;
     int inventory_size;
     uint64_t num_ones;
-    uint64_t bitarraylen;
-    int spill_size;
+    size_t spill_size;
     int64_t *inventory;
     int64_t *exact_spill;   
 };
@@ -59,15 +59,15 @@ extern const int eflist_spill_too_small;
 
 // function prototypes 
 int simple_select_build(elias_fano_list *ef, int64_t num_ones, int spill_var_len);
-int64_t eflist_lookup(elias_fano_list *ef, int64_t index);
+int64_t eflist_get(elias_fano_list *ef, int64_t index);
 int eflist_free(elias_fano_list *ef);
 int bit_array_create(bit_array *ptr, int s, int64_t size);
 int bit_array_free(bit_array *ptr);
-int bit_array_insert(bit_array *ptr, uint64_t num, int64_t k);
+int bit_array_put(bit_array *ptr, uint64_t num, int64_t k);
 uint64_t bit_array_get(bit_array *ptr, int64_t k);
-int bit_array_setbit(bit_array *ptr, int64_t k);
-int bit_array_getbitk(bit_array *ptr, int64_t k);
-int eflist_init(elias_fano_list *ef, uint64_t num_elements, uint64_t largest);
+//int bit_array_setbit(bit_array *ptr, int64_t k);
+//int bit_array_getbitk(bit_array *ptr, int64_t k);
+int eflist_create(elias_fano_list *ef, uint64_t num_elements, uint64_t largest);
 int eflist_add(elias_fano_list *ef, int64_t elem);
 int eflist_addbatch(elias_fano_list *ef, int64_t *arr, int64_t length);
     

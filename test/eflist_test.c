@@ -22,12 +22,12 @@ int main(int argc, char **argv)
         A[i] = A[i-1] + rand() % M;
     }
     elias_fano_list eflist;
-    eflist_init(&eflist, N, A[N-1]);
+    eflist_create(&eflist, N, A[N-1]);
     eflist_addbatch(&eflist, A, N);
     simple_select_build(&eflist, N, 1);
     // compare values
     for (i = 0; i < N; i ++) {
-        if (A[i] != eflist_lookup(&eflist, i)) {
+        if (A[i] != eflist_get(&eflist, i)) {
             printf("ERROR: eflist test failed!\n");
             return (-1);
         }
