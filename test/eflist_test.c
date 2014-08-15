@@ -29,7 +29,7 @@ int main(int argc, char **argv)
     for (i = 0; i < N; i ++) {
         if (A[i] != eflist_lookup(&eflist, i)) {
             printf("ERROR: eflist test failed!\n");
-            return 1;
+            return (-1);
         }
     }
     eflist_free(&eflist);
