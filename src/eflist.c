@@ -31,9 +31,9 @@ const uint64_t m8  = 0x00ff00ff00ff00ff; // binary:  8 zeros,  8 ones ...
 const uint64_t m16 = 0x0000ffff0000ffff; // binary: 16 zeros, 16 ones ...
 const uint64_t m32 = 0x00000000ffffffff; // binary: 32 zeros, 32 ones
 
+// constants for simple select index structure
 const unsigned int MAX_ONES_PER_INVENTORY = 8192;  ///< 8K
 const unsigned int MAX_SPAN = (1 << 16);
-const unsigned int DEFAULT_SPILL_SIZE = 10 * 8192;  ///< default size for spill is 10*8K*8B=640KB
 
 /**
  * Return the number of 1's in the 64-bit word.
@@ -59,22 +59,21 @@ static int bit_count(int64_t x) {
  * from each other (> 2^16), then a spill is allocated to record the position of each individual bit 
  * in the inventory.
  *
- * @param[in] ef the EF code structure
- * @param[in] num_ones number of 1's in the upper array, which is the number of vertices in the graph
- * @param[in] spill_var_len if use variable length for spill, 0: no; 1: yes
+ * @param[in] ef the EF list structure
  * @return 0 on success
  */
 
-int simple_select_build(elias_fano_list *ef, int64_t num_ones, int spill_var_len)
+static int simple_select_build(elias_fano_list *ef)
 {
+    int64_t num_ones = ef->curr;    // the number of ones currently stored in the upper bit array
     uint64_t length = (ef->upper).size;
-    ef->num_ones = num_ones;
-    int window = length == 0 ? 1: (int)((num_ones * MAX_ONES_PER_INVENTORY + length - 1) / length);
-    ef->log2_ones_per_inventory = (int)(floor(log2(window)));
-    ef->ones_per_inventory = 1 << ef->log2_ones_per_inventory;
-    ef->ones_per_inventory_mask = ef->ones_per_inventory - 1;
-    ef->inventory_size = (int)((num_ones + ef->ones_per_inventory - 1) / ef->ones_per_inventory);
-    ef->inventory = malloc(sizeof(int64_t) * (ef->inventory_size + 1));
+//    ef->num_ones = num_ones;
+//    int window = length == 0 ? 1: (int)((num_ones * MAX_ONES_PER_INVENTORY + length - 1) / length);
+//    ef->log2_ones_per_inventory = (int)(floor(log2(window)));
+//    ef->ones_per_inventory = 1 << ef->log2_ones_per_inventory;
+//    ef->ones_per_inventory_mask = ef->ones_per_inventory - 1;
+//    ef->inventory_size = (int)((num_ones + ef->ones_per_inventory - 1) / ef->ones_per_inventory);
+//    ef->inventory = malloc(sizeof(int64_t) * (ef->inventory_size + 1));
     int64_t d = 0;
     uint64_t i;
     for (i = 0; i < length; i ++) {      
@@ -109,10 +108,8 @@ int simple_select_build(elias_fano_list *ef, int64_t num_ones, int spill_var_len
         if (spilled > 0) {
             //printf("spilled = %d\n", spilled);
             // compare spill size with the pre-allocated size
-            if (ef->spill_size < spilled && !spill_var_len) {
-                return eflist_spill_too_small;
-            }
-            else if (ef->spill_size < spilled && spill_var_len != 0) {
+            if (ef->spill_size < spilled) {
+                printf("WARNING: default spill size too small!\n");
                 free(ef->exact_spill);
                 ef->spill_size = spilled;
                 ef->exact_spill = malloc(sizeof(int64_t) * spilled);
@@ -204,39 +201,6 @@ static int64_t select_rank(uint64_t rank, elias_fano_list *ef)
         }
     }
     return 0;
-}
-
-/**
- * get the index-th offset from the offsets array based on EF code
- * 
- * @param[in] ef the EF list structure
- * @param[in] index the index of the list
- * @return the value at the required index
- */
-int64_t eflist_get(elias_fano_list *ef, int64_t index)
-{
-    int64_t lowx, highx;
-    lowx = bit_array_get(&(ef->lower), index);
-    highx = select_rank(index, ef);
-    return ((highx - index) << ef->s) | lowx;
-}
-
-/**
- * Free all the allocated memory.
- *
- * @param[in] ef the EF code structure
- * @return 0 on success
- */
-
-int eflist_free(elias_fano_list *ef)
-{
-    free(ef->inventory);
-    if (ef->spill_size > 0) {
-        free(ef->exact_spill);
-    }
-    bit_array_free(&(ef->lower));
-    bit_array_free(&(ef->upper));
-    return (0);
 }
 
 /**
@@ -383,6 +347,7 @@ int eflist_create(elias_fano_list *ef, uint64_t num_elements, uint64_t largest)
 {
     memset(ef, 0, sizeof(elias_fano_list));
     ef->size = num_elements;
+    ef->largest = largest;
     ef->curr = 0;
     // set fields for lower and upper bit arrays
     int s = num_elements == 0 ? 0 : (int)(log2( (largest + 1) / num_elements));
@@ -390,8 +355,17 @@ int eflist_create(elias_fano_list *ef, uint64_t num_elements, uint64_t largest)
     bit_array_create(&(ef->lower), s, num_elements);
     int64_t upper_length = num_elements + (largest >> s);
     bit_array_create(&(ef->upper), 1, upper_length);
-    ef->spill_size = DEFAULT_SPILL_SIZE;
-    ef->exact_spill = malloc(sizeof(int64_t) * DEFAULT_SPILL_SIZE);
+    // set fields for the index structure
+    int window = upper_length == 0 ? 1 : (int)((num_elements * MAX_ONES_PER_INVENTORY + upper_length - 1) / upper_length);
+    ef->log2_ones_per_inventory = (int)(floor(log2(window)));
+    ef->ones_per_inventory = 1 << ef->log2_ones_per_inventory;
+    ef->ones_per_inventory_mask = ef->ones_per_inventory - 1;
+    ef->inventory_size = (int)((num_elements + ef->ones_per_inventory - 1) / ef->ones_per_inventory);
+    ef->num_ones = num_elements;
+    ef->spill_size = ef->inventory_size;
+    ef->inventory = malloc(sizeof(int64_t) * ef->inventory_size);
+    // by default, set spill to be the same size of inventory 
+    ef->exact_spill = malloc(sizeof(int64_t) * ef->spill_size);
     return 0;
 }
 
@@ -414,6 +388,7 @@ int eflist_add(elias_fano_list *ef, int64_t elem)
     int64_t k = (elem >> ef->s) + index;
     bit_array_put(&(ef->upper), 1, k);
     ef->curr ++;
+    simple_select_build(ef);
     return 0;
 }
 
@@ -448,3 +423,55 @@ int eflist_addbatch(elias_fano_list *ef, int64_t *arr, int64_t length)
     return 0;
 }
 
+/**
+ * get the index-th offset from the offsets array based on EF code
+ * 
+ * @param[in] ef the EF list structure
+ * @param[in] index the index of the list
+ * @return the value at the required index
+ */
+int64_t eflist_get(elias_fano_list *ef, int64_t index)
+{
+    if (index >= ef->curr) {
+        return eflist_out_of_bound;
+    }
+    int64_t lowx, highx;
+    lowx = bit_array_get(&(ef->lower), index);
+    highx = select_rank(index, ef);
+    return ((highx - index) << ef->s) | lowx;
+}
+
+/**
+ * Free all the allocated memory.
+ *
+ * @param[in] ef the EF code structure
+ * @return 0 on success
+ */
+
+int eflist_free(elias_fano_list *ef)
+{
+    free(ef->inventory);
+    if (ef->spill_size > 0) {
+        free(ef->exact_spill);
+    }
+    bit_array_free(&(ef->lower));
+    bit_array_free(&(ef->upper));
+    return (0);
+}
+
+/** 
+ * This function computes how much memory is required for an eflist.
+ * 
+ * @param ef a pointer to an elias_fano list
+ * @return the memory required for the list in terms of bytes
+ */
+size_t eflist_size(elias_fano_list *ef)
+{
+    size_t rval = 0;
+    rval += (ef->s * ef->size + 63) / 64 * 8;    // number of bytes for lower bits array
+    int64_t upper_length = ef->size + (ef->largest >> ef->s);
+    rval += (upper_length + 63) / 64 * 8; // number of bytes for upper bits array
+    rval += ef->inventory_size * 8;   // number of bytes for inventory array
+    rval += ef->spill_size * 8;     // number of bytes for spill array
+    return rval;
+}

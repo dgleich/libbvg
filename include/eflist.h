@@ -35,6 +35,7 @@ struct elias_fano_list_tag {
     uint64_t size;  ///< number of elements 
     struct bit_array_tag lower;
     struct bit_array_tag upper;
+    uint64_t largest;
     // below defines the index simple_select index structure for eflist
     int log2_ones_per_inventory;
     int ones_per_inventory;
@@ -49,17 +50,11 @@ struct elias_fano_list_tag {
 typedef struct elias_fano_list_tag elias_fano_list;
 typedef struct bit_array_tag bit_array;
 
-// define some consts for simple select structure
-extern const unsigned int MAX_ONES_PER_INVENTORY; 
-extern const unsigned int DEFAULT_SPILL_SIZE;
-
 // define some error codes for the eflist
 extern const int eflist_spill_too_small;  
 
 // function prototypes 
-int simple_select_build(elias_fano_list *ef, int64_t num_ones, int spill_var_len);
-int64_t eflist_get(elias_fano_list *ef, int64_t index);
-int eflist_free(elias_fano_list *ef);
+//int simple_select_build(elias_fano_list *ef, int64_t num_ones, int spill_var_len);
 int bit_array_create(bit_array *ptr, int s, int64_t size);
 int bit_array_free(bit_array *ptr);
 int bit_array_put(bit_array *ptr, uint64_t num, int64_t k);
@@ -67,6 +62,9 @@ uint64_t bit_array_get(bit_array *ptr, int64_t k);
 int eflist_create(elias_fano_list *ef, uint64_t num_elements, uint64_t largest);
 int eflist_add(elias_fano_list *ef, int64_t elem);
 int eflist_addbatch(elias_fano_list *ef, int64_t *arr, int64_t length);
+int64_t eflist_get(elias_fano_list *ef, int64_t index);
+int eflist_free(elias_fano_list *ef);
+size_t eflist_size(elias_fano_list *ef);
     
 #ifdef __cplusplus    
 }
