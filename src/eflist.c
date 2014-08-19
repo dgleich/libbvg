@@ -89,7 +89,7 @@ static int simple_select_build(elias_fano_list *ef)
         uint64_t span = 0;
         inventory_index = (int)(curr_index >> ef->log2_ones_per_inventory);
         if (inventory_index > 0 && ((curr_index & ef->ones_per_inventory_mask) == 0)) {
-            // compute the span of inventory[inventory_index]
+            // compute the span of inventory[inventory_index - 1]
             start = 0;
             if (ef->inventory[inventory_index - 1] < 0) {
                 printf("ERROR: ef->inventory[inventory_index - 1] < 0\n");
