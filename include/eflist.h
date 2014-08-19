@@ -61,7 +61,7 @@ int eflist_addbatch(elias_fano_list *ef, int64_t *arr, int64_t length);
 int64_t eflist_get(elias_fano_list *ef, int64_t index);
 int eflist_free(elias_fano_list *ef);
 size_t eflist_size(elias_fano_list *ef);
-int64_t bit_search(void *mem, size_t k, int64_t k_offset, size_t l);
+int64_t bit_search(void *mem, int64_t start_bit_offset, size_t l);
     
 #ifdef __cplusplus    
 }

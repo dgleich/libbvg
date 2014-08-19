@@ -71,7 +71,7 @@ static int simple_select_build(elias_fano_list *ef)
     int inventory_index = 0;
     if (curr_index == 0) {
         ef->inventory[ef->inventory_size] = length;  // set the last element on first visit
-        ef->inventory[(int)(curr_index >> ef->log2_ones_per_inventory)] = bit_search((void *)((ef->upper).A), 0, -1, 0);
+        ef->inventory[(int)(curr_index >> ef->log2_ones_per_inventory)] = bit_search((void *)((ef->upper).A), 0, 1);
     }
     else {
         if ((curr_index & ef->ones_per_inventory_mask) == 0) {
@@ -80,7 +80,7 @@ static int simple_select_build(elias_fano_list *ef)
                 printf("ERROR: ef->inventory[inventory_index - 1] < 0\n");
             }
             start = ef->inventory[inventory_index - 1];         
-            ef->inventory[inventory_index] = bit_search((void *)((ef->upper).A), (inventory_index-1) * ef->ones_per_inventory, start, ef->ones_per_inventory);
+            ef->inventory[inventory_index] = bit_search((void *)((ef->upper).A), start + 1, ef->ones_per_inventory);
        }
     }
      
@@ -112,7 +112,7 @@ static int simple_select_build(elias_fano_list *ef)
                     if ((i & ef->ones_per_inventory_mask) == 0) {
                         ef->inventory[inventory_index - 1] = -ef->spill_curr;
                     }                    
-                    ef->exact_spill[ef->spill_curr ++] = bit_search((void *)(ef->upper).A, (inventory_index-1)*ef->ones_per_inventory, start, i);
+                    ef->exact_spill[ef->spill_curr ++] = bit_search((void *)(ef->upper).A, start + 1, i);
                 }
                 
             }
@@ -462,80 +462,52 @@ size_t eflist_size(elias_fano_list *ef)
  * This function compute the (k+l)-th bit location from a given chunk of memory.
  *
  * @param[in] mem starting address of the memory
- * @param[in] k the k-th bit, k >= 0
- * @param[in] k_offset the offset of k-th bit when k_offset >=0
- * @param[in] l l-bits away from k-th bit, l >= 0
- * @return the (k+l)-th bit offset in the memory when k_offset >=0;
- *         the k-th bit offset in the memory if k_offset < 0
+ * @param[in] start_bit_offset the start bit to search
+ * @param[in] l l-bits away from starting position, l >= 0
+ * @return the l-th bit offset in the memory when starting from start_bit_offset
  */
-int64_t bit_search(void *mem, size_t k, int64_t k_offset, size_t l)
+int64_t bit_search(void *mem, int64_t start_bit_offset, size_t l)
 {
     int64_t rval, i, j, index, offset;
     uint64_t *A = (uint64_t *)mem;
     size_t count = 0, goal;
     const uint64_t left1 = 0x8000000000000000;
-    if (k_offset < 0) {   // look for the offset of k-th bit
-        index = 0;
-        rval = 0;
-        count = bit_count(A[index]);
-        goal = k + 1;
-        while (count < goal) {
-            goal -= count;
-            index ++;
-            count = bit_count(A[index]);
-            rval += 64;
+    if (l == 0) {
+        return start_bit_offset;   // does nothing
+    }
+    index = start_bit_offset / 64;
+    offset = start_bit_offset % 64;
+    goal = l;
+    rval = start_bit_offset;
+    for (i = offset; i < 64; i ++) {
+        if (goal > 0) {
+            if ((A[index] & (left1 >> i)) != 0) {
+                goal --;
+            }
         }
-        // find the word
-        for (i = 0; i < 64; i ++) {
-            if (goal > 0) {
-                if ((A[index] & (left1 >> i)) != 0) {
-                    goal --;
-                }
-            }
-            if (goal == 0) { // k-th bit is found
-                rval += i;
-                return rval;
-            }
+        if (goal == 0) {
+            rval += i - offset;
+            return rval;
         }
     }
-    else {   // offset for k-th bit is given
-        if (l == 0) {
-            return k_offset;
-        }
-        index = k_offset / 64;
-        offset = k_offset % 64;
-        goal = l;
-        rval = k_offset;
-        for (j = offset + 1; j < 64; j ++) {
-            if (goal > 0) {
-                if ((A[index] & (left1 >> j)) != 0) {
-                    goal --;
-                }
-            }
-            if (goal == 0) {
-                rval += j - offset;
-                return rval;
-            }
-        }
+    index ++;
+    rval = index * 64;
+    count = bit_count(A[index]);
+    while (count < goal) {
+        goal -= count;
         index ++;
-        rval = index * 64;
         count = bit_count(A[index]);
-        while (count < goal) {
-            goal -= count;
-            index ++;
-            count = bit_count(A[index]);
-            rval += 64;
+        rval += 64;
+    }
+    for (i = 0; i < 64; i ++) {
+        if (goal > 0) {
+            if ((A[index] & (left1 >> i)) != 0) {
+                goal --;
+            }
         }
-        for (i = 0; i < 64; i ++) {
-            if (goal > 0) {
-                if ((A[index] & (left1 >> i)) != 0) {
-                    goal --;
-                }
-            }
-            if (goal == 0) {
-                rval += i;
-                return rval;
-            }
+        if (goal == 0) {
+            rval += i;
+            return rval;
         }
     }
     return (-1);
