@@ -20,7 +20,6 @@
 #include "bvgraph_internal.h"
 #include "bvgraph_inline_io.h"
 #include "eflist.h"
-#include <math.h>
 
 /**
  * Define all the error codes
@@ -227,10 +226,7 @@ int bvgraph_load_external(bvgraph *g,
             // for test purpose, only generate efcode for offset
             g->use_ef = 1;
             g->offsets_external = 1;
-            rval = build_efcode(g, 0);
-            if (!rval) {
-                build_efcode(g, 1);
-            }
+            build_efcode(g);
         }
         else if (offset_step > 2){ 
             // offset_step > 2, the size of memory that a user is willing to allocate
@@ -240,10 +236,7 @@ int bvgraph_load_external(bvgraph *g,
                 g->use_ef = 1;
                 g->offsets_external = 1;
                 printf("The memory required for offsets is larger than %d MB.\nLoading with EF code instead.\n", offset_step);
-                rval = build_efcode(g, 0);
-                if (!rval) {
-                    build_efcode(g, 1);
-                }
+                build_efcode(g);
             }
             else {
                 // load the offset
@@ -268,10 +261,7 @@ int bvgraph_load_external(bvgraph *g,
             g->memory_size = 0;
             g->use_ef = 1;
             g->offsets_external = 1;
-            rval = build_efcode(g, 0);
-            if (!rval) {
-                build_efcode(g, 1);
-            }
+            build_efcode(g);
         }
     }
      
@@ -304,26 +294,6 @@ int bvgraph_close(bvgraph* g)
     return (0);
 }
 
-// This function should be invoked after loading the bvgraph with offset_step = -1;
-// otherwise the behavior is not defined.
-static size_t eflist_size(bvgraph *g)
-{
-    size_t rval = 0;
-    uint64_t build_last = (uint64_t)(g->bits_per_link * g->m);
-    uint64_t u = build_last + 1;
-    int s = g->n == 0 ? 0 : (int)(log2(u / g->n));
-    rval += (s * g->n + 63) / 64 * 8;    // number of bytes for lower bits array
-    int64_t upper_length = g->n + (build_last >> s);
-    rval += (upper_length + 63) / 64 * 8; // number of bytes for upper bits array
-    int window = upper_length == 0 ? 1 : (int)((g->n * MAX_ONES_PER_INVENTORY + upper_length - 1) / upper_length);
-    int log2_ones_per_inventory = (int)(floor(log2(window)));
-    int ones_per_inventory = 1 << log2_ones_per_inventory;
-    int inventory_size = (int)((g->n + ones_per_inventory - 1) / ones_per_inventory);
-    rval += inventory_size * 8;   // number of bytes for inventory array
-    rval += DEFAULT_SPILL_SIZE * 8; // number of bytes for spill
-    return rval;
-}
-
 /**
  * Compute the memory required to load a bvgraph into memory
  * with the desired offset_step.  
@@ -344,7 +314,7 @@ int bvgraph_required_memory(bvgraph *g, int offset_step, size_t *gbuf, size_t *o
         if (gbuf) { *gbuf = 0; }
         if (offset_ef_buf) { *offset_ef_buf = 0; }
         if (offset_step < -1) {
-            *offset_ef_buf = eflist_size(g);
+            *offset_ef_buf = eflist_size(&(g->ef));
         }
     }
     else {
@@ -365,7 +335,7 @@ int bvgraph_required_memory(bvgraph *g, int offset_step, size_t *gbuf, size_t *o
             if (offset_ef_buf) { *offset_ef_buf = sizeof(unsigned long long)*g->n; }
         }
         else if (offset_step == 2) {
-            *offset_ef_buf = eflist_size(g);
+            *offset_ef_buf = eflist_size(&(g->ef));
         }
         else if (offset_step > 2) {
             // check if user allowed memory is enough for offset
@@ -373,7 +343,7 @@ int bvgraph_required_memory(bvgraph *g, int offset_step, size_t *gbuf, size_t *o
                 *offset_ef_buf = sizeof(unsigned long long)*g->n;
             }
             else {
-                *offset_ef_buf = eflist_size(g);
+                *offset_ef_buf = eflist_size(&(g->ef));
             }
         }
     }
@@ -621,23 +591,14 @@ int load_efcode_online(bvgraph *g)
  * This function builds an eflist based on the given graph. 
  *
  * @param[in] g the graph
- * @param[in] spill_var_len variable length for spill, 0: not; 1: yes
  * @return 0 on success
  */
 
-int build_efcode(bvgraph *g, int spill_var_len)
+int build_efcode(bvgraph *g)
 {
-    //eflist_init(&(g->ef), g->n);
     int rval = load_efcode_from_file(g);
     if (rval) {
         load_efcode_online(g);
-    }
-    // build index structure for the upper array
-    elias_fano_list *ef = &(g->ef);
-    rval = simple_select_build(ef, g->n, spill_var_len);
-    if (rval < 0) {
-        printf("WARNING: pre-allcated memory too small for spill structure.\nUse variable length instead.\n");
-        return eflist_spill_too_small;
     }
     return (0);
 }

@@ -313,7 +313,7 @@ int load_offset_online(bvgraph *g);
 
 int load_efcode_from_file(bvgraph *g);
 int load_efcode_online(bvgraph *g);
-int build_efcode(bvgraph *g, int spill_var_len);
+int build_efcode(bvgraph *g);
 
 #ifdef __cplusplus
 }
