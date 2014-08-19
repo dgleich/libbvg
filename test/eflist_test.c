@@ -24,7 +24,6 @@ int main(int argc, char **argv)
     elias_fano_list eflist;
     eflist_create(&eflist, N, A[N-1]);
     eflist_addbatch(&eflist, A, N);
-    simple_select_build(&eflist, N, 1);
     // compare values
     for (i = 0; i < N; i ++) {
         if (A[i] != eflist_get(&eflist, i)) {

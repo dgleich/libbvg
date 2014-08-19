@@ -20,7 +20,7 @@ extern "C" {
  * Define data structure for equi-length bit array.
  */
 struct bit_array_tag {
-    int s;
+    int s;         ///< each element takes s-bits
     uint64_t *A;
     uint64_t size; ///< number of elements in the bit array
 };    
@@ -41,20 +41,16 @@ struct elias_fano_list_tag {
     int ones_per_inventory;
     int ones_per_inventory_mask;
     int inventory_size;
-    uint64_t num_ones;
-    size_t spill_size;
+    uint64_t spill_size;
+    uint64_t spill_curr;
     int64_t *inventory;
     int64_t *exact_spill;   
 };
 
 typedef struct elias_fano_list_tag elias_fano_list;
-typedef struct bit_array_tag bit_array;
-
-// define some error codes for the eflist
-extern const int eflist_spill_too_small;  
+typedef struct bit_array_tag bit_array; 
 
 // function prototypes 
-//int simple_select_build(elias_fano_list *ef, int64_t num_ones, int spill_var_len);
 int bit_array_create(bit_array *ptr, int s, int64_t size);
 int bit_array_free(bit_array *ptr);
 int bit_array_put(bit_array *ptr, uint64_t num, int64_t k);
@@ -65,6 +61,7 @@ int eflist_addbatch(elias_fano_list *ef, int64_t *arr, int64_t length);
 int64_t eflist_get(elias_fano_list *ef, int64_t index);
 int eflist_free(elias_fano_list *ef);
 size_t eflist_size(elias_fano_list *ef);
+int64_t bit_search(void *mem, size_t k, int64_t k_offset, size_t l);
     
 #ifdef __cplusplus    
 }
