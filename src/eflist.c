@@ -468,7 +468,7 @@ size_t eflist_size(elias_fano_list *ef)
  */
 int64_t bit_search(void *mem, int64_t start_bit_offset, size_t l)
 {
-    int64_t rval, i, j, index, offset;
+    int64_t rval, i, index, offset;
     uint64_t *A = (uint64_t *)mem;
     size_t count = 0, goal;
     const uint64_t left1 = 0x8000000000000000;
