@@ -18,6 +18,7 @@
 
 const int eflist_out_of_bound = -1; ///< ef-list out of bound
 const int eflist_batch_nondecreasing = -2; ///< the array is not nondecreaing in batch mode
+const int eflist_external_memory_too_small = -3; ///< the exteranl memory is too small for the eflist
  
 /**
  * Define constants for bit operations.
@@ -99,6 +100,10 @@ static int simple_select_build(elias_fano_list *ef)
             if (span >= MAX_SPAN) {
                 // need to spill
                 if (ef->spill_size - ef->spill_curr < ef->ones_per_inventory) {
+                    if (ef->memory_external) {
+                        printf("ERROR: external memory too small\n");
+                        return eflist_external_memory_too_small;
+                    }
                     // double the size of current spill size
                     int64_t *tmp = ef->exact_spill;
                     ef->exact_spill = malloc(sizeof(int64_t) * ef->spill_size * 2);
@@ -322,6 +327,12 @@ int bit_array_free(bit_array *ptr)
 
 int eflist_create(elias_fano_list *ef, uint64_t num_elements, uint64_t largest)
 {
+    // this call will treat all the memory as internal
+    return eflist_create_external(ef, num_elements, largest, NULL, 0, 0);
+}
+
+int eflist_create_external(elias_fano_list *ef, uint64_t num_elements, uint64_t largest, unsigned char *memory, size_t memsize, int spill_factor)
+{
     memset(ef, 0, sizeof(elias_fano_list));
     ef->size = num_elements;
     ef->largest = largest;
@@ -331,9 +342,7 @@ int eflist_create(elias_fano_list *ef, uint64_t num_elements, uint64_t largest)
     // set fields for lower and upper bit arrays
     int s = num_elements == 0 ? 0 : (int)(log2( (largest + 1) / num_elements));
     ef-> s = s;
-    bit_array_create(&(ef->lower), s, num_elements);
     int64_t upper_length = num_elements + (largest >> s);
-    bit_array_create(&(ef->upper), 1, upper_length);
     // set fields for the index structure
     int window = upper_length == 0 ? 1 : (int)((num_elements * MAX_ONES_PER_INVENTORY + upper_length - 1) / upper_length);
     ef->log2_ones_per_inventory = (int)(floor(log2(window)));
@@ -341,13 +350,46 @@ int eflist_create(elias_fano_list *ef, uint64_t num_elements, uint64_t largest)
     ef->ones_per_inventory_mask = ef->ones_per_inventory - 1;
     ef->inventory_size = (int)((num_elements + ef->ones_per_inventory - 1) / ef->ones_per_inventory);
     //ef->num_ones = num_elements;
-    ef->spill_size = ef->inventory_size;
+    ef->spill_size = ef->inventory_size * (1 << spill_factor);
     ef->spill_curr = 0;  // current index of spill buffer
-    ef->inventory = malloc(sizeof(int64_t) * (ef->inventory_size + 1));  // allocate one more space
-    // by default, set spill to be the same size as inventory 
-    ef->exact_spill = malloc(sizeof(int64_t) * ef->spill_size);
+    if (memory == NULL) {  // treat all memory as internal
+        ef->memory_external = 0;
+        bit_array_create(&(ef->lower), s, num_elements);        
+        bit_array_create(&(ef->upper), 1, upper_length);        
+        ef->inventory = malloc(sizeof(int64_t) * (ef->inventory_size + 1));  // allocate one more space
+        // by default, set spill to be (1 << spill_factor) times of inventory_size
+        ef->exact_spill = malloc(sizeof(int64_t) * ef->spill_size);
+    }
+    else {  // external memory is provided, need to check the size of the memory
+        ef->memory_external = 1;
+        size_t mem_required = eflist_size(num_elements, largest, spill_factor);
+        if (mem_required > memsize) {
+            return eflist_external_memory_too_small;
+        }
+        // clear memory
+        memset(memory, 0, memsize);
+        // set fields for ef->lower
+        (ef->lower).s = s;
+        if (s == 0) {
+            (ef->lower).A = NULL;
+        }
+        else {
+            (ef->lower).A = memory;
+        }
+        (ef->lower).size = num_elements;
+        uint64_t array_len = (s * num_elements + 63) / 64;  // number of 64-bit words
+        // set fields for ef->upper
+        (ef->upper).s = 1;
+        (ef->upper).size = upper_length;
+        (ef->upper).A = memory + array_len * 8;
+        array_len = (upper_length + 63) / 64;
+        ef->inventory = (ef->upper).A + array_len * 8;
+        array_len = ef->inventory_size + 1;
+        ef->exact_spill = ef->inventory + array_len * 8;
+    }
     return 0;
 }
+
 
 /**
  * This function adds an element into the eflist.
@@ -430,31 +472,40 @@ int64_t eflist_get(elias_fano_list *ef, int64_t index)
 
 int eflist_free(elias_fano_list *ef)
 {
-    free(ef->inventory);
-    ef->inventory = NULL;
-    if (ef->spill_size > 0) {
-        free(ef->exact_spill);
-        ef->exact_spill = NULL;
+    if (!ef->memory_external) {
+        free(ef->inventory);
+        ef->inventory = NULL;
+        if (ef->spill_size > 0) {
+            free(ef->exact_spill);
+            ef->exact_spill = NULL;
+        }
+        bit_array_free(&(ef->lower));
+        bit_array_free(&(ef->upper));
     }
-    bit_array_free(&(ef->lower));
-    bit_array_free(&(ef->upper));
     return (0);
 }
 
 /** 
  * This function computes how much memory is required for an eflist.
  * 
- * @param[in] ef a pointer to an elias_fano list
+ * @param[in] num_elements the total number of elements to be stored in the eflist
+ * @param[in] largest the largest element in the list
+ * @param[in] spill_factor spill_size factor, i.e., spill_size = inventory_size * (1 << spill_factor)
  * @return the memory required for the list in terms of bytes
  */
-size_t eflist_size(elias_fano_list *ef)
+size_t eflist_size(uint64_t num_elements, uint64_t largest, int spill_factor)
 {
     size_t rval = 0;
-    rval += (ef->s * ef->size + 63) / 64 * 8;    // number of bytes for lower bits array
-    int64_t upper_length = ef->size + (ef->largest >> ef->s);
+    int s = num_elements == 0 ? 0 : (int)(log2( (largest + 1) / num_elements));
+    rval += (s * num_elements + 63) / 64 * 8;    // number of bytes for lower bits array
+    int64_t upper_length = num_elements + (largest >> s);
     rval += (upper_length + 63) / 64 * 8; // number of bytes for upper bits array
-    rval += ef->inventory_size * 8;   // number of bytes for inventory array
-    rval += ef->spill_size * 8;     // number of bytes for spill array
+    int window = upper_length == 0 ? 1 : (int)((num_elements * MAX_ONES_PER_INVENTORY + upper_length - 1) / upper_length);
+    int log2_ones_per_inventory = (int)(floor(log2(window)));
+    int ones_per_inventory = 1 << log2_ones_per_inventory;
+    int inventory_size = (int)((num_elements + ones_per_inventory - 1) / ones_per_inventory);
+    rval += (inventory_size + 1) * 8;   // number of bytes for inventory array
+    rval += inventory_size * (1 << spill_factor) * 8;   // number of bytes for spill array
     return rval;
 }
 
