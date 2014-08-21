@@ -331,6 +331,24 @@ int eflist_create(elias_fano_list *ef, uint64_t num_elements, uint64_t largest)
     return eflist_create_external(ef, num_elements, largest, NULL, 0, 0);
 }
 
+/**
+ * Create an Elias-Fano list using a set of externally provided buffers for the data.
+ * This one might be useful in the sense that you want to manage memory for the list
+ * independently of this function.
+ * 
+ * To create an Elias-Fano list, 4 pieces of memory are needed. These are lower bit 
+ * array, upper bit array, inventory, and spill buffer for the index structure. A sufficiently 
+ * large block of memory is needed to hold these 4 buffers.
+ * 
+ * @param[in] ef Elias-Fano list
+ * @param[in] num_elements number of elements
+ * @param[in] largest the largest element in the list
+ * @param[in] memory external memory
+ * @param[in] memsize the size of the external memory
+ * @param[in] spill_factor 
+ * @return 0 on success
+ */
+
 int eflist_create_external(elias_fano_list *ef, uint64_t num_elements, uint64_t largest, unsigned char *memory, size_t memsize, int spill_factor)
 {
     memset(ef, 0, sizeof(elias_fano_list));
