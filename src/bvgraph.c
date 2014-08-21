@@ -314,7 +314,7 @@ int bvgraph_required_memory(bvgraph *g, int offset_step, size_t *gbuf, size_t *o
         if (gbuf) { *gbuf = 0; }
         if (offset_ef_buf) { *offset_ef_buf = 0; }
         if (offset_step < -1) {
-            *offset_ef_buf = eflist_size(&(g->ef));
+            *offset_ef_buf = eflist_size(g->n, (uint64_t)g->m * g->bits_per_link, 0);
         }
     }
     else {
@@ -335,7 +335,7 @@ int bvgraph_required_memory(bvgraph *g, int offset_step, size_t *gbuf, size_t *o
             if (offset_ef_buf) { *offset_ef_buf = sizeof(unsigned long long)*g->n; }
         }
         else if (offset_step == 2) {
-            *offset_ef_buf = eflist_size(&(g->ef));
+            *offset_ef_buf = eflist_size(g->n, (uint64_t)g->m * g->bits_per_link, 0);
         }
         else if (offset_step > 2) {
             // check if user allowed memory is enough for offset
@@ -343,7 +343,7 @@ int bvgraph_required_memory(bvgraph *g, int offset_step, size_t *gbuf, size_t *o
                 *offset_ef_buf = sizeof(unsigned long long)*g->n;
             }
             else {
-                *offset_ef_buf = eflist_size(&(g->ef));
+                *offset_ef_buf = eflist_size(g->n, (uint64_t)g->m * g->bits_per_link, 0);
             }
         }
     }
