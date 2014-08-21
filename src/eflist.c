@@ -57,16 +57,16 @@ static int bit_count(int64_t x) {
  */
 
 static int log2_floor(uint64_t num) {
-	uint64_t left1 = 0x8000000000000000;
-	int location = 0;
-	int i;
-	for (i = 0; i < 64; i ++) {
-		if ((num & (left1 >> i)) != 0) {
-			location = i;
-			break;
-		}
-	}
-	return 64 - location - 1;
+    uint64_t left1 = 0x8000000000000000;
+    int location = 0;
+    int i;
+    for (i = 0; i < 64; i ++) {
+        if ((num & (left1 >> i)) != 0) {
+            location = i;
+            break;
+        }
+    }
+    return 64 - location - 1;
 }
 
 
