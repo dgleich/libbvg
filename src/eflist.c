@@ -7,7 +7,6 @@
  */
 
 #include "eflist.h"
-#include <math.h>
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
@@ -48,6 +47,26 @@ static int bit_count(int64_t x) {
     x = (x & m16) + ((x >> 16) & m16); //put count of each 32 bits into those 32 bits 
     x = (x & m32) + ((x >> 32) & m32); //put count of each 64 bits into those 64 bits 
     return x;
+}
+
+/**
+ * Return the floor of logarithmic value of base 2.
+ *
+ * @param[in] num the non-negative number
+ * @return the floor of logarithmic value of base 2
+ */
+
+static int log2_floor(uint64_t num) {
+	uint64_t left1 = 0x8000000000000000;
+	int location = 0;
+	int i;
+	for (i = 0; i < 64; i ++) {
+		if ((num & (left1 >> i)) != 0) {
+			location = i;
+			break;
+		}
+	}
+	return 64 - location - 1;
 }
 
 
@@ -358,12 +377,12 @@ int eflist_create_external(elias_fano_list *ef, uint64_t num_elements, uint64_t 
     ef->exact_spill = NULL;
     ef->curr = 0;
     // set fields for lower and upper bit arrays
-    int s = num_elements == 0 ? 0 : (int)(log2( (largest + 1) / num_elements));
+    int s = num_elements == 0 ? 0 : log2_floor((uint64_t)((largest + 1) / num_elements));//(int)(log2( (largest + 1) / num_elements));
     ef-> s = s;
     int64_t upper_length = num_elements + (largest >> s);
     // set fields for the index structure
     int window = upper_length == 0 ? 1 : (int)((num_elements * MAX_ONES_PER_INVENTORY + upper_length - 1) / upper_length);
-    ef->log2_ones_per_inventory = (int)(floor(log2(window)));
+    ef->log2_ones_per_inventory = log2_floor(window);
     ef->ones_per_inventory = 1 << ef->log2_ones_per_inventory;
     ef->ones_per_inventory_mask = ef->ones_per_inventory - 1;
     ef->inventory_size = (int)((num_elements + ef->ones_per_inventory - 1) / ef->ones_per_inventory);
@@ -392,16 +411,16 @@ int eflist_create_external(elias_fano_list *ef, uint64_t num_elements, uint64_t 
             (ef->lower).A = NULL;
         }
         else {
-            (ef->lower).A = memory;
+            (ef->lower).A = (uint64_t *)memory;
         }
         (ef->lower).size = num_elements;
         uint64_t array_len = (s * num_elements + 63) / 64;  // number of 64-bit words
         // set fields for ef->upper
         (ef->upper).s = 1;
         (ef->upper).size = upper_length;
-        (ef->upper).A = memory + array_len * 8;
+        (ef->upper).A = (uint64_t *)memory + array_len;
         array_len = (upper_length + 63) / 64;
-        ef->inventory = (ef->upper).A + array_len * 8;
+        ef->inventory = (int64_t *)(ef->upper).A + array_len;
         array_len = ef->inventory_size + 1;
         ef->exact_spill = ef->inventory + array_len * 8;
     }
@@ -514,12 +533,12 @@ int eflist_free(elias_fano_list *ef)
 size_t eflist_size(uint64_t num_elements, uint64_t largest, int spill_factor)
 {
     size_t rval = 0;
-    int s = num_elements == 0 ? 0 : (int)(log2( (largest + 1) / num_elements));
+    int s = num_elements == 0 ? 0 : log2_floor((uint64_t)((largest + 1) / num_elements)); //(int)(log2( (largest + 1) / num_elements))
     rval += (s * num_elements + 63) / 64 * 8;    // number of bytes for lower bits array
     int64_t upper_length = num_elements + (largest >> s);
     rval += (upper_length + 63) / 64 * 8; // number of bytes for upper bits array
     int window = upper_length == 0 ? 1 : (int)((num_elements * MAX_ONES_PER_INVENTORY + upper_length - 1) / upper_length);
-    int log2_ones_per_inventory = (int)(floor(log2(window)));
+    int log2_ones_per_inventory = log2_floor(window);
     int ones_per_inventory = 1 << log2_ones_per_inventory;
     int inventory_size = (int)((num_elements + ones_per_inventory - 1) / ones_per_inventory);
     rval += (inventory_size + 1) * 8;   // number of bytes for inventory array
