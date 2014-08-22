@@ -81,8 +81,15 @@ void bvgraph_free(bvgraph *g)
  * @param[in] filename the base filename for a set of bvgraph files, 
  * so filename.graph and filename.properties must exist.
  * @param[in] offset_step controls how many offsets are loaded, 
- * if offset_step = -1, then the graph file isn't loaded into memory
- * if offset_step = 0, then the graph file is loaded, but no offsets
+ * if offset_step = -1, then the graph file isn't loaded into memory and no offsets;
+ * if offset_step = 0, then the graph file is loaded, but no offsets;
+ * if offset_step = 1, then the graph file is loaded, as well as the offsets file;
+ * if offset_step = 2, then the graph file is loaded, and the offsets file is loaded as an Elias-Fano list
+ * if offset_step > 2, then the graph file is loaded, and the offset_step value is the amount of memory
+ * the user wishes to use for the offsets file. If offset_step < memory_need_for_offsets, then offsets file
+ * is loaded as an Elias-Fano list;
+ * if offset_step < -1, then the graph file isn't loaded into memory and the 
+ * offsets file is loaded as an Elias-Fano list
  * no other values are supported at the moment.
  * @return 0 if successful;
  * bvgraph_load_error_filename_too_long - indicates the filename was too long
