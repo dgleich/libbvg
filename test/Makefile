@@ -26,6 +26,7 @@ test: bv_head_tail_1000.graph
 	./bitfile_test
 	./bitfile_64bit_test
 	./refill_test
+	./eflist_test
 	./bvgraph_test ../data/harvard500
 	./check_bvgraph ../data/harvard500 random 10000
 	./check_bvgraph ../data/wb-cs.stanford random 10000
