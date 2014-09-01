@@ -46,7 +46,7 @@ void iteration(const char* name){
         printf("node %"PRId64" has degree %"PRId64"\n", git.curr, d);
         
         int64_t i = 0;
-        for (i; i<d; ++i) {
+        for (i=0; i<d; ++i) {
             printf("node %"PRId64" links to node %"PRId64"\n", git.curr, links[i]);
         }
     }
@@ -74,7 +74,7 @@ void load_all(const char* name)
         bvgraph_iterator_outedges(&git, &links, &d);
         
         int64_t i = 0;
-        for (i; i<d; ++i) {
+        for (i=0; i<d; ++i) {
             ALL_PAIR[PAIR_SIZE].from = git.curr;
             ALL_PAIR[PAIR_SIZE].to = links[i];
             PAIR_SIZE++;
@@ -134,7 +134,7 @@ void head_tail_first_test(bvgraph g)
         return;
     } 
 
-    for (i; i <= g.n; i++){
+    for (i=0; i <= g.n; i++){
         int64_t node;
         if ( i % 2 == 0){
             node = i / 2;
@@ -147,7 +147,7 @@ void head_tail_first_test(bvgraph g)
         bvgraph_random_successors(&ri, node, &links, &d);
 
         int64_t j = 0;
-        for (j; j< d; j++){
+        for (j=0; j< d; j++){
             if (!exist_pair(node, links[j])){
                 printf("Wrong links from node %"PRId64" to node %"PRId64". Stop.\n", node, links[j]);
                 //return;
@@ -173,7 +173,7 @@ void random_test(bvgraph g, int test_num)
         return;
     }
  
-    for (i; i < test_num; i++){
+    for (i=0; i < test_num; i++){
         int64_t node = rand() % g.n;
         int64_t *links = NULL;
 
@@ -183,7 +183,7 @@ void random_test(bvgraph g, int test_num)
 
         int64_t j = 0;
         //printf("degree: %d\n", d);
-        for (j; j< d; j++){
+        for (j=0; j< d; j++){
             //printf("links: %d\n", links[j]);
             if (!exist_pair(node, links[j])){
                 printf("Wrong links from node %"PRId64" to node %"PRId64". Stop.\n", node, links[j]);
@@ -209,7 +209,7 @@ void print_all(bvgraph g)
         return;
     }
     
-    for (i; i < g.n; i++){
+    for (i=0; i < g.n; i++){
         //get successors example
         int64_t *links;
         //printf("Process node %d...\n", i);
@@ -220,7 +220,7 @@ void print_all(bvgraph g)
         printf ("node %"PRId64" has degree %"PRIu64"\n", i, d);
         
         int64_t j = 0;
-        for (j; j< d; j++){
+        for (j=0; j< d; j++){
             //printf("node %i links to node %i\n", i, links[j]);
             if (!exist_pair(i, links[j])){
                 printf("Wrong links from node %"PRId64" to node %"PRId64". Stop.\n", i, links[j]);
@@ -261,7 +261,7 @@ void test_performance(bvgraph g, int test_num)
         bvgraph_random_successors(&ri, node, &links, &d);
         int64_t j = 0;
         int64_t link;
-        for (j; j<d; j++){
+        for (j=0; j<d; j++){
             link = links[j];
         }
         edge_count += d;
