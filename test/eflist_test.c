@@ -7,7 +7,6 @@
 
 #include "eflist.h"
 #include <stdlib.h>
-#include <time.h>
 #define N 10000
 #define M 50
 
@@ -16,7 +15,7 @@ int main(int argc, char **argv)
     int64_t *A = NULL;
     int64_t i = 0;
     A = malloc(sizeof(int64_t) * N);
-    srand(time(NULL));
+    srand(12345);
     A[0] = rand() % M;
     for (i = 1; i < N; i ++) {
         A[i] = A[i-1] + rand() % M;
