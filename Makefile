@@ -59,6 +59,9 @@ everything: lib $(BVPAGERANKNAME) bvgraph2smat test python
 test: lib
 	cd test && $(MAKE) small
 
+testfull: lib
+	cd test && $(MAKE) testfull
+
 python: lib
 	cd python && $(MAKE) all
 	

@@ -25,21 +25,17 @@ int main(int argc, char **argv)
     
     char *filename;
     int filenamelen;
+    int rval;
+    int fastflag = 0;
     
-    if (argc < 2) { fprintf(stderr, "Usage: bvgraph_64bit_test bvgraph_basename\n"); return (-1); }
+    if (argc < 2) { fprintf(stderr, "Usage: bvgraph_64bit_test bvgraph_basename [fast]\n"); return (-1); }
     
     filename = argv[1];
     filenamelen = (int)strlen(filename);
     
-    int rval;
-    /*rval = bvgraph_load(g, filename, filenamelen, -1);
-    if (rval) { perror("error with initial load!"); }
-    {
-        size_t memrequired, offset_buff;
-        bvgraph_required_memory(g, 1, &memrequired, &offset_buff);
-        printf("the graph %s requires %llu bytes to load into memory, offset_buff=%llu\n", filename, (long long)memrequired, (long long)offset_buff);
+    if (argc == 3) {
+        fastflag = atoi(argv[2]);
     }
-    bvgraph_close(g);*/
     
     rval = bvgraph_load(g, filename, filenamelen, -1);
     printf("#node = %" PRId64 ", #edges = %" PRId64 "\n", g->n, g->m);
@@ -59,11 +55,18 @@ int main(int argc, char **argv)
                     printf("error when reading node = %" PRId64 "\n", iter.curr);
                     return (-1);
                 }
-            }       
+            }
+            if (fastflag && iter.curr > 1000) {
+                break;
+            }
        }
     }
     bvgraph_close(g);
-    printf("Testing 64-bit bvgraph sequential read ... passed!\n");
+    if (fastflag) {
+        printf("Fast test of 64-bit bvgraph sequential read ... passed!\n");
+    } else {
+        printf("Testing 64-bit bvgraph sequential read ... passed!\n");
+    }
     return 0;
 }
 

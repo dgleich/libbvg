@@ -19,7 +19,10 @@ clean:
 refill_test: refill_test.o
 check_bvgraph: check_bvgraph.o
 
-test_big_mem: bv_line.graph
+testfull: test
+	./bvgraph_64bit_test bv_head_tail_1000 0
+
+test_big_mem: bv_line.graph 
 	./bvgraph_64bit_random_test ../data/bv_line
 
 test: bv_head_tail_1000.graph
@@ -30,7 +33,7 @@ test: bv_head_tail_1000.graph
 	./bvgraph_test ../data/harvard500
 	./check_bvgraph ../data/harvard500 random 10000
 	./check_bvgraph ../data/wb-cs.stanford random 10000
-	./bvgraph_64bit_test bv_head_tail_1000
+	./bvgraph_64bit_test bv_head_tail_1000 1
 
 bv_line.graph: bv_line.graph.bz2
 	bzip2 -d -k -f bv_line.graph.bz2

@@ -14,4 +14,4 @@ install:
   - python -c 'import Cython; print (Cython)'
 script:
   - export ARCHFLAGS='-Wno-error=unused-command-line-argument-hard-error-in-future'     
-  - make clean && make
+  - make clean && make && make testfull
