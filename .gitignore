@@ -21,3 +21,4 @@ ipch/
 *.sdf
 Debug/
 Release/
+*.vcxproj.filters
