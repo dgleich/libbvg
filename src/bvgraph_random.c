@@ -64,16 +64,22 @@ static int position_bvgraph(bvgraph_random_iterator *ri, int64_t x, uint64_t *d)
         return (bvgraph_vertex_out_of_range);
     }
 
-    if (ri->offset_step <= 0) {
+    if (ri->offset_step == 0 || ri->offset_step == -1) {
         return bvgraph_requires_offsets;
-    } else if (ri->offset_step == 1) {
-        int rval = bitfile_position(&ri->bf, ri->g->offsets[x]);
+    } else {
+        int64_t offset;
+        int rval;
+        if (!ri->g->use_ef) {
+            offset = ri->g->offsets[x];
+        }
+        else {
+            offset = eflist_get(&(ri->g->ef), x);
+        }
+        rval = bitfile_position(&ri->bf, offset);//ri->g->offsets[x]
         if (rval == 0) {
             *d = read_outdegree(ri->g, &ri->bf);
         }
         return rval;
-    } else {
-        return bvgraph_call_unsupported;
     }
 }
 
@@ -95,13 +101,20 @@ int bvgraph_random_outdegree(bvgraph_random_iterator *ri,
     }
     
     // TODO: always add outd_cache search
-    if (ri->offset_step <= 0) {
+    if (ri->offset_step == 0 || ri->offset_step == -1) {
         return (bvgraph_requires_offsets);
-    } else if (ri->offset_step == 1) {
-        bitfile_position(&ri->outd_bf, ri->g->offsets[i]);
+    } else {
+        int64_t offset;
+        if (!ri->g->use_ef) {
+            offset = ri->g->offsets[i];
+        }
+        else {
+            offset = eflist_get(&(ri->g->ef), i);
+        }
+        bitfile_position(&ri->outd_bf, offset); //ri->g->offsets[i]
         *d = read_outdegree(ri->g, &ri->outd_bf);
         return (0);
-    } else {
+    } //else {
         // code for the case when offset_step > 1
         // check if its in the outd cache
         // if (i >= ri->cache_start && i < ri->outd_cache_end) {
@@ -113,8 +126,8 @@ int bvgraph_random_outdegree(bvgraph_random_iterator *ri,
         //     *d = read_outdegree(ri->g, &ri->outd_bf);
         //     return (0);
         // }
-        return (bvgraph_call_unsupported);
-    }
+        //return (bvgraph_call_unsupported);
+        //}
 }
 
 /** Access the successors of a vertex.
@@ -136,7 +149,7 @@ int bvgraph_random_successors(bvgraph_random_iterator *ri,
     if (x<0 || x >= ri->g->n) {
         return (bvgraph_vertex_out_of_range);
     }
-    else if (ri->offset_step <= 0) {
+    else if (ri->offset_step == 0 || ri->offset_step == -1) {
         return (bvgraph_requires_offsets);
     } else {
         int64_t ref, ref_index;
@@ -150,6 +163,7 @@ int bvgraph_random_successors(bvgraph_random_iterator *ri,
         uint64_t d;     //degree
         ri->curr = x;
         int rval = position_bvgraph(ri, x, &d);
+        //printf("after position_graph()\n");
         if (rval) {
             return (rval);
         }
@@ -195,7 +209,6 @@ int bvgraph_random_successors(bvgraph_random_iterator *ri,
         // method to set the file pointer, this could modify ri itself.
         // this step requires offsets
         //
-
         ri->outd_cache[x%ri->cyclic_buffer_size] = d;
         ri->curr_outd = d;
 

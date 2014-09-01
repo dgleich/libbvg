@@ -497,6 +497,10 @@ int parse_properties(bvgraph* g)
                     rval = bvgraph_unsupported_version;
                 }
             }
+            else if (strncmp(key, "bitsperlink",key_len) == 0)
+            {
+                g->bits_per_link = atof(value);
+            }
 
             // release the memory
             free(key); free(value);

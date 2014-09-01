@@ -19,6 +19,7 @@
 
 #include "bvgraph_internal.h"
 #include "bvgraph_inline_io.h"
+#include "eflist.h"
 
 /**
  * Define all the error codes
@@ -80,8 +81,15 @@ void bvgraph_free(bvgraph *g)
  * @param[in] filename the base filename for a set of bvgraph files, 
  * so filename.graph and filename.properties must exist.
  * @param[in] offset_step controls how many offsets are loaded, 
- * if offset_step = -1, then the graph file isn't loaded into memory
- * if offset_step = 0, then the graph file is loaded, but no offsets
+ * if offset_step = -1, then the graph file isn't loaded into memory and no offsets;
+ * if offset_step = 0, then the graph file is loaded, but no offsets;
+ * if offset_step = 1, then the graph file is loaded, as well as the offsets file;
+ * if offset_step = 2, then the graph file is loaded, and the offsets file is loaded as an Elias-Fano list
+ * if offset_step > 2, then the graph file is loaded, and the offset_step value is the amount of memory
+ * the user wishes to use for the offsets file. If offset_step < memory_need_for_offsets, then offsets file
+ * is loaded as an Elias-Fano list;
+ * if offset_step < -1, then the graph file isn't loaded into memory and the 
+ * offsets file is loaded as an Elias-Fano list
  * no other values are supported at the moment.
  * @return 0 if successful;
  * bvgraph_load_error_filename_too_long - indicates the filename was too long
@@ -133,8 +141,8 @@ int bvgraph_load_external(bvgraph *g,
                           unsigned long long* offsets, int offsetssize)
 {
     int rval = 0;
-
-    assert(offset_step == 0 || offset_step == -1 || offset_step == 1);
+    // the offset_step can be ANY value now!
+    //assert(offset_step == 0 || offset_step == -1 || offset_step == 1);
 
     if (filenamelen > BVGRAPH_MAX_FILENAME_SIZE-1) { 
         return bvgraph_load_error_filename_too_long;
@@ -147,7 +155,6 @@ int bvgraph_load_external(bvgraph *g,
     g->filenamelen = filenamelen;
 
     g->offset_step = offset_step;
-
     set_defaults(g);
 
     rval = parse_properties(g);
@@ -157,99 +164,112 @@ int bvgraph_load_external(bvgraph *g,
     // continue processing
     if (offset_step >= 0) 
     {
-        if (offset_step == 0 || offset_step == 1) {    //modified 082911
-            // in this case, we ust load the graph
-            // file into memory
+        //modified 082911
+        // in this case, we must load the graph
+        // file into memory
 
-            // first get the filesize
-            unsigned long long graphfilesize;
-            char *gfilename = strappend(g->filename, g->filenamelen, ".graph", 6);
-            rval = fsize(gfilename, &graphfilesize);
+        // first get the filesize
+        unsigned long long graphfilesize;
+        char *gfilename = strappend(g->filename, g->filenamelen, ".graph", 6);
+        rval = fsize(gfilename, &graphfilesize);
+        free(gfilename);
+        if (rval) { 
+            return bvgraph_call_io_error;
+        }
+
+        if (gmemory != NULL) {
+            // they want to use their own memory, make sure
+            // they allocated enough!
+            if (gmemsize < graphfilesize) {
+                return bvgraph_load_error_buffer_too_small;
+            }
+            g->memory = gmemory;
+            g->memory_size = gmemsize;
+            g->memory_external = 1;
+        } else {
+            // we have to allocate the memory ourselves
+            g->memory_size = (size_t)graphfilesize;
+            g->memory = malloc(sizeof(unsigned char)*g->memory_size);
+            if (!g->memory) {
+                return bvgraph_call_out_of_memory;
+            }
+            g->memory_external = 0;
+        }
+
+        // now read the file
+        gfilename = strappend(g->filename, g->filenamelen, ".graph", 6);
+        {
+            size_t bytesread = 0;
+            FILE *gfile = fopen(gfilename, "rb");
             free(gfilename);
-            if (rval) { 
+            if (!gfile) {
                 return bvgraph_call_io_error;
             }
+            bytesread = fread(g->memory, 1, g->memory_size, gfile);
+            if (bytesread != graphfilesize) {
+                return bvgraph_call_io_error;
+            }
+            fclose(gfile);
+        }
+        // we now have the graph in memory!
+        g->use_ef = 0;
 
-            if (gmemory != NULL) {
-                // they want to use their own memory, make sure
-                // they allocated enough!
-                if (gmemsize < graphfilesize) {
-                    return bvgraph_load_error_buffer_too_small;
-                }
-                g->memory = gmemory;
-                g->memory_size = gmemsize;
-                g->memory_external = 1;
+        if (offset_step == 1) {        //modified 082911
+            if (offsets != NULL) {
+                g->offsets = offsets;
+                g->offsets_external = 1;
             } else {
                 // we have to allocate the memory ourselves
-                g->memory_size = (size_t)graphfilesize;
-                g->memory = malloc(sizeof(unsigned char)*g->memory_size);
-                if (!g->memory) {
-                    return bvgraph_call_out_of_memory;
-                }
-                g->memory_external = 0;
+                g->offsets = (unsigned long long*) malloc(sizeof(unsigned long long)*g->n);
+                g->offsets_external = 0;
             }
-
             // now read the file
-            gfilename = strappend(g->filename, g->filenamelen, ".graph", 6);
-            {
-                size_t bytesread = 0;
-                FILE *gfile = fopen(gfilename, "rb");
-                free(gfilename);
-                if (!gfile) {
-                    return bvgraph_call_io_error;
-                }
-                bytesread = fread(g->memory, 1, g->memory_size, gfile);
-                if (bytesread != graphfilesize) {
-                    return bvgraph_call_io_error;
-                }
-                fclose(gfile);
+            rval = load_offset_from_file(g);
+            if (rval) {
+                load_offset_online(g);
+            }            
+        }
+        else if (offset_step == 2) {
+            // for test purpose, only generate efcode for offset
+            g->use_ef = 1;
+            g->offsets_external = 1;
+            build_efcode(g);
+        }
+        else if (offset_step > 2){ 
+            // offset_step > 2, the size of memory that a user is willing to allocate
+            int64_t offset_in_mem = g->n * 8;  // amount of memory in bytes
+            if (offset_in_mem > offset_step) {
+                // use EF code to ensure minimum memory
+                g->use_ef = 1;
+                g->offsets_external = 1;
+                printf("The memory required for offsets is larger than %d MB.\nLoading with EF code instead.\n", offset_step);
+                build_efcode(g);
             }
-            // we now have the graph in memory!
-
-            if (offset_step == 1) {        //modified 082911
-                if (offsets != NULL) {
-                    g->offsets = offsets;
-                    g->offsets_external = 1;
-                } else {
-                    // we have to allocate the memory ourselves
-                    g->offsets = (unsigned long long*) malloc(sizeof(unsigned long long)*g->n);
-                    g->offsets_external = 0;
+            else {
+                // load the offset
+                g->use_ef = 0;
+                rval = load_offset_from_file(g);
+                if (rval) {
+                    load_offset_online(g);
                 }
-                // now read the file
-                char *ofilename = strappend(g->filename, g->filenamelen, ".offsets", 8);
-                bitfile bf;
-                long long off = 0;
-                int64_t i;
-                g->offsets = (unsigned long long*)malloc(g->n*sizeof(unsigned long long));
-                FILE *ofile = fopen(ofilename, "rb");
-                if (ofile) {
-                    rval = bitfile_open(ofile, &bf);
-                    if (rval) {
-                        return bvgraph_call_io_error;
-                    }
-                    for (i = 0; i < g->n; i++){
-                        off = read_offset(g, &bf) + off;
-                        g->offsets[i] = off;
-                    }
-                } else {
-                    // need to build the offsets
-                    bvgraph_iterator git;
-                    int rval = bvgraph_nonzero_iterator(g, &git);
-                    if (rval) { return rval; }
-                    g->offsets[0] = 0;
-                    for (; bvgraph_iterator_valid(&git); bvgraph_iterator_next(&git)) {
-                        if (git.curr+1 < g->n) {
-                            g->offsets[git.curr+1] = bitfile_tell(&git.bf);
-                        }
-                    }
-                    bvgraph_iterator_free(&git);
-                }
+                g->offsets_external = 0;
             }
+            
         }
     }
-    else
+    else // TODO: add semantics here for offset_step < 0
     {
-        g->memory_size = 0;
+        if (offset_step == -1) { // graph on disk and no offset
+            g->memory_size = 0;
+        }
+        else {
+            // leave the graph on disk
+            // use EF code for the offsets
+            g->memory_size = 0;
+            g->use_ef = 1;
+            g->offsets_external = 1;
+            build_efcode(g);
+        }
     }
      
     // presently the othercases are not supported, so we don't have to
@@ -274,6 +294,9 @@ int bvgraph_close(bvgraph* g)
     if (!g->memory_external) { free(g->memory); }
     if (!g->offsets_external) { free(g->offsets); }
     memset(g, 0, sizeof(bvgraph));
+    if (g->use_ef) {
+        eflist_free(&(g->ef));
+    }
 
     return (0);
 }
@@ -289,16 +312,19 @@ int bvgraph_close(bvgraph* g)
  * @param[in] g the graph
  * @param[in] offset_step the new offset_step value
  * @param[out] gbuf the size of the graph buffer
- * @param[out] offsetbuf the size of the offset buffer
+ * @param[out] offset_ef_buf the size of the offset/ef buffer, this depends on the offset_step value
  * @return 0 on success
  */
-int bvgraph_required_memory(bvgraph *g, int offset_step, size_t *gbuf, size_t *offsetbuf)
+int bvgraph_required_memory(bvgraph *g, int offset_step, size_t *gbuf, size_t *offset_ef_buf)
 {
-    if (offset_step < 0) {
+    if (offset_step <= -1) {
         if (gbuf) { *gbuf = 0; }
-        if (offsetbuf) { *offsetbuf = 0; }
+        if (offset_ef_buf) { *offset_ef_buf = 0; }
+        if (offset_step < -1) {
+            *offset_ef_buf = eflist_size(g->n, (uint64_t)g->m * g->bits_per_link, 0);
+        }
     }
-    else if (offset_step < 2) {
+    else {
         unsigned long long graphfilesize;
         char *gfilename = strappend(g->filename, g->filenamelen, ".graph", 6);
         int rval = fsize(gfilename, &graphfilesize);
@@ -310,15 +336,27 @@ int bvgraph_required_memory(bvgraph *g, int offset_step, size_t *gbuf, size_t *o
         if (gbuf) { *gbuf = (size_t)graphfilesize; }
         // always set the offsetbuf here even if we are about to change
         // it.
-        if (offsetbuf) { *offsetbuf = 0; }
+        if (offset_ef_buf) { *offset_ef_buf = 0; }
 
         if (offset_step == 1) {
-            if (offsetbuf) { *offsetbuf = sizeof(unsigned long long)*g->n; }
+            if (offset_ef_buf) { *offset_ef_buf = sizeof(unsigned long long)*g->n; }
+        }
+        else if (offset_step == 2) {
+            *offset_ef_buf = eflist_size(g->n, (uint64_t)g->m * g->bits_per_link, 0);
+        }
+        else if (offset_step > 2) {
+            // check if user allowed memory is enough for offset
+            if (offset_step * (1L << 20) >= sizeof(unsigned long long)*g->n) {
+                *offset_ef_buf = sizeof(unsigned long long)*g->n;
+            }
+            else {
+                *offset_ef_buf = eflist_size(g->n, (uint64_t)g->m * g->bits_per_link, 0);
+            }
         }
     }
-    else {
+/*    else {
         return bvgraph_call_unsupported;
-    }
+    }*/
 
     return (0);
 }
@@ -427,3 +465,148 @@ const char* bvgraph_error_string(int code)
         return "unknown error";
     }
 }
+
+
+/**
+ * This function load the offset array from file on disk.
+ * 
+ * @param[in] g the graph
+ * @return 0 on success
+ */
+int load_offset_from_file(bvgraph *g)
+{
+    char *ofilename = strappend(g->filename, g->filenamelen, ".offsets", 8);
+    bitfile bf;
+    long long off = 0;
+    int64_t i;
+    g->offsets = (unsigned long long*)malloc(g->n*sizeof(unsigned long long));
+    FILE *ofile = fopen(ofilename, "rb");
+    if (ofile) {
+        int rval = bitfile_open(ofile, &bf);
+        if (rval) {
+            return bvgraph_call_io_error;
+        }
+        for (i = 0; i < g->n; i++){
+            off = read_offset(g, &bf) + off;
+            g->offsets[i] = off;
+        }
+        bitfile_close(&bf);
+        fclose(ofile);
+        return 0;  // success
+    }
+        
+    return 1; // failure
+}
+
+/**
+ * This function creates the offset array from the graph in the memory.
+ * 
+ * @param[in] g the graph
+ * @return 0 on success
+ */
+int load_offset_online(bvgraph *g)
+{
+    // need to build the offsets
+    bvgraph_iterator git;
+    int rval = bvgraph_nonzero_iterator(g, &git);
+    if (rval) { return rval; }
+    g->offsets[0] = 0;
+    for (; bvgraph_iterator_valid(&git); bvgraph_iterator_next(&git)) {
+        if (git.curr+1 < g->n) {
+            g->offsets[git.curr+1] = bitfile_tell(&git.bf);
+        }
+    }
+    bvgraph_iterator_free(&git);
+    return 0;
+}
+
+/**
+ * This function computes the EF code from the offset file on disk.
+ * 
+ * @param[in] g the graph
+ * @return 0 on success
+ */
+int load_efcode_from_file(bvgraph *g)
+{
+    elias_fano_list *ef = &(g->ef);
+    uint64_t n = g -> n;
+    bitfile bf;
+    long long off = 0;
+    char *ofilename = strappend(g->filename, g->filenamelen, ".offsets", 8);
+    FILE *ofile = fopen(ofilename, "rb");
+    int64_t i; //last_elm, 
+    int rval;
+    if (ofile) { //if offsets file exists
+        rval = bitfile_open(ofile, &bf);
+        if (rval) {
+            return bvgraph_call_io_error;
+        }
+        // here we build the estimate of last element from the property file
+        // by g->bits_per_link * g->m, this value is larger than the last element in the array
+        uint64_t build_last = (uint64_t)(g->bits_per_link * g->m);
+        eflist_create(ef, n, build_last);
+        rval = bitfile_open(ofile, &bf);
+        if (rval) {
+            return bvgraph_call_io_error;
+        }
+        off = 0;
+        for (i = 0; i < g->n; i ++) {
+            off = read_offset(g, &bf) + off;
+            eflist_add(ef, off);
+        }
+        bitfile_close(&bf);
+        fclose(ofile);
+        return 0;  // success
+    }
+    return 1;  //failure
+}
+
+
+/**
+ * This function computes the EF code from the graph loaded in the memory.
+ *
+ * @param[in] g the graph
+ * @return 0 on success
+ */
+int load_efcode_online(bvgraph *g)
+{
+    elias_fano_list *ef = &(g->ef);
+    uint64_t n = g -> n;
+    bvgraph_iterator git;
+    int r = bvgraph_nonzero_iterator(g, &git);
+    int64_t last_elm;
+    if (r) { return r; }
+    last_elm = 0;
+    // estimate the last element from the propery file by
+    // g->bits_per_link * g->m
+    uint64_t build_last = (uint64_t)(g->bits_per_link * g->m);
+    eflist_create(ef, n, build_last);
+    r = bvgraph_nonzero_iterator(g, &git);
+    if (r) { return r; }
+    eflist_add(ef, 0);
+    for (; bvgraph_iterator_valid(&git); bvgraph_iterator_next(&git)) {
+        if (git.curr + 1 < g->n) {
+            last_elm = bitfile_tell(&git.bf);
+            eflist_add(ef, last_elm);
+        }
+    }
+    bvgraph_iterator_free(&git);
+    return 0;
+}
+
+/**
+ * This function builds an eflist based on the given graph. 
+ *
+ * @param[in] g the graph
+ * @return 0 on success
+ */
+
+int build_efcode(bvgraph *g)
+{
+    int rval = load_efcode_from_file(g);
+    if (rval) {
+        load_efcode_online(g);
+    }
+    return (0);
+}
+
