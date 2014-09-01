@@ -5,13 +5,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libbvg", "libbvg.vcxproj", 
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bvpagerank", "tools\bvpagerank\bvpagerank.vcxproj", "{F890FA0D-6CCF-473B-8DEE-5729F53A33E1}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bitfile_test", "test\bitfile_test\bitfile_test.vcproj", "{EE4B4046-306A-4273-A7AF-4EEFDCD5228E}"
-	ProjectSection(ProjectDependencies) = postProject
-		{CD19265C-388F-48AD-BF8C-AE7504D2E313} = {CD19265C-388F-48AD-BF8C-AE7504D2E313}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bvgraph_test", "test\bvgraph_test\bvgraph_test.vcproj", "{A38218CE-25DC-4F4E-A52C-8D66B44E8DB9}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -36,18 +29,6 @@ Global
 		{F890FA0D-6CCF-473B-8DEE-5729F53A33E1}.Release|Win32.Build.0 = Release|Win32
 		{F890FA0D-6CCF-473B-8DEE-5729F53A33E1}.Release|x64.ActiveCfg = Release|x64
 		{F890FA0D-6CCF-473B-8DEE-5729F53A33E1}.Release|x64.Build.0 = Release|x64
-		{EE4B4046-306A-4273-A7AF-4EEFDCD5228E}.Debug|Win32.ActiveCfg = Debug|Win32
-		{EE4B4046-306A-4273-A7AF-4EEFDCD5228E}.Debug|Win32.Build.0 = Debug|Win32
-		{EE4B4046-306A-4273-A7AF-4EEFDCD5228E}.Debug|x64.ActiveCfg = Debug|Win32
-		{EE4B4046-306A-4273-A7AF-4EEFDCD5228E}.Release|Win32.ActiveCfg = Release|Win32
-		{EE4B4046-306A-4273-A7AF-4EEFDCD5228E}.Release|Win32.Build.0 = Release|Win32
-		{EE4B4046-306A-4273-A7AF-4EEFDCD5228E}.Release|x64.ActiveCfg = Release|Win32
-		{A38218CE-25DC-4F4E-A52C-8D66B44E8DB9}.Debug|Win32.ActiveCfg = Debug|Win32
-		{A38218CE-25DC-4F4E-A52C-8D66B44E8DB9}.Debug|Win32.Build.0 = Debug|Win32
-		{A38218CE-25DC-4F4E-A52C-8D66B44E8DB9}.Debug|x64.ActiveCfg = Debug|Win32
-		{A38218CE-25DC-4F4E-A52C-8D66B44E8DB9}.Release|Win32.ActiveCfg = Release|Win32
-		{A38218CE-25DC-4F4E-A52C-8D66B44E8DB9}.Release|Win32.Build.0 = Release|Win32
-		{A38218CE-25DC-4F4E-A52C-8D66B44E8DB9}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

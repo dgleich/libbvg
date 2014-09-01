@@ -124,10 +124,12 @@
     <ClCompile Include="src\bvgraph_iterator.c" />
     <ClCompile Include="src\bvgraph_random.c" />
     <ClCompile Include="src\bvgraphfun.c" />
+    <ClCompile Include="src\eflist.c" />
     <ClCompile Include="src\properties.c" />
     <ClCompile Include="src\util.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\eflist.h" />
     <ClInclude Include="src\bvgraph_internal.h" />
     <ClInclude Include="include\bitfile.h" />
     <ClInclude Include="include\bvgraph.h" />

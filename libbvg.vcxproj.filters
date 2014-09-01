@@ -36,6 +36,9 @@
     <ClCompile Include="src\util.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\eflist.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\bvgraph_internal.h">
@@ -51,6 +54,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\bvgraphfun.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\eflist.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
