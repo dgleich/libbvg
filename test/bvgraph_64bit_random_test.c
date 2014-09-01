@@ -36,7 +36,8 @@ int main(int argc, char **argv)
     if (rval) { perror("error with full load!"); }
     {
         int64_t node_num = 10000000000;
-        int64_t curr, d;
+        int64_t curr;
+        uint64_t d;
         int64_t *suc = NULL;
         bvgraph_random_iterator riter;
         for (i = 0; i < 1000; i ++) {

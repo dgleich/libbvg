@@ -129,7 +129,7 @@ int main(int argc, char **argv)
     cout << "         tol = " << tol << endl;
     cout << endl;
 
-    bvgraph g = {0};
+    bvgraph g = {{0}};
     int rval;
 
     rval = bvgraph_load(&g, graphfilename.c_str(), (unsigned int)graphfilename.length(), 0);

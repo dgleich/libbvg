@@ -92,7 +92,6 @@ static int simple_select_build(elias_fano_list *ef)
 {
     int64_t curr_index = ef->curr;
     uint64_t length = (ef->upper).size;
-    uint64_t i;
     int64_t start;
     int inventory_index = 0;
     if (curr_index == 0) {
@@ -123,11 +122,11 @@ static int simple_select_build(elias_fano_list *ef)
             start = ef->inventory[inventory_index - 1];
             span = ef->inventory[inventory_index] - start;
             if (span >= MAX_SPAN) {
+                int i;
                 // need to spill
-                if (ef->spill_size - ef->spill_curr < ef->ones_per_inventory) {
+                if (ef->spill_size - ef->spill_curr < (unsigned int)ef->ones_per_inventory) {
                     int64_t *tmp = ef->exact_spill;
                     if (ef->memory_external) {
-                        printf("ERROR: external memory too small\n");
                         return eflist_external_memory_too_small;
                     }
                     // double the size of current spill size

@@ -23,8 +23,6 @@
 #endif /* _MSC_VER >= 1400 */
 #endif /* _MSC_VER */
 
-int test_random_outdegrees();
-
 int main(int argc, char **argv) 
 {
     bvgraph graph = {0};
@@ -100,8 +98,4 @@ int main(int argc, char **argv)
         rval = bvgraph_load(g, filename, filenamelen, 0);
         bvgraph_close(g);
     }
-}
-
-int test_random_outdegrees()
-{
 }
