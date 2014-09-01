@@ -205,9 +205,9 @@ int bvgraph_csr(bvgraph *g, int* ai, int* aj)
     {
         bvgraph_iterator_outedges(&iter, &links, &d);
         for (i = 0; i < d; i++) {
-            *aj++ = links[i];
+            *aj++ = (int)links[i];
         }
-        entry += d;
+        entry += (int)d;
         *ai++ = entry;
     }
     bvgraph_iterator_free(&iter);
@@ -315,11 +315,11 @@ int bvgraph_substochastic_transmult(bvgraph *g, double *x, double *y)
 int bvgraph_substochastic_sum_row(bvgraph *g, double *x)
 {
     bvgraph_iterator iter; register double y1,y2,t,z,id;
-    y1 = 0.0;
-    y2 = 0.0;
     uint64_t d;
     int rval = bvgraph_nonzero_iterator(g, &iter);
     if (rval != 0) { return rval; } 
+    y1 = 0.0;
+    y2 = 0.0;
     for (; bvgraph_iterator_valid(&iter); 
          bvgraph_iterator_next(&iter))
     {

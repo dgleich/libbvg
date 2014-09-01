@@ -11,6 +11,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+/** Todos
+ * Remove print statements
+ * refactor code to improve the nesting -- there are too many special cases in this one
+ * review all types for subtle errors with offsets
+ */
+
 /**
  * Define some error codes;
  */
@@ -46,7 +52,7 @@ static int bit_count(int64_t x) {
     x = (x & m8 ) + ((x >>  8) & m8 ); //put count of each 16 bits into those 16 bits 
     x = (x & m16) + ((x >> 16) & m16); //put count of each 32 bits into those 32 bits 
     x = (x & m32) + ((x >> 32) & m32); //put count of each 64 bits into those 64 bits 
-    return x;
+    return (int)x;
 }
 
 /**
@@ -104,7 +110,7 @@ static int simple_select_build(elias_fano_list *ef)
        }
     }
      
-// since we only have partial information about inventory, we cannot proceed as follows.    
+    // since we only have partial information about inventory, we cannot proceed as follows.    
     if (ef->ones_per_inventory > 1) {
         uint64_t span = 0;
         inventory_index = (int)(curr_index >> ef->log2_ones_per_inventory);
@@ -119,13 +125,13 @@ static int simple_select_build(elias_fano_list *ef)
             if (span >= MAX_SPAN) {
                 // need to spill
                 if (ef->spill_size - ef->spill_curr < ef->ones_per_inventory) {
+                    int64_t *tmp = ef->exact_spill;
                     if (ef->memory_external) {
                         printf("ERROR: external memory too small\n");
                         return eflist_external_memory_too_small;
                     }
                     // double the size of current spill size
-                    int64_t *tmp = ef->exact_spill;
-                    ef->exact_spill = malloc(sizeof(int64_t) * ef->spill_size * 2);
+                    ef->exact_spill = (int64_t*)malloc(sizeof(int64_t) * ef->spill_size * 2);
                     memset(ef->exact_spill, 0, sizeof(int64_t) * ef->spill_size * 2);
                     memcpy(ef->exact_spill, tmp, ef->spill_size);
                     free(tmp);
@@ -134,6 +140,7 @@ static int simple_select_build(elias_fano_list *ef)
                 start = ef->inventory[inventory_index - 1];                
                 for (i = 0; i < ef->ones_per_inventory; i ++) {
                     if ((i & ef->ones_per_inventory_mask) == 0) {
+                        // TODO fix the warning on this one
                         ef->inventory[inventory_index - 1] = -ef->spill_curr;
                     }                    
                     ef->exact_spill[ef->spill_curr ++] = bit_search((void *)(ef->upper).A, start + 1, i);
@@ -153,54 +160,62 @@ static int simple_select_build(elias_fano_list *ef)
  * @param[in] ef the EF code structure
  * @return the position of rank-th 1 in the upper array
  */
-
 static int64_t select_rank(uint64_t rank, elias_fano_list *ef)
 {
+    // TODO Refactor this code to improve it
     if (rank >= ef->size) {
         return eflist_out_of_bound;
-    }
-    int inventory_index = (int)(rank >> ef->log2_ones_per_inventory);
-    int64_t inventory_rank = ef->inventory[inventory_index];
-    int subrank = (int)(rank & ef->ones_per_inventory_mask); // offset to inventoryRank
-    if (subrank == 0) {
-        return inventory_rank & ~(1L << 63);
-    }
-    
-    if (inventory_rank < 0) {
-        return ef->exact_spill[(int)(-inventory_rank + subrank)];
-    }
-    int64_t j;
+    } else {
+        int inventory_index = (int)(rank >> ef->log2_ones_per_inventory);
+        int64_t inventory_rank = ef->inventory[inventory_index];
 
-    // sequential search for 1's, long word by long word
-    int64_t upper_index = inventory_rank >> 6;
-    int64_t offset = inventory_rank & ((1L << 6) - 1);
-    int k;
-    uint64_t left1 = 0x8000000000000000;
-    for (k = offset+1; k < 64; k ++) {
-        if ((((ef->upper).A[upper_index] & (left1 >> k)) != 0) && (subrank != 0)) {
-            subrank --;
-        }
-        if (subrank==0) {
-            return (upper_index << 6) + k;
-        }
-    }
-    upper_index ++;
-    int ones = bit_count((ef->upper).A[upper_index]);
-    while (ones < subrank) {
-        subrank -= ones;
-        upper_index ++;
-        ones = bit_count((ef->upper).A[upper_index]);
-    }
-    
-    for (j = 0; j < 64; j ++) {
-        if ((((ef->upper).A[upper_index] & (left1 >> j)) != 0) && (subrank != 0)) {
-            subrank --;
-        }
+        // compute the offset in the inventory
+        int subrank = (int)(rank & ef->ones_per_inventory_mask); 
+
         if (subrank == 0) {
-            return (upper_index << 6) + j;
+            return inventory_rank & ~((int64_t)1 << 63);
+        } else if (inventory_rank < 0) {
+            return ef->exact_spill[(int)(-inventory_rank + subrank)];
+        } else {
+            int64_t j, k;
+            
+            int64_t upper_index = inventory_rank >> 6;
+            int64_t offset = inventory_rank & ((1L << 6) - 1);
+            int ones; 
+
+            // sequential search for 1's, long word by long word
+            // 
+            uint64_t left1 = 0x8000000000000000;
+            for (k = offset+1; k < 64; k ++) {
+                if ((((ef->upper).A[upper_index] & (left1 >> k)) != 0) && (subrank != 0)) {
+                    subrank --;
+                }
+                if (subrank==0) {
+                    return (upper_index << 6) + k;
+                }
+            }
+            upper_index ++;
+            ones = bit_count((ef->upper).A[upper_index]);
+
+            while (ones < subrank) {
+                subrank -= ones;
+                upper_index ++;
+                ones = bit_count((ef->upper).A[upper_index]);
+            }
+    
+            // need to refactor this function
+            for (j = 0; j < 64; j ++) {
+                if ((((ef->upper).A[upper_index] & (left1 >> j)) != 0) && (subrank != 0)) {
+                    subrank --;
+                }
+                if (subrank == 0) {
+                    return (upper_index << 6) + j;
+                }
+            }
+            // TODO is this the correct final return?
+            return 0;
         }
     }
-    return 0;
 }
 
 /**
@@ -213,10 +228,6 @@ static int64_t select_rank(uint64_t rank, elias_fano_list *ef)
  */
 int bit_array_put(bit_array *ptr, uint64_t num, int64_t k)
 {
-    if (ptr->s == 0) {
-        return 0;
-    }
-    assert(ptr->s > 0);
     uint64_t index = k * ptr->s / 64;
     int offset = (k * ptr->s) % 64;
     if (offset + ptr->s <= 64) { 
@@ -243,24 +254,23 @@ int bit_array_put(bit_array *ptr, uint64_t num, int64_t k)
  */
 uint64_t bit_array_get(bit_array *ptr, int64_t k)
 {
-    if (ptr->s == 0) {
-        return 0;
-    }
     uint64_t index = k * ptr->s / 64;
-    int offset = (k * ptr->s) % 64;
+    int offset = (k * ptr->s) % 64;    
     if (offset + ptr->s <= 64) {
-        uint64_t mask = (1L << (64 - offset)) - 1;
-        mask -= (1L << (64 - offset - ptr->s)) - 1;
-        uint64_t rval = ptr->A[index] & mask;
+        uint64_t mask, rval;
+        mask = ((uint64_t)1 << (64 - offset)) - 1;
+        mask -= ((uint64_t)1 << (64 - offset - ptr->s)) - 1;
+        rval = ptr->A[index] & mask;
         return (rval >> (64 - offset - ptr->s));
     }
     else {
         int diff = offset + ptr->s -64;
+        uint64_t next;
         uint64_t mask = (1L << (ptr->s - diff)) - 1;
         uint64_t rval = ptr->A[index] & mask;
         uint64_t next_mask = 0xFFFFFFFFFFFFFFFF;
         next_mask -= (1L << (64-diff)) - 1;
-        uint64_t next = ptr->A[index + 1] & next_mask;
+        next = ptr->A[index + 1] & next_mask;
         next >>= (64 - diff);
         rval = (rval << diff) | next;
         return rval; 
@@ -272,24 +282,19 @@ uint64_t bit_array_get(bit_array *ptr, int64_t k)
  * This function creates a new bitarray based on the given arguments.
  *
  * @param[in] ptr a pointer to a bit_array object
- * @param[in] s s-bit for each element, -1 indicates set individual bit only
+ * @param[in] s s-bit for each element
  * @param[in] size the number of elements in the bit_array
  * @return 0 on success
  */
 int bit_array_create(bit_array *ptr, int s, int64_t size)
 {
-    assert(s >= 0);
+    int64_t array_len = 0;
     ptr->s = s;
     ptr->size = size;
-    int64_t array_len = 0;
-    if (s == 0) {
-        ptr->A = NULL;
-        return 0;
-    } 
     if (s > 0) {
         array_len = (s * size + 63) / 64;
     }
-    ptr->A = malloc(sizeof(uint64_t) * array_len);
+    ptr->A = (uint64_t*)malloc(sizeof(uint64_t) * array_len);
     memset(ptr->A, 0, sizeof(uint64_t) * array_len);
     return 0;
 }
@@ -370,6 +375,10 @@ int eflist_create(elias_fano_list *ef, uint64_t num_elements, uint64_t largest)
 
 int eflist_create_external(elias_fano_list *ef, uint64_t num_elements, uint64_t largest, unsigned char *memory, size_t memsize, int spill_factor)
 {
+    int s = num_elements == 0 ? 0 : log2_floor((uint64_t)((largest + 1) / num_elements));
+    int64_t upper_length = num_elements + (largest >> s);
+    int window = upper_length == 0 ? 1 : (int)((num_elements * MAX_ONES_PER_INVENTORY + upper_length - 1) / upper_length);
+
     memset(ef, 0, sizeof(elias_fano_list));
     ef->size = num_elements;
     ef->largest = largest;
@@ -377,11 +386,11 @@ int eflist_create_external(elias_fano_list *ef, uint64_t num_elements, uint64_t 
     ef->exact_spill = NULL;
     ef->curr = 0;
     // set fields for lower and upper bit arrays
-    int s = num_elements == 0 ? 0 : log2_floor((uint64_t)((largest + 1) / num_elements));//(int)(log2( (largest + 1) / num_elements));
+    
     ef-> s = s;
-    int64_t upper_length = num_elements + (largest >> s);
+    
     // set fields for the index structure
-    int window = upper_length == 0 ? 1 : (int)((num_elements * MAX_ONES_PER_INVENTORY + upper_length - 1) / upper_length);
+
     ef->log2_ones_per_inventory = log2_floor(window);
     ef->ones_per_inventory = 1 << ef->log2_ones_per_inventory;
     ef->ones_per_inventory_mask = ef->ones_per_inventory - 1;
@@ -396,10 +405,9 @@ int eflist_create_external(elias_fano_list *ef, uint64_t num_elements, uint64_t 
         ef->inventory = malloc(sizeof(int64_t) * (ef->inventory_size + 1));  // allocate one more space
         // by default, set spill to be (1 << spill_factor) times of inventory_size
         ef->exact_spill = malloc(sizeof(int64_t) * ef->spill_size);
-    }
-    else {  // external memory is provided, need to check the size of the memory
-        ef->memory_external = 1;
+    } else {  // external memory is provided, need to check the size of the memory
         size_t mem_required = eflist_size(num_elements, largest, spill_factor);
+        ef->memory_external = 1;
         if (mem_required > memsize) {
             return eflist_external_memory_too_small;
         }
@@ -409,20 +417,22 @@ int eflist_create_external(elias_fano_list *ef, uint64_t num_elements, uint64_t 
         (ef->lower).s = s;
         if (s == 0) {
             (ef->lower).A = NULL;
-        }
-        else {
+        } else {
             (ef->lower).A = (uint64_t *)memory;
         }
         (ef->lower).size = num_elements;
-        uint64_t array_len = (s * num_elements + 63) / 64;  // number of 64-bit words
-        // set fields for ef->upper
-        (ef->upper).s = 1;
-        (ef->upper).size = upper_length;
-        (ef->upper).A = (uint64_t *)memory + array_len;
-        array_len = (upper_length + 63) / 64;
-        ef->inventory = (int64_t *)(ef->upper).A + array_len;
-        array_len = ef->inventory_size + 1;
-        ef->exact_spill = ef->inventory + array_len * 8;
+        // TODO refactor this code
+        {
+            uint64_t array_len = (s * num_elements + 63) / 64;  // number of 64-bit words
+            // set fields for ef->upper
+            (ef->upper).s = 1;
+            (ef->upper).size = upper_length;
+            (ef->upper).A = (uint64_t *)memory + array_len;
+            array_len = (upper_length + 63) / 64;
+            ef->inventory = (int64_t *)(ef->upper).A + array_len;
+            array_len = ef->inventory_size + 1;
+            ef->exact_spill = ef->inventory + array_len * 8;
+        }
     }
     return 0;
 }
@@ -439,16 +449,18 @@ int eflist_add(elias_fano_list *ef, int64_t elem)
 {
     if (ef->curr >= ef->size) {
         return eflist_out_of_bound;  // an error returned if too many elements
+    } else {
+        int64_t index = ef->curr;
+        int64_t mask = (1L << ef->s) - 1;
+        int64_t val = elem & mask;
+        int64_t k = (elem >> ef->s) + index;
+
+        bit_array_put(&(ef->lower), val, index);
+        bit_array_put(&(ef->upper), 1, k);
+        simple_select_build(ef);
+        ef->curr ++;
+        return 0;
     }
-    int64_t index = ef->curr;
-    int64_t mask = (1L << ef->s) - 1;
-    int64_t val = elem & mask;
-    bit_array_put(&(ef->lower), val, index);
-    int64_t k = (elem >> ef->s) + index;
-    bit_array_put(&(ef->upper), 1, k);
-    simple_select_build(ef);
-    ef->curr ++;
-    return 0;
 }
 
 /**
@@ -463,6 +475,7 @@ int eflist_addbatch(elias_fano_list *ef, int64_t *arr, int64_t length)
 {
     // test if arr is nondecreasing
     int64_t i;
+    int rval;
     for (i = 0; i < length-1; i ++) {
         if (arr[i] <= arr[i+1]) {
             continue;
@@ -472,7 +485,6 @@ int eflist_addbatch(elias_fano_list *ef, int64_t *arr, int64_t length)
         }
     }
     // call eflist_add() to add each element to eflist
-    int rval;
     for (i = 0; i < length; i ++) {
         rval = eflist_add(ef, arr[i]);
         if (rval) {
@@ -491,13 +503,14 @@ int eflist_addbatch(elias_fano_list *ef, int64_t *arr, int64_t length)
  */
 int64_t eflist_get(elias_fano_list *ef, int64_t index)
 {
-    if (index >= ef->curr) {
+    if (index >= (int64_t)ef->curr) {
         return eflist_out_of_bound;
+    } else {
+        int64_t lowx, highx;
+        lowx = bit_array_get(&(ef->lower), index);
+        highx = select_rank(index, ef);
+        return ((highx - index) << ef->s) | lowx;
     }
-    int64_t lowx, highx;
-    lowx = bit_array_get(&(ef->lower), index);
-    highx = select_rank(index, ef);
-    return ((highx - index) << ef->s) | lowx;
 }
 
 /**
@@ -533,14 +546,17 @@ int eflist_free(elias_fano_list *ef)
 size_t eflist_size(uint64_t num_elements, uint64_t largest, int spill_factor)
 {
     size_t rval = 0;
-    int s = num_elements == 0 ? 0 : log2_floor((uint64_t)((largest + 1) / num_elements)); //(int)(log2( (largest + 1) / num_elements))
+    int s, window, log2_ones_per_inventory, ones_per_inventory, inventory_size;
+    int64_t upper_length;
+
+    s = num_elements == 0 ? 0 : log2_floor((uint64_t)((largest + 1) / num_elements)); //(int)(log2( (largest + 1) / num_elements))
     rval += (s * num_elements + 63) / 64 * 8;    // number of bytes for lower bits array
-    int64_t upper_length = num_elements + (largest >> s);
+    upper_length = num_elements + (largest >> s);
     rval += (upper_length + 63) / 64 * 8; // number of bytes for upper bits array
-    int window = upper_length == 0 ? 1 : (int)((num_elements * MAX_ONES_PER_INVENTORY + upper_length - 1) / upper_length);
-    int log2_ones_per_inventory = log2_floor(window);
-    int ones_per_inventory = 1 << log2_ones_per_inventory;
-    int inventory_size = (int)((num_elements + ones_per_inventory - 1) / ones_per_inventory);
+    window = upper_length == 0 ? 1 : (int)((num_elements * MAX_ONES_PER_INVENTORY + upper_length - 1) / upper_length);
+    log2_ones_per_inventory = log2_floor(window);
+    ones_per_inventory = 1 << log2_ones_per_inventory;
+    inventory_size = (int)((num_elements + ones_per_inventory - 1) / ones_per_inventory);
     rval += (inventory_size + 1) * 8;   // number of bytes for inventory array
     rval += inventory_size * (1 << spill_factor) * 8;   // number of bytes for spill array
     return rval;

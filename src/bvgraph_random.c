@@ -19,7 +19,7 @@
 
 #include "bvgraph_internal.h"
 #include "bvgraph_inline_io.h"
-#include <inttypes.h>
+
 
 struct successor *CACHE = NULL;
 
@@ -148,10 +148,20 @@ int bvgraph_random_successors(bvgraph_random_iterator *ri,
         bitfile *bf = &ri->bf;
         
         uint64_t d;     //degree
-        ri->curr = x;
-        int rval = position_bvgraph(ri, x, &d);
-        if (rval) {
-            return (rval);
+        
+        int64_t* temp = NULL;
+        int64_t* ref_links = NULL;
+        uint64_t outd_ref = 0LL;
+
+        int64_t interval_count;
+        int64_t buf1_index, buf2_index;
+        int cyclic_buffer_size;
+
+        {
+            int rval = position_bvgraph(ri, x, &d);
+            if (rval) {
+                return (rval);
+            }
         }
 
         *length = d;
@@ -167,10 +177,6 @@ int bvgraph_random_successors(bvgraph_random_iterator *ri,
         } else {
             ref = -1;
         }
-
-        int64_t* temp = NULL;
-        int64_t* ref_links = NULL;
-        uint64_t outd_ref = 0LL;
         
         // get successors of referred node
         if (ref > 0) {
@@ -186,11 +192,8 @@ int bvgraph_random_successors(bvgraph_random_iterator *ri,
             position_bvgraph(ri, x, &d);
             if (g->window_size > 0) { ref = read_reference(g, bf); } else { ref = -1; }
         }
-
-        int64_t interval_count;
-        int64_t buf1_index, buf2_index;
-
-        const int cyclic_buffer_size = g->window_size + 1;
+        
+        cyclic_buffer_size = g->window_size + 1;
         // in our case, window isn't set at all, so we need to use the position
         // method to set the file pointer, this could modify ri itself.
         // this step requires offsets
@@ -329,7 +332,6 @@ int bvgraph_random_successors(bvgraph_random_iterator *ri,
                 memcpy(ri->successors.a, ri->buf1.a, sizeof(int64_t)*buf1_index);
             }
         }
-
         else
         {          
             // TODO clean this code up          
