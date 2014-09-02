@@ -20,6 +20,7 @@
 #include "bvgraph_internal.h"
 #include "bvgraph_inline_io.h"
 
+#include "debug.h"
 
 struct successor *CACHE = NULL;
 
