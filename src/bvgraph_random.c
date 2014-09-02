@@ -218,9 +218,7 @@ int bvgraph_random_successors(bvgraph_random_iterator *ri,
                 int_vector_ensure_size(&ri->block, block_count);
             }
 
-            #ifdef MAX_DEBUG
-                fprintf(stderr, "block_count = %"PRId64"\n", block_count);
-            #endif 
+            TRACE((DEBUG_DEEP, "block_count = %"PRINTF_INT64_MODIFIER"\n", block_count));
 
             copied = 0; 
             total = 0;
@@ -277,9 +275,13 @@ int bvgraph_random_successors(bvgraph_random_iterator *ri,
         buf1_index = 0;
         buf2_index = 0;
 
-        #ifdef MAX_DEBUG
-        fprintf(stderr,"extra_count = %"PRId64"\ninterval_count = %"PRId64"\nref = %"PRId64"\n", extra_count, interval_count, ref);
-        #endif 
+        TRACE((DEBUG_DEEP, 
+            "extra_count = %"PRINTF_INT64_MODIFIER"\n"
+            "interval_count = %"PRINTF_INT64_MODIFIER"\n"
+            "ref = %"PRINTF_INT64_MODIFIER"\n",
+             extra_count, interval_count, ref));
+
+        
         // read the residuals into a buffer
         {
             int64_t prev = -1;

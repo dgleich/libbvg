@@ -6,12 +6,15 @@
 # 4 February 2008
 #
 
+
+
 LIBBVGNAME := libbvg.a
 LIBBVG_SRC_DIR := src
 BVPAGERANKNAME := bvpr
 
 LIBBVG_INCLUDE := -Iinclude -Isrc
-LIBBVG_SRC := bitfile.c bvgraph.c bvgraph_iterator.c bvgraph_random.c bvgraphfun.c properties.c util.c eflist.c
+LIBBVG_SRC := bitfile.c bvgraph.c bvgraph_iterator.c bvgraph_random.c \
+               bvgraphfun.c properties.c util.c eflist.c debug.c
 LIBBVG_FULL_SRC := $(addprefix $(LIBBVG_SRC_DIR)/,$(LIBBVG_SRC))
 
 BVPAGERANK_INCLUDE := -Iinclude
@@ -23,6 +26,12 @@ CXXFLAGS := $(CXXFLAGS) -Wall -O2 -Iinclude
 LOADLIBES += -L. -lbvg
 
 all: everything
+
+# use target specific variables for the debug option
+# http://www.gnu.org/software/make/manual/make.html#Target%5F002dspecific
+# http://stackoverflow.com/questions/1079832/how-can-i-configure-my-makefile-for-debug-and-release-builds
+debug: CFLAGS += -DDEBUG=1
+debug: lib
 
 # declare phony targets
 .PHONY: all lib clean everything python docs
@@ -37,7 +46,7 @@ $(LIBBVGNAME): $(LIBBVG_FULL_SRC:.c=.o)
 	ar -rcs $(LIBBVGNAME) $(LIBBVG_FULL_SRC:.c=.o)
 
 clean:
-	$(RM) $(LIBBVG_FULL_SRC:.c=.o) $(LIBBVGNAME) $(ALLPROGS) $(ALLOBJS)
+	$(RM) $(LIBBVG_FULL_SRC:.c=.o)  $(LIBBVGNAME) $(ALLPROGS) $(ALLOBJS)
 	cd test && $(MAKE) clean
 	cd python && $(MAKE) clean
 	$(RM) -r html/docs doxyfile.inc

@@ -3,6 +3,8 @@
  * Copyright, Stanford University, 2007
  * 17 May 2007
  */
+ 
+#include "debug.h" 
 
 /**
  * @file properties.c
@@ -453,9 +455,7 @@ int parse_properties(bvgraph* g)
             key_len = strnlen(key, max_property_len);
             value_len = (uint)strnlen(value, max_value_len);
 
-#ifdef MAX_DEBUG
-            fprintf(stderr,"\"%s\" = \"%s\"\n", key, value);
-#endif 
+            TRACE((DEBUG_INFO, "\"%s\" = \"%s\"\n", key, value));
 
             //
             // this section of the code interprets the key/value pairs

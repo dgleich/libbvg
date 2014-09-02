@@ -32,6 +32,8 @@
 #include "bvgraph_internal.h"
 #include "bvgraph_inline_io.h"
 
+#include "debug.h"
+
 /**
  * Create a non-zero iterator for the bvgraph.  The non-zero iterator is 
  * a new object like structure that iterates over the successors of each node
@@ -341,10 +343,9 @@ int bvgraph_iterator_next(bvgraph_iterator* iter)
     int_vector_ensure_size(&iter->buf1, d);
     int_vector_ensure_size(&iter->buf2, d);
 
-#ifdef MAX_DEBUG
-    fprintf(stderr, "** begin successors\ncurr = %"PRId64"\nd=%"PRId64"\n", iter->curr, d);
-#endif 
-            
+    TRACE((DEBUG_DEEP, "** begin successors\ncurr = %"PRINTF_INT64_MODIFIER"\n"
+                            "d=%"PRINTF_INT64_MODIFIER"\n", 
+                            iter->curr, d));            
     // we read the reference only if the actual window size is larger than one 
     // (i.e., the one specified by the user is larger than 0).
     if ( g->window_size > 0 ) {
@@ -361,9 +362,8 @@ int bvgraph_iterator_next(bvgraph_iterator* iter)
             int_vector_ensure_size(&iter->block, block_count);
         }
 
-#ifdef MAX_DEBUG
-    fprintf(stderr, "block_count = %"PRId64"\n", block_count);
-#endif 
+        TRACE((DEBUG_DEEP, "block_count = %"PRINTF_INT64_MODIFIER"\n", block_count));
+    
         // the number of successors copied, and the total number of successors specified
         // in some copy
         copied = 0; 
@@ -418,9 +418,12 @@ int bvgraph_iterator_next(bvgraph_iterator* iter)
     buf1_index = 0;
     buf2_index = 0;
 
-#ifdef MAX_DEBUG
-    fprintf(stderr,"extra_count = %"PRId64"\ninterval_count = %"PRId64"\nref = %"PRId64"\n", extra_count, interval_count, ref);
-#endif 
+    TRACE((DEBUG_DEEP, 
+        "extra_count = %"PRINTF_INT64_MODIFIER"\n"
+        "interval_count = %"PRINTF_INT64_MODIFIER"\n"
+        "ref = %"PRINTF_INT64_MODIFIER"\n",
+         extra_count, interval_count, ref));
+
     // read the residuals into a buffer
     {
         int64_t prev = -1;
