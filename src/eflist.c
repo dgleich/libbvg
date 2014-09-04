@@ -22,7 +22,7 @@
  */
 
 const int eflist_out_of_bound = -1; ///< ef-list out of bound
-const int eflist_batch_nondecreasing = -2; ///< the array is not nondecreaing in batch mode
+const int eflist_nondecreasing = -2; ///< the array is not nondecreaing in mode
 const int eflist_external_memory_too_small = -3; ///< the exteranl memory is too small for the eflist
  
 /**
@@ -152,8 +152,8 @@ static int simple_select_build(elias_fano_list *ef)
 }
 
 /**
- * This function utilizes the simpleSelect structure to compute the position of rank-th 1 in 
- * the upper array.
+ * This function utilizes the index  structure to compute the 
+ * position of rank-th 1 in the upper array.
  *
  * @param[in] rank the rank-th 1 in the upper array
  * @param[in] ef the EF code structure
@@ -285,9 +285,10 @@ uint64_t bit_array_get(bit_array *ptr, int64_t k)
  * @param[in] size the number of elements in the bit_array
  * @return 0 on success
  */
-int bit_array_create(bit_array *ptr, int s, int64_t size)
+int bit_array_create(bit_array *ptr, unsigned int s, int64_t size)
 {
     int64_t array_len = 0;
+    assert(s <= 64);
     ptr->s = s;
     ptr->size = size;
     if (s > 0) {
@@ -313,7 +314,8 @@ int bit_array_free(bit_array *ptr)
 }
 
 /**
- * The function builds the Elias-Fano representation of a monotonously non-decreasing sequence.
+ * The function builds the Elias-Fano representation of a monotonously 
+ * non-decreasing sequence.
  * EF coding is used to encode a monotone nondecreasing natrual number 
  * sequence x0, x1, ..., x_{n-1}. Suppose all the numbers are smaller 
  * than an upper bound u. Then EF representation can encode the sequence 
@@ -339,8 +341,9 @@ int bit_array_free(bit_array *ptr)
  * is 6. By subtracting 1, we get 5 (101b) for upper bits. Combining with 
  * lower bit 0, we get x1 = 1010b = 10.
  *
- * This function initializes an elias_fano_list with a desired number of elements.
- * And a default number of exact_spill buffer is allcated.
+ * This function initializes an elias_fano_list data structure and prepares it
+ * it to receive data. We need upper-bounds on two sizes: the number of total
+ * elements and the largest element of the list.
  * 
  * @param[in] ef the Elias-Fano list
  * @param[in] num_elements the total number of elements to be stored in the eflist
@@ -360,19 +363,23 @@ int eflist_create(elias_fano_list *ef, uint64_t num_elements, uint64_t largest)
  * independently of this function.
  * 
  * To create an Elias-Fano list, 4 pieces of memory are needed. These are lower bit 
- * array, upper bit array, inventory, and spill buffer for the index structure. A sufficiently 
- * large block of memory is needed to hold these 4 buffers.
+ * array, upper bit array, inventory, and spill buffer for the index structure. 
+ * A sufficiently large block of memory is needed to hold these 4 buffers, call
+ * eflist_required_memory
  * 
  * @param[in] ef Elias-Fano list
  * @param[in] num_elements number of elements
  * @param[in] largest the largest element in the list
- * @param[in] memory external memory
+ * @param[in] memory external memory, if this is NULL 
  * @param[in] memsize the size of the external memory
- * @param[in] spill_factor 
+ * @param[in] spill_factor the size of the spill array to allocate initially
+ 
  * @return 0 on success
  */
 
-int eflist_create_external(elias_fano_list *ef, uint64_t num_elements, uint64_t largest, unsigned char *memory, size_t memsize, int spill_factor)
+int eflist_create_external(elias_fano_list *ef, uint64_t num_elements, 
+        uint64_t largest, unsigned char *memory, size_t memsize, 
+        unsigned int spill_factor)
 {
     int s = num_elements == 0 ? 0 : log2_floor((uint64_t)((largest + 1) / num_elements));
     int64_t upper_length = num_elements + (largest >> s);
@@ -384,6 +391,7 @@ int eflist_create_external(elias_fano_list *ef, uint64_t num_elements, uint64_t 
     ef->inventory = NULL;
     ef->exact_spill = NULL;
     ef->curr = 0;
+    ef->last = 0;
     // set fields for lower and upper bit arrays
     
     ef-> s = s;
@@ -405,7 +413,7 @@ int eflist_create_external(elias_fano_list *ef, uint64_t num_elements, uint64_t 
         // by default, set spill to be (1 << spill_factor) times of inventory_size
         ef->exact_spill = malloc(sizeof(int64_t) * ef->spill_size);
     } else {  // external memory is provided, need to check the size of the memory
-        size_t mem_required = eflist_size(num_elements, largest, spill_factor);
+        size_t mem_required = eflist_required_memory(num_elements, largest, spill_factor);
         ef->memory_external = 1;
         if (mem_required > memsize) {
             return eflist_external_memory_too_small;
@@ -448,6 +456,8 @@ int eflist_add(elias_fano_list *ef, int64_t elem)
 {
     if (ef->curr >= ef->size) {
         return eflist_out_of_bound;  // an error returned if too many elements
+    } else if (ef->last > elem) {
+        return eflist_nondecreasing; 
     } else {
         int64_t index = ef->curr;
         int64_t mask = (1L << ef->s) - 1;
@@ -480,7 +490,7 @@ int eflist_addbatch(elias_fano_list *ef, int64_t *arr, int64_t length)
             continue;
         }
         else {
-            return eflist_batch_nondecreasing;
+            return eflist_nondecreasing;
         }
     }
     // call eflist_add() to add each element to eflist
@@ -535,24 +545,52 @@ int eflist_free(elias_fano_list *ef)
 }
 
 /** 
- * This function computes how much memory is required for an eflist.
+ * This function computes how much memory is required for an eflist. This is an 
+ * upper-bound given a fixed spill size. It's impossible to determine if this is
+ * enough memory ahead of time because the number of potential spills is unknown.
+ * But, the spill factor gives us a large buffer to play with. 
  * 
  * @param[in] num_elements the total number of elements to be stored in the eflist
  * @param[in] largest the largest element in the list
- * @param[in] spill_factor spill_size factor, i.e., spill_size = inventory_size * (1 << spill_factor)
+ * @param[in] spill_factor spill_size factor, i.e., 
+ *      spill_size = inventory_size * (1 << spill_factor)
  * @return the memory required for the list in terms of bytes
  */
-size_t eflist_size(uint64_t num_elements, uint64_t largest, int spill_factor)
+size_t eflist_required_memory(uint64_t num_elements, uint64_t largest, 
+            unsigned int spill_factor)
 {
     size_t rval = 0;
-    int s, window, log2_ones_per_inventory, ones_per_inventory, inventory_size;
+    unsigned int s, window, log2_ones_per_inventory, ones_per_inventory, inventory_size;
     int64_t upper_length;
+    
+    // the total size is the sum of the lower array 
+    //    (s * num_elements) bits
+    // plus the size of the upper array
+    //    num_elements + (larger / s) bits
+    // plus the size of the inventory/index
+    //     (something complicated)
+    // plus the size of the spill
+    //     (something complicated)
+    // plus offsets to make sure everything is 8-byte aligned
 
-    s = num_elements == 0 ? 0 : log2_floor((uint64_t)((largest + 1) / num_elements)); //(int)(log2( (largest + 1) / num_elements))
-    rval += (s * num_elements + 63) / 64 * 8;    // number of bytes for lower bits array
+    // number of bits for lower bits array
+    //(Java due to S. Vigna) (int)(log2( (largest + 1) / num_elements))
+    s = num_elements == 0 ? 
+                0 : 
+                log2_floor((uint64_t)((largest + 1) / num_elements));                 
+    // correct for offsets
+    rval += (s * num_elements + 63) / 64 * 8;    
+    
+    // number of 
     upper_length = num_elements + (largest >> s);
     rval += (upper_length + 63) / 64 * 8; // number of bytes for upper bits array
-    window = upper_length == 0 ? 1 : (int)((num_elements * MAX_ONES_PER_INVENTORY + upper_length - 1) / upper_length);
+    
+    window = upper_length == 0 ?
+                 1 : 
+                 (unsigned int)(
+                    (num_elements * MAX_ONES_PER_INVENTORY + upper_length - 1) 
+                    / upper_length
+                 );
     log2_ones_per_inventory = log2_floor(window);
     ones_per_inventory = 1 << log2_ones_per_inventory;
     inventory_size = (int)((num_elements + ones_per_inventory - 1) / ones_per_inventory);

@@ -76,6 +76,7 @@ int bitfile_open(FILE* f, bitfile* bf);
 int bitfile_map(unsigned char* mem, size_t len, bitfile *bf);
 int bitfile_close(bitfile* bf);
 int bitfile_flush(bitfile* bf);
+int bitfile_eof(bitfile* bf);
 
 int bitfile_read_bit(bitfile* bf);
 int64_t bitfile_read_int(bitfile* bf, unsigned int len);

@@ -296,6 +296,14 @@ static int refill16(bitfile *bf) {
     return (int)bf->fill;
 }
 
+/** Check if we are at the end of the file
+ * @param[in] bf the bitfile
+ * @return 0 if we are not at the end of the file, something else (1) otherwise
+ */
+int bitfile_eof(bitfile *bf) {
+    return (refill16(bf) == 0);
+}
+
 /*
 static int refill16(bitfile* bf) 
 {
