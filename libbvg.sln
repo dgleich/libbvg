@@ -10,6 +10,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_eflist", "test\msvc-pr
 		{CD19265C-388F-48AD-BF8C-AE7504D2E313} = {CD19265C-388F-48AD-BF8C-AE7504D2E313}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "eflist_perf", "test\msvc-projects\eflist_perf\eflist_perf.vcxproj", "{5746EB3E-6AA7-4710-A292-DB9C9A9EF74A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -41,6 +43,13 @@ Global
 		{A475D1F4-2F52-47E3-9D14-924216CF30DF}.Release|Win32.ActiveCfg = Release|Win32
 		{A475D1F4-2F52-47E3-9D14-924216CF30DF}.Release|Win32.Build.0 = Release|Win32
 		{A475D1F4-2F52-47E3-9D14-924216CF30DF}.Release|x64.ActiveCfg = Release|Win32
+		{5746EB3E-6AA7-4710-A292-DB9C9A9EF74A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{5746EB3E-6AA7-4710-A292-DB9C9A9EF74A}.Debug|Win32.Build.0 = Debug|Win32
+		{5746EB3E-6AA7-4710-A292-DB9C9A9EF74A}.Debug|x64.ActiveCfg = Debug|x64
+		{5746EB3E-6AA7-4710-A292-DB9C9A9EF74A}.Debug|x64.Build.0 = Debug|x64
+		{5746EB3E-6AA7-4710-A292-DB9C9A9EF74A}.Release|Win32.ActiveCfg = Release|Win32
+		{5746EB3E-6AA7-4710-A292-DB9C9A9EF74A}.Release|Win32.Build.0 = Release|Win32
+		{5746EB3E-6AA7-4710-A292-DB9C9A9EF74A}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

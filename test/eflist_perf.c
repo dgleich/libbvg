@@ -24,12 +24,9 @@ int scan_offsets(const char* filename, size_t *pn, size_t *plargest) {
     if (rval != 0) {
         return rval;
     }
-    
-    printf("%i\n", bitfile_eof(&bf));
-    
+        
     while (!bitfile_eof(&bf)) {
         int g = bitfile_read_gamma(&bf);
-        if (g < 0) { break; }
         offset += g;
         n++;
         largest = offset;
@@ -42,7 +39,7 @@ int scan_offsets(const char* filename, size_t *pn, size_t *plargest) {
     assert(plargest != NULL);
     
     *pn = n;
-    *plargest = n;
+    *plargest = largest;
     
     return 0;
 }
@@ -62,8 +59,6 @@ int load_offsets(const char* filename, elias_fano_list *ef, size_t n) {
     if (rval != 0) {
         return rval;
     }
-    
-    printf("%i\n", bitfile_eof(&bf));
     
     while (n > 0) {
         int g = bitfile_read_gamma(&bf);
@@ -104,8 +99,8 @@ int main_func(const char* filename, uint64_t ntrials) {
     printf("STATUS  Finished scanning offsets.\n");
     printf("TIME    %.2f sec\n", t1-t0);
     
-    printf("RESULT  n=%zd\n", n);
-    printf("RESULT  largest=%zd\n", largest);
+    printf("RESULT  n=%" PRINTF_INT64_MODIFIER "d\n", (int64_t)n);
+    printf("RESULT  largest=%" PRINTF_INT64_MODIFIER "d\n", (int64_t)largest);
 
     printf("STATUS  Loading offsets.\n");    
     t0 = get_wall_time();
@@ -136,6 +131,12 @@ int main_func(const char* filename, uint64_t ntrials) {
     return 0;
     
 }
+
+#ifdef _WIN32
+long long atoll(const char* str) {
+    return (long long)(_atoi64(str));
+}
+#endif
 
 int main(int argc, const char** argv) {
 

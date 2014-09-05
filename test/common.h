@@ -1,6 +1,24 @@
 
 /* common testing functions */
 
+#ifdef _WIN32
+/* see 
+ * http://stackoverflow.com/questions/17432502/how-can-i-measure-cpu-time-and-wall-clock-time-on-both-linux-windows
+ */
+#include <windows.h>
+double get_wall_time(){
+    LARGE_INTEGER time,freq;
+    if (!QueryPerformanceFrequency(&freq)){
+        //  Handle error
+        return 0;
+    }
+    if (!QueryPerformanceCounter(&time)){
+        //  Handle error
+        return 0;
+    }
+    return (double)time.QuadPart / freq.QuadPart;
+}
+#else
 #include <sys/time.h>
 double get_wall_time(){
     struct timeval time;
@@ -10,6 +28,7 @@ double get_wall_time(){
     }
     return (double)time.tv_sec + (double)time.tv_usec * .000001;
 }
+#endif
  
 uint64_t xorseed=1; /* The state must be seeded with a nonzero value. */
  
