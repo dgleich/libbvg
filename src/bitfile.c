@@ -597,8 +597,13 @@ static int read_from_current(bitfile *bf, const size_t len)
     unsigned int rval;
     if (len == 0) { return 0; }
     if (bf->fill == 0) {  
-        bf->current = bitfile_read(bf); 
-        bf->fill = 8; 
+        int byte = bitfile_read(bf); 
+        bf->current = byte;
+        if (byte < 0) {
+            return -1;
+        } else {
+            bf->fill = 8; 
+        }
     }
     bf->total_bits_read += len;
     rval = (unsigned)bf->current;
@@ -680,6 +685,7 @@ int bitfile_read_unary(bitfile* bf)
     }
     
     x = (int)bf->fill;
+    // TODO fix this to handle bitfile_read returning negative
     while ( (bf->current = bitfile_read(bf)) == 0) { x += 8; }
     x += 7 - (int)( bf->fill = BYTEMSB[bf->current] );
     bf->total_bits_read += x + 1;
