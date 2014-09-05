@@ -378,6 +378,15 @@ int parse_compression_flags(bvgraph* g, const char* flagstr, uint len)
     return 0;
 }
 
+// TODO document and implement this function better
+static int validate_nonneg_int(int64_t value) {
+    if (value <= INT_MAX && value >= 0) {
+        return (int)value;
+    } else {
+        return (-1);
+    }
+}
+
 /**
  * Parse the properties file for the bvgraph with a given filename.  This 
  * operation will fill in the various fields of the bvgraph structure.
@@ -466,20 +475,20 @@ int parse_properties(bvgraph* g)
             } else if (strncmp(key,"nodes",key_len) == 0) {
                 g->n = atoin(value, value_len);
             } else if (strncmp(key,"maxrefcount",key_len) == 0) {
-                g->max_ref_count = atoin(value, value_len);
+                g->max_ref_count = validate_nonneg_int(atoin(value, value_len));
             } else if (strncmp(key,"windowsize",key_len) == 0) {
-                g->window_size = atoin(value, value_len);
+                g->window_size = validate_nonneg_int(atoin(value, value_len));
             } else if (strncmp(key,"minintervallength",key_len) == 0) {
-                g->min_interval_length = atoin(value, value_len);
+                g->min_interval_length = validate_nonneg_int(atoin(value, value_len));
             } else if (strncmp(key,"zetak",key_len) == 0) {
-                g->zeta_k = atoin(value, value_len);
+                g->zeta_k = validate_nonneg_int(atoin(value, value_len));
             } else if (strncmp(key,"compressionflags",key_len) == 0) {
                 // this function will update the graph structure directly
                 rval = parse_compression_flags(g,value,value_len);
             } 
             else if (strncmp(key,"version",key_len) == 0) 
             {
-                int version = atoin(value, value_len);
+                int version = validate_nonneg_int(atoin(value, value_len));
                 if (version != 0) { 
                     rval = bvgraph_unsupported_version;
                 }
