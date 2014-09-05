@@ -7,7 +7,13 @@
  *    http://stackoverflow.com/questions/1644868/c-define-macro-for-debug-printing
  */
 
-#ifdef DEBUG
+/* MSVC doesn't prune unused code in debug builds, so if we have a 
+ * debug build, it runs the if (0), which means we get a LINKER error
+ */
+#if defined(DEBUG) || _MSC_VER
+#ifndef DEBUG /* handle the MSVC case */
+#define DEBUG 0
+#endif 
 
 #include <stdarg.h>
 #include <stdio.h>

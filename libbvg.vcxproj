@@ -124,6 +124,7 @@
     <ClCompile Include="src\bvgraph_iterator.c" />
     <ClCompile Include="src\bvgraph_random.c" />
     <ClCompile Include="src\bvgraphfun.c" />
+    <ClCompile Include="src\debug.c" />
     <ClCompile Include="src\eflist.c" />
     <ClCompile Include="src\properties.c" />
     <ClCompile Include="src\util.c" />
@@ -135,6 +136,7 @@
     <ClInclude Include="include\bvgraph.h" />
     <ClInclude Include="src\bvgraph_inline_io.h" />
     <ClInclude Include="include\bvgraphfun.h" />
+    <ClInclude Include="src\debug.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
