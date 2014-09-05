@@ -24,6 +24,7 @@
 const int eflist_out_of_bound = -1; ///< ef-list out of bound
 const int eflist_nondecreasing = -2; ///< the array is not nondecreaing in mode
 const int eflist_external_memory_too_small = -3; ///< the exteranl memory is too small for the eflist
+const int eflist_too_large = -4; ///< the element exceeds the eflist largest 
  
 /**
  * Define constants for bit operations.
@@ -458,6 +459,8 @@ int eflist_add(elias_fano_list *ef, int64_t elem)
         return eflist_out_of_bound;  // an error returned if too many elements
     } else if (ef->last > elem) {
         return eflist_nondecreasing; 
+    } else if (ef->largest < elem) {
+        return eflist_too_large;
     } else {
         int64_t index = ef->curr;
         int64_t mask = (1L << ef->s) - 1;
