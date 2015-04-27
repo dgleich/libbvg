@@ -69,16 +69,66 @@ bool write_bsmat_format(bvgraph *g, bvgraph_iterator *git, const char *outname) 
     return true;
 }
 
+bool write_badj_format(bvgraph *g, bvgraph_iterator *git, const char *outname) {
+    FILE *f = fopen(outname,"w");
+    if (!f) {
+        fprintf(stderr, "error: cannot open %s for writing", outname);
+        return false;
+    }
+    
+    int64_t n = (int64_t) g->n;
+    int64_t m = (int64_t) g->m;
+
+    fwrite(&n, sizeof(int64_t), 1, f);
+    fwrite(&m, sizeof(int64_t), 1, f);
+    
+    if (m > 4294967296)
+    {
+        int64_t *links; uint64_t i, d;
+        for (; 
+            bvgraph_iterator_valid(git); 
+            bvgraph_iterator_next(git))
+        {
+            bvgraph_iterator_outedges(git, &links, &d);
+            fwrite(&d, sizeof(int64_t), 1, f);
+            for (i = 0; i < d; i++) {
+                fwrite(&links[i], sizeof(int64_t), 1, f);
+            }
+        }
+    }
+    else
+    {
+        int64_t *links; uint64_t i, d;
+        uint32_t val;
+        for (;
+             bvgraph_iterator_valid(git);
+             bvgraph_iterator_next(git))
+        {
+            bvgraph_iterator_outedges(git, &links, &d);
+            val = (uint32_t) d;
+            fwrite(&val, sizeof(uint32_t), 1, f);
+            for (i = 0; i < d; i++)
+            {
+                val = (uint32_t) links[i];
+                fwrite(&val, sizeof(uint32_t), 1, f);
+            }
+        }
+    }
+    
+    fclose(f);
+    return true;
+}
+
 int main(int argc, char **argv) {
     if (argc < 2) {
-        cout << "usage: bvgraph2smat bvgraph [-f bsmat|smat] [-o outputname]" 
+        cout << "usage: bvgraph2smat bvgraph [-f bsmat|smat|badj] [-o outputname]" 
              << endl;
     }
     
     const char* bvgraphname = argv[1];
     
     const char* formatstr = "smat";
-    enum { SMAT_FORMAT=1, BSMAT_FORMAT } format=SMAT_FORMAT;
+    enum { SMAT_FORMAT=1, BSMAT_FORMAT, BADJ_FORMAT } format=SMAT_FORMAT;
     
     string outputname;
     
@@ -94,13 +144,18 @@ int main(int argc, char **argv) {
                 } else if (strcmp(argv[argi+1],"bsmat") == 0) {
                     formatstr = "bsmat";
                     format = BSMAT_FORMAT;
+                } else if (strcmp(argv[argi+1],"badj") == 0) {
+                    formatstr = "badj";
+                    format = BADJ_FORMAT;
                 } else {
                     cout << "unknown format \'" 
                          << argv[argi+1] << "\'" << endl;
                     return (-1);
                 }
+                argi++;
             } else if (strcmp(argv[argi], "-o") == 0) {
                 outputname = argv[argi+1];
+                argi++;
             } else {
                 cout << "unknown argument \'" 
                      << argv[argi] << "\'" << endl;
@@ -140,6 +195,9 @@ int main(int argc, char **argv) {
             break;
         case BSMAT_FORMAT:
             write_bsmat_format(&g, &git, outputname.c_str());
+            break;
+        case BADJ_FORMAT:
+            write_badj_format(&g, &git, outputname.c_str());
             break;
     }
     
