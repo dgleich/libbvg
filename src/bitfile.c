@@ -169,6 +169,32 @@ int bitfile_open(FILE* f, bitfile* bf)
 }
 
 /**
+ * Wrap a file pointer as a bitstream.  The wrapping provides
+ * access to the sequential bits of the file.
+ *
+ * @param[in] f the open and valid file pointer.  
+ * @param[in] bf the newly created bitfile structure.
+ * @return 0 if everything succeeded
+ * 
+ * @code
+ * bitfile bf;
+ * int state;
+ * state = bitfile_open_filename("myfile",&bf);
+ * if (state) { // error! }
+ * @endcode
+ */
+int bitfile_open_filename(const char* filename, bitfile* bf)
+{
+    FILE *f = fopen(filename, "rb");
+    if (f) {
+        return bitfile_open(f, bf);
+    } else {
+        return 1;
+    }
+}
+
+
+/**
  * Wrap an exisiting array as a bitfile.  The result is something that acts
  * just like a bitfile, but never actually touches the underlying disk.
  *

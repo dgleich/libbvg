@@ -72,6 +72,8 @@ struct bitfile_tag {
  */
 typedef struct bitfile_tag bitfile;
 
+
+int bitfile_open_filename(const char* filename, bitfile* bf);
 int bitfile_open(FILE* f, bitfile* bf);
 int bitfile_map(unsigned char* mem, size_t len, bitfile *bf);
 int bitfile_close(bitfile* bf);

@@ -263,6 +263,9 @@ int bvgraph_load_external(bvgraph *g,
                           unsigned char *gmemory, size_t gmemsize,
                           unsigned long long* offsets, int offsetssize);
 
+int bvgraph_read_fully_edges(const char* filename, unsigned int filenamelen,
+                             int64_t *n, int64_t *nedges, int64_t *src, int64_t *dst);
+
 int bvgraph_close(bvgraph* g);
 int bvgraph_nonzero_iterator(bvgraph* g, bvgraph_iterator *i);
 int bvgraph_random_access_iterator(bvgraph* g, bvgraph_random_iterator *ri);

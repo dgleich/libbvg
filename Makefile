@@ -6,9 +6,18 @@
 # 4 February 2008
 #
 
+UNAME := $(shell uname)
+ifeq ($(UNAME),Darwin)
+	SHAREDLIB_EXT := dylib
+	SHAREDLIB_FLAG := -dynamiclib
+else
+    SHAREDLIB_EXT := so
+    SHAREDLIB_FLAG := -shared
+endif
 
 
 LIBBVGNAME := libbvg.a
+SHAREDLIBBVGNAME := libbvg.$(SHAREDLIB_EXT)
 LIBBVG_SRC_DIR := src
 BVPAGERANKNAME := bvpr
 
@@ -44,6 +53,11 @@ lib: $(LIBBVGNAME)
 
 $(LIBBVGNAME): $(LIBBVG_FULL_SRC:.c=.o)
 	ar -rcs $(LIBBVGNAME) $(LIBBVG_FULL_SRC:.c=.o)
+	
+shared: $(SHAREDLIBBVGNAME)
+
+$(SHAREDLIBBVGNAME): $(LIBBVG_FULL_SRC:.c=.o)
+	$(CC) $(SHAREDLIB_FLAG) -o $(SHAREDLIBBVGNAME) $(LIBBVG_FULL_SRC:.c=.o)
 
 clean:
 	$(RM) $(LIBBVG_FULL_SRC:.c=.o)  $(LIBBVGNAME) $(ALLPROGS) $(ALLOBJS)
@@ -64,6 +78,8 @@ ALLOBJS += tools/bvgraph2smat/bvgraph2smat.o
 ALLPROGS += bvgraph2smat
 
 everything: lib $(BVPAGERANKNAME) bvgraph2smat test python
+
+
 
 test: lib
 	cd test && $(MAKE) small
