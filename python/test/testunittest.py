@@ -32,16 +32,16 @@ class BVGraphTest(unittest.TestCase):
         """
         try:
             difference1 = set1.difference(set2)
-        except TypeError, e:
+        except TypeError as e:
             self.fail('invalid type when attempting set difference: %s' % e)
-        except AttributeError, e:
+        except AttributeError as e:
             self.fail('first argument does not support set difference: %s' % e)
 
         try:
             difference2 = set2.difference(set1)
-        except TypeError, e:
+        except TypeError as e:
             self.fail('invalid type when attempting set difference: %s' % e)
-        except AttributeError, e:
+        except AttributeError as e:
             self.fail('second argument does not support set difference: %s' % e)
 
         if not (difference1 or difference2):
@@ -70,7 +70,7 @@ class BVGraphTest(unittest.TestCase):
         self.check_nedges = int(header[2])
         self.assertEqual(self.check_nnodes, int(header[1])) # make sure it's square
         self.checkgraph = {}
-        for i in xrange(0, self.check_nnodes):
+        for i in range(0, self.check_nnodes):
             self.checkgraph[i] = set()
         for line in smatfile:
             parts = line.split()
@@ -168,7 +168,7 @@ class BVGraphTest(unittest.TestCase):
 
     def check_random_iterator(self, graph, num):
         random.seed()
-        sampled_nodes = random.sample(xrange(0, graph.nverts-1), num)
+        sampled_nodes = random.sample(range(0, graph.nverts-1), num)
         for src, successors in graph.random_iterator(sampled_nodes):
             gneigh = set([dst for dst in successors])
             self.assertSetEqual(self.checkgraph[src], gneigh)
