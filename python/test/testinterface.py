@@ -15,16 +15,16 @@ node = int(sys.argv[2])  # node is given
 ## test successors and degree
 a = G2.successors(node)
 for v in a:
-    print v
-print 'Degree = ' + str(G2.out_degree(node))
+    print(v)
+print('Degree = ' + str(G2.out_degree(node)))
 
 ## test direct access to number of nodes and edges
-print G1.nverts
-print G1.nedges
+print(G1.nverts)
+print(G1.nedges)
 
 ## test iteration in G
 for v in G1:
-    print v
+    print(v)
 #    src = v.curr
 #    deg = v.degree
 #    print 'src = ' + str(src) + ', degree = ' + str(deg)
@@ -34,8 +34,8 @@ for v in G1:
 
 ## test random access for vertex
 v = G2.vertex(node)
-print v.curr
-print v.degree
+print(v.curr)
+print(v.degree)
 
 #for neigh in v:
 #    dst = neigh

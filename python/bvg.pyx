@@ -87,18 +87,14 @@ cdef class BVGraph:
         if not isinstance(filename, str):
             raise NameError('Filename is not a string.')
 
-        if isinstance(offset_step, int):
-            self.offset_step = offset_step
-            rval = self._cload(filename, offset_step)
-            self.filename = filename
-            if rval == 1:
-                raise IOError()
-        else:
-            self.offset_step = 1
-            rval = self._cload(filename, self.offset_step)
-            self.filename = filename
-            if rval == 1:
-                raise IOError()
+        step = offset_step if isinstance(offset_step, int) else 1
+        file = filename.encode('utf-8')
+        rval = self.load(file, step)
+        if rval == 1:
+            raise IOError()
+
+        self.offset_step = step
+        self.filename = file
     
     ### destructor
     def __dealloc__(self):
