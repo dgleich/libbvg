@@ -82,7 +82,7 @@ bool write_badj_format(bvgraph *g, bvgraph_iterator *git, const char *outname) {
     fwrite(&n, sizeof(int64_t), 1, f);
     fwrite(&m, sizeof(int64_t), 1, f);
     
-    if (m > 4294967296)
+    if (n > 4294967296)
     {
         int64_t *links; uint64_t i, d;
         for (; 
